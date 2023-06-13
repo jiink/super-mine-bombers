@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include "include/gameState.h"
 
 void borderPlayfield(Cell playfield[FIELD_W][FIELD_H])
@@ -16,14 +17,24 @@ void borderPlayfield(Cell playfield[FIELD_W][FIELD_H])
 }
 
 void initPlayfield(Cell playfield[FIELD_W][FIELD_H]){
-    borderPlayfield(playfield);
+    // Fill with air
     for (int col = 0; col < FIELD_W; col++)
     {
         for (int row = 0; row < FIELD_H; row++)
         {
-            // todo
+            playfield[col][row].type = AIR;
+            playfield[col][row].health = 100;
         }
     }
+
+    borderPlayfield(playfield);
+    // for (int col = 0; col < FIELD_W; col++)
+    // {
+    //     for (int row = 0; row < FIELD_H; row++)
+    //     {
+    //         // todo
+    //     }
+    // }
 }
 
 void initGameState(GameState* state)

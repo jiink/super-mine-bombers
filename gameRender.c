@@ -15,14 +15,17 @@ void drawPlayfield(Cell playfield[FIELD_W][FIELD_H])
     {
         for (int row = 0; row < FIELD_H; row++)
         {
-            CellType thisCell = playfield[row][col].type;
-            if (thisCell == AIR) continue;
-            const int size = 10;
-            const int padding = 1;
-            Vector2 pos = { col * (size + padding), row * (size + padding) };
-            Vector2 tileSize = { size, size };
-            Color color = cellColorLookup[thisCell];
-            DrawRectangleV(pos, tileSize, color);
+            printf("%02X", playfield[col][row].type);
+            // CellType thisCell = playfield[row][col].type;
+            // if (thisCell == AIR) continue;
+            // const int size = 10;
+            // const int padding = 1;
+            // Vector2 pos = { col * (size + padding), row * (size + padding) };
+            // Vector2 tileSize = { size, size };
+            // Color color = cellColorLookup[thisCell];
+            // DrawRectangleV(pos, tileSize, color);
         }
+        printf("\n");
     }
+    //DrawCircle(100, 100, 50, BLUE);
 }

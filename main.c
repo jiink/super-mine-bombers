@@ -9,6 +9,8 @@ int main(void)
 {
     GameState state;
     initGameState(state);
+
+    drawPlayfield(state.playfield);
     
     const int screenWidth = 1280;
     const int screenHeight = 720;
