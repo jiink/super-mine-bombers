@@ -1,3 +1,5 @@
+#include "include/gameState.h"
+
 void borderPlayfield(Cell playfield[FIELD_W][FIELD_H])
 {
     for (int i = 0; i < FIELD_W; i++)
@@ -14,7 +16,7 @@ void borderPlayfield(Cell playfield[FIELD_W][FIELD_H])
 }
 
 void initPlayfield(Cell playfield[FIELD_W][FIELD_H]){
-    borderPlayfield();
+    borderPlayfield(playfield);
     for (int col = 0; col < FIELD_W; col++)
     {
         for (int row = 0; row < FIELD_H; row++)

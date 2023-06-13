@@ -1,6 +1,8 @@
 #ifndef GAMESTATE_H
 #define GAMESTATE_H
 
+#include <stdbool.h>
+
 #define MAX_PLAYERS 4
 #define FIELD_W 64
 #define FIELD_H 64
@@ -13,7 +15,8 @@ typedef enum {
     DIRT,
     STONE,
     TREASURE,
-    WALL
+    WALL,
+    NUM_CELL_TYPES
 } CellType;
 
 // Struct to represent a cell in the playfield
