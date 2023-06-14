@@ -8,7 +8,7 @@
 int main(void)
 {
     GameState state;
-    initGameState(state);
+    initGameState(&state);
 
     drawPlayfield(state.playfield);
     

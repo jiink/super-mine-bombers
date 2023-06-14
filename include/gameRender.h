@@ -7,6 +7,6 @@
 Color cellColorLookup[NUM_CELL_TYPES];
 
 void initCellColorLookup();
-void drawPlayfield(Cell playfield[FIELD_W][FIELD_H]);
+void drawPlayfield(Cell playfield[FIELD_W]);
 
 #endif // GAMERENDER_H

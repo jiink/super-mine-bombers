@@ -1,5 +1,12 @@
 {
     "files.associations": {
-        "gamestate.h": "c"
-    }
+		"gamestate.h": "c",
+		"stdio.h": "c",
+		"stdbool.h": "c"
+	},
+	"workbench.colorCustomizations": {
+		"activityBar.background": "#511931",
+		"titleBar.activeBackground": "#722345",
+		"titleBar.activeForeground": "#FEFCFD"
+	}
 }
