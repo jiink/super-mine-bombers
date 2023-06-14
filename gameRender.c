@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include "include/gameRender.h"
-
+#include "include/raymath.h"
 
 Camera2D camera = { 0 };
 
@@ -80,7 +80,7 @@ void drawGameState(GameState *state)
 			drawPlayfield(state->playfield);
 			drawPlayers(state->players);
 
-			updateCamera(&camera, state->players, 0.5);
+			updateCamera(&camera, state->players, 0.1);
 			camera.zoom += ((float)GetMouseWheelMove() * 3.0f);
 
 			if (camera.zoom > 50.0f) camera.zoom = 50.0f;
