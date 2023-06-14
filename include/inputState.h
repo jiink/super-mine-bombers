@@ -7,6 +7,7 @@
 typedef struct {
     Vector2 direction;
     bool attack;
+    bool attackPressed;
 } InputState;
 
 void initInputState(InputState* inputState);

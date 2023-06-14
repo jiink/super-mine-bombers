@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <math.h>
 #include "include/gameRender.h"
 #include "include/raymath.h"
 
@@ -10,7 +11,7 @@ void initGameRender(int screenWidth, int screenHeight)
 	camera.target = (Vector2){ 0, 0 };
 	camera.offset = (Vector2){ screenWidth / 2.0f, screenHeight / 2.0f };
 	camera.rotation = 0.0f;
-	camera.zoom = 10.0f;
+	camera.zoom = 20.0f;
 }
 
 void initCellColorLookup()
@@ -37,7 +38,7 @@ void drawPlayfield(Cell playfield[FIELD_H][FIELD_W])
             const float padding = 0.0f;
             Vector2 pos = { col * (CELL_SCALE + padding), row * (CELL_SCALE + padding) };
 			Rectangle cellRect = { pos.x, pos.y, CELL_SCALE, CELL_SCALE };
-            Color color = cellColorLookup[thisCell];
+            Color color = ColorBrightness(cellColorLookup[thisCell], -(100 - playfield[row][col].health) / 100.0f);
             DrawRectangleRec(cellRect, color);
         }
     }
@@ -52,6 +53,17 @@ void drawPlayers(Player players[MAX_PLAYERS])
 		DrawRectangleRec(hitboxVis, PINK);
 		const float diameter = 0.35f;
 		DrawCircleV(players[i].position, diameter, players[i].color);
+	}
+}
+
+void drawBombs(Bomb bombs[MAX_BOMBS])
+{
+	for (int i = 0; i < MAX_BOMBS; i++)
+	{
+		if (!bombs[i].active) continue;
+		float diameter = sinf(bombs[i].fuseTimer * 30.0f) * 0.1f + 0.2f;
+		DrawCircleV(bombs[i].position, diameter + 0.1f, WHITE);
+		DrawCircleV(bombs[i].position, diameter, MAGENTA);
 	}
 }
 
@@ -79,6 +91,7 @@ void drawGameState(GameState *state, InputState *input)
 					
 			drawPlayfield(state->playfield);
 			drawPlayers(state->players);
+			drawBombs(state->bombs);
 
 			updateCamera(&camera, state->players, 0.1);
 			camera.zoom += ((float)GetMouseWheelMove() * 3.0f);

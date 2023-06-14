@@ -6,6 +6,7 @@ void initInputState(InputState *inputState)
     inputState->direction.x = 0;
     inputState->direction.y = 0;
     inputState->attack = false;
+    inputState->attackPressed = false;
 }
 
 void updateInputState(InputState *inputState)
@@ -13,6 +14,7 @@ void updateInputState(InputState *inputState)
     inputState->direction.x = 0;
     inputState->direction.y = 0;
     inputState->attack = false;
+    inputState->attackPressed = false;
 
     if (IsKeyDown(KEY_W))
     {
@@ -37,6 +39,10 @@ void updateInputState(InputState *inputState)
     if (IsKeyDown(KEY_SPACE))
     {
         inputState->attack = true;
+    }
+    if (IsKeyPressed(KEY_SPACE))
+    {
+        inputState->attackPressed = true;
     }
 
     

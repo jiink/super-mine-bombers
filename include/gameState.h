@@ -8,7 +8,8 @@
 #define MAX_PLAYERS 4
 #define FIELD_W 64
 #define FIELD_H 64
-#define MAX_WEAPONS 5
+#define INVENTORY_SIZE 5
+
 #define MAX_BOMBS 32
 #define CELL_SCALE 1.0f // How wide and tall is a cell in float units?
 #define PLAYER_SCALE 0.75f // Width and height of the player collision in float units
@@ -33,7 +34,8 @@ typedef struct {
 typedef enum {
     BOMB,
     MINE,
-    SHARP_BOMB
+    SHARP_BOMB,
+    MAX_WEAPONS
 } WeaponType;
 
 // Struct to represent a weapon in the inventory
@@ -49,16 +51,16 @@ typedef struct {
     Vector2 position;
     Color color;
     int score;
-    WeaponSlot inventory[MAX_WEAPONS];
+    WeaponSlot inventory[INVENTORY_SIZE];
+    int activeSlot;
 } Player;
 
 // Struct to represent a bomb entity
 typedef struct {
     bool active;
-    float positionX;
-    float positionY;
-    int fuseTimer;
-    void (*detonationFunc)();
+    Vector2 position;
+    float fuseTimer;
+    void (*detonationFunc)(Vector2, float, Cell[FIELD_H][FIELD_W]);
 } Bomb;
 
 // Struct to represent the game state
