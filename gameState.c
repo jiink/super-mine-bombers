@@ -37,7 +37,34 @@ void initPlayfield(Cell playfield[FIELD_H][FIELD_W]){
     // }
 }
 
+void initPlayers(Player players[MAX_PLAYERS])
+{
+	const Color playerColors[MAX_PLAYERS] = { RED, BLUE, GREEN, YELLOW };
+	for (int i = 0; i < MAX_PLAYERS; i++)
+	{
+		players[i].position.x = 1.5;
+		players[i].position.y = 1.5;
+		players[i].health = 100;
+		players[i].score = 0;
+		players[i].active = false;
+		players[i].color = playerColors[i];
+	}
+
+	players[0].active = true;
+}
+
 void initGameState(GameState* state)
 {
     initPlayfield(state->playfield);
+	initPlayers(state->players);
+}
+
+void updateGameState(GameState* state)
+{
+	// Player control (WASD)
+	const float speed = 10.0f;
+	if (IsKeyDown(KEY_W)) state->players[0].position.y -= speed * GetFrameTime();
+	if (IsKeyDown(KEY_S)) state->players[0].position.y += speed * GetFrameTime();
+	if (IsKeyDown(KEY_A)) state->players[0].position.x -= speed * GetFrameTime();
+	if (IsKeyDown(KEY_D)) state->players[0].position.x += speed * GetFrameTime();
 }

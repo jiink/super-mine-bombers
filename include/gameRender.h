@@ -6,9 +6,11 @@
 
 Color cellColorLookup[NUM_CELL_TYPES];
 
-void initGameRender();
+void initGameRender(int screenWidth, int screenHeight);
 void initCellColorLookup();
 void drawGameState(GameState *gameState);
 void drawPlayfield(Cell playfield[FIELD_H][FIELD_W]);
+void drawPlayers(Player players[MAX_PLAYERS]);
+void drawPlayer(Player *player);
 
 #endif // GAMERENDER_H

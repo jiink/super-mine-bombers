@@ -2,6 +2,7 @@
 #define GAMESTATE_H
 
 #include <stdbool.h>
+#include "raylib.h"
 
 #define MAX_PLAYERS 4
 #define FIELD_W 64
@@ -42,9 +43,8 @@ typedef struct {
 typedef struct {
     bool active;
     int health;
-    float positionX;
-    float positionY;
-    int color;
+    Vector2 position;
+    Color color;
     int score;
     WeaponSlot inventory[MAX_WEAPONS];
 } Player;
@@ -68,7 +68,9 @@ typedef struct {
 
 
 void initGameState(GameState* state);
+void updateGameState(GameState* state);
 void borderPlayfield(Cell playfield[FIELD_H][FIELD_W]);
 void initPlayfield(Cell playfield[FIELD_H][FIELD_W]);
+void initPlayers(Player players[MAX_PLAYERS]);
 
 #endif  // GAMESTATE_H

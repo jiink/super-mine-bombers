@@ -7,30 +7,22 @@
 
 int main(void)
 {
+	const int screenWidth = 1280;
+    const int screenHeight = 720;
+
     GameState state;
     initGameState(&state);
 
-	initGameRender();
+	initGameRender(screenWidth, screenHeight);
     
-    const int screenWidth = 1280;
-    const int screenHeight = 720;
-
     InitWindow(screenWidth, screenHeight, "Super Mine Bombers");
 
     SetTargetFPS(60);
     while (!WindowShouldClose())
     {
+		updateGameState(&state);
         
-        BeginDrawing();
-
-            ClearBackground(RAYWHITE);
-            
-			drawGameState(&state);
-            
-            drawPlayfield(state.playfield);
-
-        EndDrawing();
-        
+		drawGameState(&state);
     }
 
     CloseWindow();
