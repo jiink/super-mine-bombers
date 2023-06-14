@@ -10,13 +10,13 @@ void initCellColorLookup()
     cellColorLookup[WALL] = BLUE;
 }
 
-void drawPlayfield(Cell playfield[FIELD_W])
+void drawPlayfield(Cell playfield[FIELD_H][FIELD_W])
 {
     for (int col = 0; col < FIELD_W; col++)
     {
-        //for (int row = 0; row < FIELD_H; row++)
-        //{
-            printf("%02X", playfield[col].type);
+        for (int row = 0; row < FIELD_H; row++)
+        {
+            printf("%02X", playfield[row][col].type);
             // CellType thisCell = playfield[row][col].type;
             // if (thisCell == AIR) continue;
             // const int size = 10;
@@ -25,7 +25,7 @@ void drawPlayfield(Cell playfield[FIELD_W])
             // Vector2 tileSize = { size, size };
             // Color color = cellColorLookup[thisCell];
             // DrawRectangleV(pos, tileSize, color);
-        //}
+        }
         printf("\n");
     }
     //DrawCircle(100, 100, 50, BLUE);

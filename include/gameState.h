@@ -60,7 +60,7 @@ typedef struct {
 
 // Struct to represent the game state
 typedef struct {
-    Cell playfield[FIELD_W];
+    Cell playfield[FIELD_W][FIELD_H];
     Player players[MAX_PLAYERS];
     Bomb bombs[MAX_BOMBS]; // MAX_BOMBS is the maximum number of bombs allowed
     float roundTime;
@@ -68,7 +68,7 @@ typedef struct {
 
 
 void initGameState(GameState* state);
-void borderPlayfield(Cell playfield[FIELD_W]);
-void initPlayfield(Cell playfield[FIELD_W]);
+void borderPlayfield(Cell playfield[FIELD_H][FIELD_W]);
+void initPlayfield(Cell playfield[FIELD_H][FIELD_W]);
 
 #endif  // GAMESTATE_H
