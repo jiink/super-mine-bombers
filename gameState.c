@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include "include/gameState.h"
+#include "include/raymath.h"
 
 void borderPlayfield(Cell playfield[FIELD_H][FIELD_W])
 {
@@ -59,12 +60,14 @@ void initGameState(GameState* state)
 	initPlayers(state->players);
 }
 
-void updateGameState(GameState* state)
+void updateGameState(GameState* state, InputState* input)
 {
 	// Player control (WASD)
 	const float speed = 10.0f;
-	if (IsKeyDown(KEY_W)) state->players[0].position.y -= speed * GetFrameTime();
-	if (IsKeyDown(KEY_S)) state->players[0].position.y += speed * GetFrameTime();
-	if (IsKeyDown(KEY_A)) state->players[0].position.x -= speed * GetFrameTime();
-	if (IsKeyDown(KEY_D)) state->players[0].position.x += speed * GetFrameTime();
+	state->players[0].position = Vector2Add(state->players[0].position, Vector2Scale(input->direction, speed * GetFrameTime()));
+    // if (IsKeyDown(KEY_W)) state->players[0].position.y -= speed * GetFrameTime();
+	// if (IsKeyDown(KEY_S)) state->players[0].position.y += speed * GetFrameTime();
+	// if (IsKeyDown(KEY_A)) state->players[0].position.x -= speed * GetFrameTime();
+	// if (IsKeyDown(KEY_D)) state->players[0].position.x += speed * GetFrameTime();
+
 }

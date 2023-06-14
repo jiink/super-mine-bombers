@@ -3,12 +3,15 @@
 
 #include <stdbool.h>
 #include "raylib.h"
+#include "inputState.h"
 
 #define MAX_PLAYERS 4
 #define FIELD_W 64
 #define FIELD_H 64
 #define MAX_WEAPONS 5
 #define MAX_BOMBS 32
+#define CELL_SCALE 1.0f // How wide and tall is a cell in float units?
+#define PLAYER_SCALE 0.75f // Width and height of the player collision in float units
 
 // Enum to represent the type of a cell
 typedef enum {
@@ -68,7 +71,7 @@ typedef struct {
 
 
 void initGameState(GameState* state);
-void updateGameState(GameState* state);
+void updateGameState(GameState* state, InputState* input);
 void borderPlayfield(Cell playfield[FIELD_H][FIELD_W]);
 void initPlayfield(Cell playfield[FIELD_H][FIELD_W]);
 void initPlayers(Player players[MAX_PLAYERS]);

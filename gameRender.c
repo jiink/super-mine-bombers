@@ -34,11 +34,9 @@ void drawPlayfield(Cell playfield[FIELD_H][FIELD_W])
             
 			CellType thisCell = playfield[row][col].type;
             if (thisCell == AIR) continue;
-            const float size = 1.0f;
             const float padding = 0.0f;
-            Vector2 pos = { col * (size + padding), row * (size + padding) };
-            Vector2 tileSize = { size, size };
-			Rectangle cellRect = { pos.x, pos.y, tileSize.x, tileSize.y };
+            Vector2 pos = { col * (CELL_SCALE + padding), row * (CELL_SCALE + padding) };
+			Rectangle cellRect = { pos.x, pos.y, CELL_SCALE, CELL_SCALE };
             Color color = cellColorLookup[thisCell];
             DrawRectangleRec(cellRect, color);
         }
@@ -50,6 +48,8 @@ void drawPlayers(Player players[MAX_PLAYERS])
 	for (int i = 0; i < MAX_PLAYERS; i++)
 	{
 		if (!players[i].active) continue;
+		const Rectangle hitboxVis = { players[i].position.x - PLAYER_SCALE / 2.0f, players[i].position.y - PLAYER_SCALE / 2.0f, PLAYER_SCALE, PLAYER_SCALE };
+		DrawRectangleRec(hitboxVis, PINK);
 		const float diameter = 0.35f;
 		DrawCircleV(players[i].position, diameter, players[i].color);
 	}
@@ -70,7 +70,7 @@ void updateCamera(Camera2D *cam, Player players[MAX_PLAYERS], float smoothness)
 }
 
 
-void drawGameState(GameState *state)
+void drawGameState(GameState *state, InputState *input)
 {
 	BeginDrawing();
 		BeginMode2D(camera);
@@ -87,5 +87,10 @@ void drawGameState(GameState *state)
 			else if (camera.zoom < 1.0f) camera.zoom = 1.0f;
 
 		EndMode2D();
+
+		// UI
+		char inputReport[128];
+		sprintf(inputReport, "Direction: %f, %f\nAttack: %d", input->direction.x, input->direction.y, input->attack);
+		DrawText(inputReport, 10, 10, 20, GRAY);
 	EndDrawing();
 }
