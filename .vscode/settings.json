@@ -2,7 +2,8 @@
     "files.associations": {
 		"gamestate.h": "c",
 		"stdio.h": "c",
-		"stdbool.h": "c"
+		"stdbool.h": "c",
+		"raylib.h": "c"
 	},
 	"workbench.colorCustomizations": {
 		"activityBar.background": "#511931",

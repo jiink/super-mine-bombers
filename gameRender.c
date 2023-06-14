@@ -1,6 +1,11 @@
 #include "include/gameRender.h"
 #include <stdio.h>
 
+void initGameRender()
+{
+	initCellColorLookup();
+}
+
 void initCellColorLookup()
 {
     cellColorLookup[AIR] = ColorAlpha(RED, 0.5);
@@ -16,17 +21,19 @@ void drawPlayfield(Cell playfield[FIELD_H][FIELD_W])
     {
         for (int row = 0; row < FIELD_H; row++)
         {
-            printf("%02X", playfield[row][col].type);
-            // CellType thisCell = playfield[row][col].type;
-            // if (thisCell == AIR) continue;
-            // const int size = 10;
-            // const int padding = 1;
-            // Vector2 pos = { col * (size + padding), row * (size + padding) };
-            // Vector2 tileSize = { size, size };
-            // Color color = cellColorLookup[thisCell];
-            // DrawRectangleV(pos, tileSize, color);
+            CellType thisCell = playfield[row][col].type;
+            if (thisCell == AIR) continue;
+            const int size = 10;
+            const int padding = 1;
+            Vector2 pos = { col * (size + padding), row * (size + padding) };
+            Vector2 tileSize = { size, size };
+            Color color = cellColorLookup[thisCell];
+            DrawRectangleV(pos, tileSize, color);
         }
-        printf("\n");
     }
-    //DrawCircle(100, 100, 50, BLUE);
+}
+
+void drawGameState(GameState *state)
+{
+	drawPlayfield(state->playfield);
 }

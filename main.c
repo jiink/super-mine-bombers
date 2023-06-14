@@ -10,7 +10,7 @@ int main(void)
     GameState state;
     initGameState(&state);
 
-    drawPlayfield(state.playfield);
+	initGameRender();
     
     const int screenWidth = 1280;
     const int screenHeight = 720;
@@ -25,9 +25,9 @@ int main(void)
 
             ClearBackground(RAYWHITE);
             
-            DrawRectangle(100, 100, 100, 100, RED);
+			drawGameState(&state);
             
-            //drawPlayfield(state.playfield);
+            drawPlayfield(state.playfield);
 
         EndDrawing();
         
