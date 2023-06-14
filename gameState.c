@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdbool.h>
 #include "include/gameState.h"
 #include "include/raymath.h"
 
@@ -18,24 +19,23 @@ void borderPlayfield(Cell playfield[FIELD_H][FIELD_W])
 }
 
 void initPlayfield(Cell playfield[FIELD_H][FIELD_W]){
-    // Fill with air
+    // Fill whole field
     for (int col = 0; col < FIELD_W; col++)
     {
         for (int row = 0; row < FIELD_H; row++)
         {
-            playfield[row][col].type = AIR;
+            playfield[row][col].type = DIRT;
             playfield[row][col].health = 100;
         }
     }
 
     borderPlayfield(playfield);
-    // for (int col = 0; col < FIELD_W; col++)
-    // {
-    //     for (int row = 0; row < FIELD_H; row++)
-    //     {
-    //         // todo
-    //     }
-    // }
+    
+    for (int i = 1; i < 5; i++)
+    {
+        playfield[1][i].type = AIR;
+        playfield[i][1].type = AIR;
+    }
 }
 
 void initPlayers(Player players[MAX_PLAYERS])
@@ -60,14 +60,36 @@ void initGameState(GameState* state)
 	initPlayers(state->players);
 }
 
+static bool isPointInSolidCell(Vector2 point, Cell playfield[FIELD_H][FIELD_W])
+{
+    // Get the cell coordinates of the point
+    int col = (int)point.x;
+    int row = (int)point.y;
+    
+    // Check if the cell is solid
+    return playfield[row][col].type != AIR;
+}
+
 void updateGameState(GameState* state, InputState* input)
 {
 	// Player control (WASD)
 	const float speed = 10.0f;
-	state->players[0].position = Vector2Add(state->players[0].position, Vector2Scale(input->direction, speed * GetFrameTime()));
-    // if (IsKeyDown(KEY_W)) state->players[0].position.y -= speed * GetFrameTime();
-	// if (IsKeyDown(KEY_S)) state->players[0].position.y += speed * GetFrameTime();
-	// if (IsKeyDown(KEY_A)) state->players[0].position.x -= speed * GetFrameTime();
-	// if (IsKeyDown(KEY_D)) state->players[0].position.x += speed * GetFrameTime();
+    Vector2 playerPos = state->players[0].position;
+    Vector2 desiredPosition = Vector2Add(playerPos, Vector2Scale(input->direction, speed * GetFrameTime()));
+	
+    // Check if the player (point) is trying to move into a solid cell (rectanlge)
+    if (isPointInSolidCell((Vector2){desiredPosition.x, playerPos.y}, state->playfield))
+    {
+        // If so, don't move horizontally
+        desiredPosition.x = playerPos.x;
+    }
+    if (isPointInSolidCell((Vector2){playerPos.x, desiredPosition.y}, state->playfield))
+    {
+        // If so, don't move vertically
+        desiredPosition.y = playerPos.y;
+    }
+
+    state->players[0].position = desiredPosition;
+
 
 }

@@ -30,7 +30,7 @@ void updateInputState(InputState *inputState)
     {
         inputState->direction.x = 1;
     }
-    //printf("Direction: %f, %f\nAttack: %d\n", inputState->direction.x, inputState->direction.y, inputState->attack);
+    
     // Normalize the direction
     inputState->direction = Vector2Normalize(inputState->direction);
 
