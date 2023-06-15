@@ -31,7 +31,7 @@ void drawPlayfield(Cell playfield[FIELD_H][FIELD_W])
         {
 			const Vector2 cell_pos = {
 				col * CELL_H_SPACING * CELL_SCALE,
-				row * CELL_V_SPACING * CELL_SCALE - (0.5 * CELL_V_SPACING * col * CELL_SCALE)
+				row * CELL_V_SPACING * CELL_SCALE + (0.5 * CELL_V_SPACING * col * CELL_SCALE)
 			};
 			
 			// Draw a dot here
@@ -53,10 +53,14 @@ void drawPlayers(Player players[MAX_PLAYERS])
 	for (int i = 0; i < MAX_PLAYERS; i++)
 	{
 		if (!players[i].active) continue;
-		const Rectangle hitboxVis = { players[i].position.x - PLAYER_SCALE / 2.0f, players[i].position.y - PLAYER_SCALE / 2.0f, PLAYER_SCALE, PLAYER_SCALE };
-		DrawRectangleRec(hitboxVis, PINK);
+		//const Rectangle hitboxVis = { players[i].position.x - PLAYER_SCALE / 2.0f, players[i].position.y - PLAYER_SCALE / 2.0f, PLAYER_SCALE, PLAYER_SCALE };
+		//DrawRectangleRec(hitboxVis, PINK);
 		const float diameter = 0.35f;
-		DrawCircleV(players[i].position, diameter, players[i].color);
+		Vector2 drawPos = {
+			players[i].position.x - CELL_H_SPACING / 2.0f,
+			players[i].position.y - CELL_V_SPACING / 2.0f
+		};
+		DrawCircleV(drawPos, diameter, players[i].color);
 	}
 }
 
