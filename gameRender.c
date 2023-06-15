@@ -1,3 +1,5 @@
+// hex stuff reference: https://www.redblobgames.com/grids/hexagons/
+
 #include <stdio.h>
 #include <math.h>
 #include "include/gameRender.h"
@@ -53,12 +55,10 @@ void drawPlayers(Player players[MAX_PLAYERS])
 	for (int i = 0; i < MAX_PLAYERS; i++)
 	{
 		if (!players[i].active) continue;
-		//const Rectangle hitboxVis = { players[i].position.x - PLAYER_SCALE / 2.0f, players[i].position.y - PLAYER_SCALE / 2.0f, PLAYER_SCALE, PLAYER_SCALE };
-		//DrawRectangleRec(hitboxVis, PINK);
-		const float diameter = 0.35f;
+		const float diameter = 0.15f;
 		Vector2 drawPos = {
-			players[i].position.x - CELL_H_SPACING / 2.0f,
-			players[i].position.y - CELL_V_SPACING / 2.0f
+			players[i].position.x,
+			players[i].position.y
 		};
 		DrawCircleV(drawPos, diameter, players[i].color);
 	}
@@ -88,7 +88,6 @@ void updateCamera(Camera2D *cam, Player players[MAX_PLAYERS], float smoothness)
 	cam->offset = Vector2Subtract(cam->offset, Vector2Subtract(newPosition, cam->target));
 	cam->target = newPosition;
 }
-
 
 void drawGameState(GameState *state, InputState *input)
 {
