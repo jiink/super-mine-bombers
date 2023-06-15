@@ -12,6 +12,9 @@
 
 #define MAX_BOMBS 32
 #define CELL_SCALE 1.0f // How wide and tall is a cell in float units?
+#define CELL_H_SPACING (1.0f * sqrtf(3.0f) * 0.5f)
+#define CELL_V_SPACING 1.0f
+
 #define PLAYER_SCALE 0.75f // Width and height of the player collision in float units
 
 // Enum to represent the type of a cell

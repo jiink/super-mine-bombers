@@ -29,17 +29,21 @@ void drawPlayfield(Cell playfield[FIELD_H][FIELD_W])
     {
         for (int row = 0; row < FIELD_H; row++)
         {
+			const Vector2 cell_pos = {
+				col * CELL_H_SPACING * CELL_SCALE,
+				row * CELL_V_SPACING * CELL_SCALE - (0.5 * CELL_V_SPACING * col * CELL_SCALE)
+			};
+			
 			// Draw a dot here
-			const Rectangle dot = { col, row, 0.1, 0.1 };
+			const Rectangle dot = { cell_pos.x, cell_pos.y, 0.1, 0.1 };
 			DrawRectangleRec(dot, BLACK);
             
 			CellType thisCell = playfield[row][col].type;
-            if (thisCell == AIR) continue;
-            const float padding = 0.0f;
-            Vector2 pos = { col * (CELL_SCALE + padding), row * (CELL_SCALE + padding) };
-			Rectangle cellRect = { pos.x, pos.y, CELL_SCALE, CELL_SCALE };
+            if (thisCell == AIR)
+				continue;
+
             Color color = ColorBrightness(cellColorLookup[thisCell], -(100 - playfield[row][col].health) / 100.0f);
-            DrawRectangleRec(cellRect, color);
+            DrawPoly(cell_pos, 6, CELL_SCALE * (2.0/3.0) * (sqrt(3.0)/2.0), 30.0, color);
         }
     }
 }
