@@ -43,7 +43,7 @@ void drawPlayfield(Cell playfield[FIELD_H][FIELD_W])
 				continue;
 
             Color color = ColorBrightness(cellColorLookup[thisCell], -(100 - playfield[row][col].health) / 100.0f);
-            DrawPoly(cell_pos, 6, CELL_SCALE * (2.0/3.0) * (sqrt(3.0)/2.0), 30.0, color);
+            DrawPoly(cell_pos, 6, CELL_SCALE * (2.0/3.0) * (SQRT_3/2.0), 30.0, color);
         }
     }
 }
