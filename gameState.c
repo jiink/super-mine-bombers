@@ -3,6 +3,65 @@
 #include "include/gameState.h"
 #include "include/raymath.h"
 
+typedef struct Cube
+{
+	float q;
+	float r;
+	float s;
+} Cube;
+
+typedef struct Axial
+{
+	float q;
+	float r;
+} Axial;
+
+Cube cubeRound(Cube frac)
+{
+	float q = round(frac.q);
+	float r = round(frac.r);
+	float s = round(frac.s);
+
+	float qDiff = fabs(q - frac.q);
+	float rDiff = fabs(r - frac.r);
+	float sDiff = fabs(s - frac.s);
+
+	if (qDiff > rDiff && qDiff > sDiff)
+	{
+		q = -r - s;
+	}
+	else if (rDiff > sDiff)
+	{
+		r = -q - s;
+	}
+	else
+	{
+		s = -q - r;
+	}
+
+	return (Cube){q, r, s};
+}
+
+Axial cubeToAxial(Cube cube)
+{
+	float q = cube.q;
+	float r = cube.r;
+	return (Axial){ q, r };
+}
+
+Cube axialToCube(Axial hex)
+{
+	float q = hex.q;
+	float r = hex.r;
+	float s = -q - r;
+	return (Cube){ q, r, s };
+}
+
+Axial axialRound(Axial hex)
+{
+	return cubeToAxial(cubeRound(axialToCube(hex)));
+}
+
 int clamp(int value, int min, int max)
 {
 	if (value < min)
@@ -19,13 +78,30 @@ int clamp(int value, int min, int max)
 	}
 }
 
-void toCellCoords(Vector2 point, int *col, int *row)
+float clampf(float value, float min, float max)
+{
+	if (value < min)
+	{
+		return min;
+	}
+	else if (value > max)
+	{
+		return max;
+	}
+	else
+	{
+		return value;
+	}
+}
+
+Axial toCellCoords(Vector2 point)
 {
 	const float size = CELL_H_SPACING * (2.0f / 3.0f);
 	float q = point.x * (2.0f/3.0f) / size;
 	float r = (-point.x / 3.0f + SQRT_3/3.0f * point.y) / size;
-	*col = clamp((int)q, 0, FIELD_W - 1);
-	*row = clamp((int)r, 0, FIELD_H - 1);
+	q = clampf(q, 0, FIELD_W - 1);
+	r = clampf(r, 0, FIELD_H - 1);
+	return axialRound((Axial){ q, r });
 	//printf("Point (%f, %f) is in cell (%d, %d)\n", point.x, point.y, *col, *row);
 }
 
@@ -33,7 +109,9 @@ bool isPointInSolidCell(Vector2 point, Cell playfield[FIELD_H][FIELD_W])
 {
     // Get the cell coordinates of the point
     int col, row;
-	toCellCoords(point, &col, &row);
+	Axial pos = toCellCoords(point);
+	col = pos.q;
+	row = pos.r;
     
     // Check if the cell is solid
     return playfield[row][col].type != AIR;
@@ -185,9 +263,9 @@ void updateGameState(GameState* state, InputState* input)
     state->players[0].position = destination;
 
     // If you push against a solid cell you start mining it
-    int col;
-    int row;
-	toCellCoords(desiredPosition, &col, &row);
+	Axial pos = toCellCoords(desiredPosition);
+	int col = pos.q;
+    int row = pos.r;
     const int miningSpeed = 10;
     if (state->playfield[row][col].type != AIR)
     {
