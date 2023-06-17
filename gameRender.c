@@ -1,3 +1,5 @@
+// hex stuff reference: https://www.redblobgames.com/grids/hexagons/
+
 #include <stdio.h>
 #include <math.h>
 #include "include/gameRender.h"
@@ -29,17 +31,21 @@ void drawPlayfield(Cell playfield[FIELD_H][FIELD_W])
     {
         for (int row = 0; row < FIELD_H; row++)
         {
+			const Vector2 cell_pos = {
+				col * CELL_H_SPACING * CELL_SCALE,
+				row * CELL_V_SPACING * CELL_SCALE + (0.5 * CELL_V_SPACING * col * CELL_SCALE)
+			};
+			
 			// Draw a dot here
-			const Rectangle dot = { col, row, 0.1, 0.1 };
+			const Rectangle dot = { cell_pos.x, cell_pos.y, 0.1, 0.1 };
 			DrawRectangleRec(dot, BLACK);
             
 			CellType thisCell = playfield[row][col].type;
-            if (thisCell == AIR) continue;
-            const float padding = 0.0f;
-            Vector2 pos = { col * (CELL_SCALE + padding), row * (CELL_SCALE + padding) };
-			Rectangle cellRect = { pos.x, pos.y, CELL_SCALE, CELL_SCALE };
+            if (thisCell == AIR)
+				continue;
+
             Color color = ColorBrightness(cellColorLookup[thisCell], -(100 - playfield[row][col].health) / 100.0f);
-            DrawRectangleRec(cellRect, color);
+            DrawPoly(cell_pos, 6, CELL_SCALE * (2.0/3.0) * (SQRT_3/2.0), 30.0, color);
         }
     }
 }
@@ -49,10 +55,12 @@ void drawPlayers(Player players[MAX_PLAYERS])
 	for (int i = 0; i < MAX_PLAYERS; i++)
 	{
 		if (!players[i].active) continue;
-		const Rectangle hitboxVis = { players[i].position.x - PLAYER_SCALE / 2.0f, players[i].position.y - PLAYER_SCALE / 2.0f, PLAYER_SCALE, PLAYER_SCALE };
-		DrawRectangleRec(hitboxVis, PINK);
-		const float diameter = 0.35f;
-		DrawCircleV(players[i].position, diameter, players[i].color);
+		const float diameter = 0.15f;
+		Vector2 drawPos = {
+			players[i].position.x,
+			players[i].position.y
+		};
+		DrawCircleV(drawPos, diameter, players[i].color);
 	}
 }
 
@@ -80,7 +88,6 @@ void updateCamera(Camera2D *cam, Player players[MAX_PLAYERS], float smoothness)
 	cam->offset = Vector2Subtract(cam->offset, Vector2Subtract(newPosition, cam->target));
 	cam->target = newPosition;
 }
-
 
 void drawGameState(GameState *state, InputState *input)
 {

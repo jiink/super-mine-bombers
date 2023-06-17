@@ -1,4 +1,3 @@
-
 #include <stdbool.h>
 #include "include/raylib.h"
 #include "include/gameState.h"
