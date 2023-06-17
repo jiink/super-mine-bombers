@@ -2,6 +2,7 @@
 #include <stdbool.h>
 #include "include/gameState.h"
 #include "include/raymath.h"
+#include "gameState.h"
 
 typedef struct Cube
 {
@@ -200,7 +201,20 @@ void initBombs(Bomb bombsList[MAX_BOMBS])
     }
 }
 
-void initGameState(GameState* state)
+int getNumPlayers(GameState *state)
+{
+	int numPlayers = 0;
+	for (int i = 0; i < MAX_PLAYERS; i++)
+	{
+		if (state->players[i].active)
+		{
+			numPlayers++;
+		}
+	}
+	return numPlayers;
+}
+
+void initGameState(GameState *state)
 {
     initPlayfield(state->playfield);
 	initPlayers(state->players);
@@ -240,15 +254,16 @@ void updateBombs(Bomb bombsList[MAX_BOMBS], Cell playfield[FIELD_H][FIELD_W])
     }
 }
 
-void updateGameState(GameState* state, InputState* input)
+void updatePlayer(GameState* state, int playerNum, PlayerInputState* pInput)
 {
-	// Player control (WASD)
+	playerNum = clamp(playerNum, 0, MAX_PLAYERS - 1);
+	Player* player = &state->players[playerNum];
+	// Movement control
 	const float speed = 10.0f;
-    Vector2 playerPos = state->players[0].position;
-    Vector2 desiredPosition = Vector2Add(playerPos, Vector2Scale(input->direction, speed * GetFrameTime()));
+    Vector2 playerPos = player->position;
+    Vector2 desiredPosition = Vector2Add(playerPos, Vector2Scale(pInput->direction, speed * GetFrameTime()));
 	Vector2 destination = desiredPosition;
-
-    // Check if the player (point) is trying to move into a solid cell (rectanlge)
+	// Check if the player (point) is trying to move into a solid cell (rectanlge)
     if (isPointInSolidCell((Vector2){desiredPosition.x, playerPos.y}, state->playfield))
     {
         // If so, don't move horizontally
@@ -259,13 +274,26 @@ void updateGameState(GameState* state, InputState* input)
         // If so, don't move vertically
         destination.y = playerPos.y;
     }
+	player->position = destination;
 
+<<<<<<< Updated upstream
     state->players[0].position = destination;
 
     // If you push against a solid cell you start mining it
+<<<<<<< Updated upstream
 	Axial pos = toCellCoords(desiredPosition);
 	int col = pos.q;
     int row = pos.r;
+=======
+    int col = (int)desiredPosition.x;
+    int row = (int)desiredPosition.y;
+=======
+	// If you push against a solid cell you start mining it
+	Axial pos = toCellCoords(desiredPosition);
+	int col = pos.q;
+    int row = pos.r;
+>>>>>>> Stashed changes
+>>>>>>> Stashed changes
     const int miningSpeed = 10;
     if (state->playfield[row][col].type != AIR)
     {
@@ -275,8 +303,8 @@ void updateGameState(GameState* state, InputState* input)
             state->playfield[row][col].type = AIR;
         }
     }
-
-    if (input->attackPressed)
+	// Attacking
+    if (pInput->attackPressed)
     {
         WeaponSlot* slot = &state->players[0].inventory[state->players[0].activeSlot];
         if (slot->quantity > 0)
@@ -287,6 +315,18 @@ void updateGameState(GameState* state, InputState* input)
         }
         
     }
+}
 
-    updateBombs(state->bombs, state->playfield);
+void updatePlayers(GameState* state, InputState* input)
+{
+	for (int i = 0; i < getNumPlayers(state); i++)
+	{
+		updatePlayer(state, i, &input->player[i]);
+	}
+}
+
+void updateGameState(GameState* state, InputState* input)
+{
+	updatePlayers(state, input);
+	updateBombs(state->bombs, state->playfield);
 }
