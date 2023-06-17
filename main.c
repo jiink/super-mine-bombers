@@ -12,9 +12,10 @@ int main(void)
 
     GameState state;
     InputState inputState;
+	Bindings bindings;
 
     initGameState(&state);
-    initInputState(&inputState);
+    initInputState(&inputState, &bindings);
     initGameRender(screenWidth, screenHeight);
     
     InitWindow(screenWidth, screenHeight, "Super Mine Bombers");
@@ -22,7 +23,7 @@ int main(void)
     SetTargetFPS(60);
     while (!WindowShouldClose())
     {
-        updateInputState(&inputState);
+        updateInputState(&inputState, &bindings);
         updateGameState(&state, &inputState);
         drawGameState(&state, &inputState);
     }

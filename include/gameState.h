@@ -72,6 +72,7 @@ typedef struct {
 } GameState;
 
 
+int getNumPlayers(GameState* state);
 void initGameState(GameState* state);
 void updateGameState(GameState* state, InputState* input);
 void borderPlayfield(Cell playfield[FIELD_H][FIELD_W]);

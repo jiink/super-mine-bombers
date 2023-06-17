@@ -102,8 +102,8 @@ void drawGameState(GameState *state, InputState *input)
 		EndMode2D();
 
 		// UI
-		char inputReport[128];
-		sprintf(inputReport, "Direction: %f, %f\nAttack: %d", input->direction.x, input->direction.y, input->attack);
-		DrawText(inputReport, 10, 10, 20, GRAY);
+		//char inputReport[128];
+		//sprintf(inputReport, "Direction: %f, %f\nAttack: %d", input->direction.x, input->direction.y, input->attack);
+		//DrawText(inputReport, 10, 10, 20, GRAY);
 	EndDrawing();
 }

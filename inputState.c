@@ -1,49 +1,96 @@
 #include "include/inputState.h"
 #include "include/raymath.h"
+#include "include/gameState.h"
 
-void initInputState(InputState *inputState)
+void initPlayerInputState(PlayerInputState *pInput)
 {
-    inputState->direction.x = 0;
-    inputState->direction.y = 0;
-    inputState->attack = false;
-    inputState->attackPressed = false;
+	pInput->direction.x = 0;
+	pInput->direction.y = 0;
+	pInput->attack = false;
+	pInput->attackPressed = false;
 }
 
-void updateInputState(InputState *inputState)
+void initPlayerBindings(PlayerBindings* pBindings, int playerNum)
 {
-    inputState->direction.x = 0;
-    inputState->direction.y = 0;
-    inputState->attack = false;
-    inputState->attackPressed = false;
+	switch (playerNum)
+	{
+	case 0:
+		pBindings->bindings[UP].key = KEY_W;
+		pBindings->bindings[DOWN].key = KEY_S;
+		pBindings->bindings[LEFT].key = KEY_A;
+		pBindings->bindings[RIGHT].key = KEY_D;
+		pBindings->bindings[ATTACK].key = KEY_E;
+		break;
+	case 1:
+		pBindings->bindings[UP].key = KEY_I;
+		pBindings->bindings[DOWN].key = KEY_K;
+		pBindings->bindings[LEFT].key = KEY_J;
+		pBindings->bindings[RIGHT].key = KEY_L;
+		pBindings->bindings[ATTACK].key = KEY_O;
+		break;
+	default:
+		pBindings->bindings[UP].key = KEY_NULL;
+		pBindings->bindings[DOWN].key = KEY_NULL;
+		pBindings->bindings[LEFT].key = KEY_NULL;
+		pBindings->bindings[RIGHT].key = KEY_NULL;
+		pBindings->bindings[ATTACK].key = KEY_NULL;
+		break;
+	}
+}
 
-    if (IsKeyDown(KEY_W))
-    {
-        inputState->direction.y = -1;
-    }
-    if (IsKeyDown(KEY_S))
-    {
-        inputState->direction.y = 1;
-    }
-    if (IsKeyDown(KEY_A))
-    {
-        inputState->direction.x = -1;
-    }
-    if (IsKeyDown(KEY_D))
-    {
-        inputState->direction.x = 1;
-    }
-    
-    // Normalize the direction
-    inputState->direction = Vector2Normalize(inputState->direction);
+void initInputState(InputState* input, Bindings* bindings)
+{
+	for (int i = 0; i < MAX_PLAYERS; i++)
+	{
+		PlayerInputState* pInput = &input->player[i];
+		PlayerBindings* pBindings = &bindings->player[i];
+		initPlayerInputState(pInput);
+		initPlayerBindings(pBindings, i);
+	}
+}
 
-    if (IsKeyDown(KEY_SPACE))
-    {
-        inputState->attack = true;
-    }
-    if (IsKeyPressed(KEY_SPACE))
-    {
-        inputState->attackPressed = true;
-    }
+void updatePlayerInputState(PlayerInputState* pInput, PlayerBindings* pBindings)
+{
+	initPlayerInputState(pInput);
+
+	if (IsKeyDown(pBindings->bindings[UP].key))
+	{
+		pInput->direction.y = -1;
+	}
+	if (IsKeyDown(pBindings->bindings[DOWN].key))
+	{
+		pInput->direction.y = 1;
+	}
+	if (IsKeyDown(pBindings->bindings[LEFT].key))
+	{
+		pInput->direction.x = -1;
+	}
+	if (IsKeyDown(pBindings->bindings[RIGHT].key))
+	{
+		pInput->direction.x = 1;
+	}
+	
+	// Normalize the direction
+	pInput->direction = Vector2Normalize(pInput->direction);
+
+	if (IsKeyDown(pBindings->bindings[ATTACK].key))
+	{
+		pInput->attack = true;
+	}
+	if (IsKeyPressed(pBindings->bindings[ATTACK].key))
+	{
+		pInput->attackPressed = true;
+	}
+}
+
+void updateInputState(InputState *input, Bindings* bindings)
+{
+	for(int i = 0; i < MAX_PLAYERS; i++)
+	{
+		PlayerInputState* pInput = &input->player[i];
+		PlayerBindings* pBindings = &bindings->player[i];
+		updatePlayerInputState(pInput, pBindings);
+	}
 
     
 }
