@@ -2,10 +2,10 @@
 #define GAMESTATE_H
 
 #include <stdbool.h>
+#include "common.h"
 #include "raylib.h"
 #include "inputState.h"
 
-#define MAX_PLAYERS 4
 #define FIELD_W 64
 #define FIELD_H 64
 #define INVENTORY_SIZE 5

@@ -188,6 +188,7 @@ void initPlayers(Player players[MAX_PLAYERS])
 	}
 
 	players[0].active = true;
+    players[1].active = true;
 }
 
 void initBombs(Bomb bombsList[MAX_BOMBS])

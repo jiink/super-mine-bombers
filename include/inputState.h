@@ -2,10 +2,8 @@
 #define INPUTSTATE_H
 
 #include <stdbool.h>
+#include "common.h"
 #include "raylib.h"
-#include "gameState.h"
-
-#define MAX_PLAYERS 4
 
 typedef enum {
 	UP,
