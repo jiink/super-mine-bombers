@@ -276,24 +276,10 @@ void updatePlayer(GameState* state, int playerNum, PlayerInputState* pInput)
     }
 	player->position = destination;
 
-<<<<<<< Updated upstream
-    state->players[0].position = destination;
-
-    // If you push against a solid cell you start mining it
-<<<<<<< Updated upstream
-	Axial pos = toCellCoords(desiredPosition);
-	int col = pos.q;
-    int row = pos.r;
-=======
-    int col = (int)desiredPosition.x;
-    int row = (int)desiredPosition.y;
-=======
 	// If you push against a solid cell you start mining it
 	Axial pos = toCellCoords(desiredPosition);
 	int col = pos.q;
     int row = pos.r;
->>>>>>> Stashed changes
->>>>>>> Stashed changes
     const int miningSpeed = 10;
     if (state->playfield[row][col].type != AIR)
     {
