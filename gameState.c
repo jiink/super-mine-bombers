@@ -202,12 +202,12 @@ void initBombs(Bomb bombsList[MAX_BOMBS])
     }
 }
 
-int getNumPlayers(GameState *state)
+int getNumPlayers(Player players[MAX_PLAYERS])
 {
 	int numPlayers = 0;
 	for (int i = 0; i < MAX_PLAYERS; i++)
 	{
-		if (state->players[i].active)
+		if (players[i].active)
 		{
 			numPlayers++;
 		}
@@ -306,7 +306,7 @@ void updatePlayer(GameState* state, int playerNum, PlayerInputState* pInput)
 
 void updatePlayers(GameState* state, InputState* input)
 {
-	for (int i = 0; i < getNumPlayers(state); i++)
+	for (int i = 0; i < getNumPlayers(state->players); i++)
 	{
 		updatePlayer(state, i, &input->player[i]);
 	}

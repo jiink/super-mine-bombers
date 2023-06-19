@@ -76,7 +76,7 @@ typedef struct {
 } GameState;
 
 
-int getNumPlayers(GameState* state);
+int getNumPlayers(Player players[MAX_PLAYERS]);
 void initGameState(GameState* state);
 void updateGameState(GameState* state, InputState* input);
 void borderPlayfield(Cell playfield[FIELD_H][FIELD_W]);

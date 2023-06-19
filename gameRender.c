@@ -75,10 +75,24 @@ void drawBombs(Bomb bombs[MAX_BOMBS])
 	}
 }
 
+Vector2 getPlayersMidpoint(Player players[MAX_PLAYERS])
+{
+	Vector2 accumulation = { 0.0f, 0.0f };
+	int numPlayers = getNumPlayers(players);
+	for (int i = 0; i < numPlayers; i++)
+	{
+		accumulation = Vector2Add(accumulation, players[i].position);
+	}
+	return (Vector2) {
+		accumulation.x / (float)numPlayers,
+		accumulation.y / (float)numPlayers
+	};
+}
+
 void updateCamera(Camera2D *cam, Player players[MAX_PLAYERS], float smoothness)
 {
 	// Calculate the difference between the current position and the target position
-	Vector2 targetPosition = players[0].position;
+	Vector2 targetPosition = getPlayersMidpoint(players);
 	Vector2 positionDiff = Vector2Subtract(targetPosition, cam->target);
 
 	// Calculate the new position with interpolation
