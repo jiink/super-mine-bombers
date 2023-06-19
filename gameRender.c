@@ -75,6 +75,30 @@ void drawBombs(Bomb bombs[MAX_BOMBS])
 	}
 }
 
+// Find the distance that lies between the 2 players who are the farthest apart
+float getPlayersGreatestDistance(Player players[MAX_PLAYERS])
+{
+	int numPlayers = getNumPlayers(players);
+	float greatestDistance = 4.0f;
+	if (numPlayers < 2)
+	{
+		return greatestDistance;
+	}
+	// Check every combination
+	for (int i = 0; i < numPlayers; i++)
+	{
+		for (int j = 0; j < numPlayers; j++)
+		{
+			float dist = Vector2Length(Vector2Subtract(players[i].position, players[j].position));
+			if (dist > greatestDistance)
+			{
+				greatestDistance = dist;
+			}
+		}
+	}
+	return greatestDistance;
+}
+
 Vector2 getPlayersMidpoint(Player players[MAX_PLAYERS])
 {
 	Vector2 accumulation = { 0.0f, 0.0f };
@@ -101,6 +125,11 @@ void updateCamera(Camera2D *cam, Player players[MAX_PLAYERS], float smoothness)
 	// Update the camera position
 	cam->offset = Vector2Subtract(cam->offset, Vector2Subtract(newPosition, cam->target));
 	cam->target = newPosition;
+
+	// Zoom to show all players
+	float zoomOffset = 50.0f;
+	float zoomMultiplier = 10.0f;
+	cam->zoom = zoomOffset - logf(getPlayersGreatestDistance(players)) * zoomMultiplier;
 }
 
 void drawGameState(GameState *state, InputState *input)
@@ -115,10 +144,10 @@ void drawGameState(GameState *state, InputState *input)
 			drawBombs(state->bombs);
 
 			updateCamera(&camera, state->players, 0.1);
-			camera.zoom += ((float)GetMouseWheelMove() * 3.0f);
+			//camera.zoom += ((float)GetMouseWheelMove() * 3.0f);
 
 			if (camera.zoom > 50.0f) camera.zoom = 50.0f;
-			else if (camera.zoom < 1.0f) camera.zoom = 1.0f;
+			else if (camera.zoom < 0.5f) camera.zoom = 0.5f;
 
 		EndMode2D();
 
