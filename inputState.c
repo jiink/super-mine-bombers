@@ -49,10 +49,11 @@ void initInputState(InputState* input, Bindings* bindings)
 	}
 }
 
-void updatePlayerInputState(PlayerInputState* pInput, PlayerBindings* pBindings)
+void updatePlayerInputState(PlayerInputState* pInput, PlayerBindings* pBindings, int gamepadNum)
 {
 	initPlayerInputState(pInput);
 
+	// Movement
 	if (IsKeyDown(pBindings->bindings[UP].key))
 	{
 		pInput->direction.y = -1;
@@ -69,10 +70,21 @@ void updatePlayerInputState(PlayerInputState* pInput, PlayerBindings* pBindings)
 	{
 		pInput->direction.x = 1;
 	}
-	
-	// Normalize the direction
+	if (IsGamepadAvailable(gamepadNum))
+	{
+		Vector2 stickRawInput = {
+			GetGamepadAxisMovement(gamepadNum, GAMEPAD_AXIS_LEFT_X),
+			GetGamepadAxisMovement(gamepadNum, GAMEPAD_AXIS_LEFT_Y)
+			};
+		if (Vector2Length(stickRawInput) > DEADZONE)
+		{
+			pInput->direction.x += GetGamepadAxisMovement(gamepadNum, GAMEPAD_AXIS_LEFT_X);
+			pInput->direction.y += GetGamepadAxisMovement(gamepadNum, GAMEPAD_AXIS_LEFT_Y);
+		}
+	}
 	pInput->direction = Vector2Normalize(pInput->direction);
 
+	// Buttons
 	if (IsKeyDown(pBindings->bindings[ATTACK].key))
 	{
 		pInput->attack = true;
@@ -80,6 +92,11 @@ void updatePlayerInputState(PlayerInputState* pInput, PlayerBindings* pBindings)
 	if (IsKeyPressed(pBindings->bindings[ATTACK].key))
 	{
 		pInput->attackPressed = true;
+	}
+	if (IsGamepadAvailable(gamepadNum))
+	{
+		pInput->attack = pInput->attack || IsGamepadButtonDown(gamepadNum, GAMEPAD_BUTTON_RIGHT_FACE_DOWN);
+		pInput->attackPressed = pInput->attackPressed || IsGamepadButtonPressed(gamepadNum, GAMEPAD_BUTTON_RIGHT_FACE_DOWN);
 	}
 }
 
@@ -89,8 +106,6 @@ void updateInputState(InputState *input, Bindings* bindings)
 	{
 		PlayerInputState* pInput = &input->player[i];
 		PlayerBindings* pBindings = &bindings->player[i];
-		updatePlayerInputState(pInput, pBindings);
+		updatePlayerInputState(pInput, pBindings, i);
 	}
-
-    
 }

@@ -5,6 +5,8 @@
 #include "common.h"
 #include "raylib.h"
 
+#define DEADZONE 0.4f
+
 typedef enum {
 	UP,
 	DOWN,
