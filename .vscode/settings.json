@@ -6,7 +6,9 @@
 		"raylib.h": "c",
 		"gamerender.h": "c",
 		"inputstate.h": "c",
-		"raymath.h": "c"
+		"raymath.h": "c",
+		"common.h": "c",
+		"hex.h": "c"
 	},
 	"workbench.colorCustomizations": {
 		"activityBar.background": "#511931",

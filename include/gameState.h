@@ -6,17 +6,8 @@
 #include "raylib.h"
 #include "inputState.h"
 
-#define FIELD_W 64
-#define FIELD_H 64
 #define INVENTORY_SIZE 5
-
 #define MAX_BOMBS 32
-#define CELL_SCALE 1.0f // How wide and tall is a cell in float units?
-#define SQRT_3 1.73205080757f
-#define CELL_H_SPACING (1.0f * SQRT_3 * 0.5f)
-#define CELL_V_SPACING 1.0f
-
-#define PLAYER_SCALE 0.75f // Width and height of the player collision in float units
 
 // Enum to represent the type of a cell
 typedef enum {

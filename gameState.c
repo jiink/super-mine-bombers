@@ -21,32 +21,6 @@ int clamp(int value, int min, int max)
 	}
 }
 
-float clampf(float value, float min, float max)
-{
-	if (value < min)
-	{
-		return min;
-	}
-	else if (value > max)
-	{
-		return max;
-	}
-	else
-	{
-		return value;
-	}
-}
-
-Axial toCellCoords(Vector2 point)
-{
-	const float size = CELL_H_SPACING * (2.0f / 3.0f);
-	float q = point.x * (2.0f/3.0f) / size;
-	float r = (-point.x / 3.0f + SQRT_3/3.0f * point.y) / size;
-	q = clampf(q, 0, FIELD_W - 1);
-	r = clampf(r, 0, FIELD_H - 1);
-	return axialRound((Axial){ q, r });
-	//printf("Point (%f, %f) is in cell (%d, %d)\n", point.x, point.y, *col, *row);
-}
 
 bool isPointInSolidCell(Vector2 point, Cell playfield[FIELD_H][FIELD_W])
 {

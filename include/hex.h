@@ -1,6 +1,8 @@
 #ifndef HEX_H
 #define HEX_H
 
+#include "raylib.h"
+
 typedef struct Cube
 {
 	float q;
@@ -18,5 +20,6 @@ Cube cubeRound(Cube frac);
 Axial cubeToAxial(Cube cube);
 Cube axialToCube(Axial hex);
 Axial axialRound(Axial hex);
+Axial toCellCoords(Vector2 point);
 
 #endif
