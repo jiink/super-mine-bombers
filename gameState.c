@@ -55,7 +55,6 @@ bool isPointInSolidCell(Vector2 point, Cell playfield[FIELD_H][FIELD_W])
 
 void detonateBomb(Vector2 position, float radius, float damage, Cell playfield[FIELD_H][FIELD_W])
 {
-    printf("Detonating bomb at (%f, %f) with radius %f and damage %f\n", position.x, position.y, radius, damage);
     // Get the cell coordinates of the bomb
     Axial bombCell = toCellCoords(position);
     for (int col = (int)(bombCell.q) - radius; col <= (int)(bombCell.q) + radius; col++)
