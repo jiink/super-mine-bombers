@@ -55,7 +55,7 @@ typedef struct {
     bool active;
     Vector2 position;
     float fuseTimer;
-    void (*detonationFunc)(Vector2, float, Cell[FIELD_H][FIELD_W]);
+    void (*detonationFunc)(Vector2, float, float, Cell[FIELD_H][FIELD_W]);
 } Bomb;
 
 // Struct to represent the game state
@@ -73,5 +73,7 @@ void updateGameState(GameState* state, InputState* input);
 void borderPlayfield(Cell playfield[FIELD_H][FIELD_W]);
 void initPlayfield(Cell playfield[FIELD_H][FIELD_W]);
 void initPlayers(Player players[MAX_PLAYERS]);
+void damageCell(int row, int col, int damage, Cell playfield[FIELD_H][FIELD_W]);
+void damageCellAtPos(Vector2 pos, int damage, Cell playfield[FIELD_H][FIELD_W]);
 
 #endif  // GAMESTATE_H

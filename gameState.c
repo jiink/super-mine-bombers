@@ -4,6 +4,7 @@
 #include "include/raymath.h"
 #include "include/hex.h"
 #include "include/gameState.h"
+#include "gameState.h"
 
 int clamp(int value, int min, int max)
 {
@@ -34,20 +35,17 @@ bool isPointInSolidCell(Vector2 point, Cell playfield[FIELD_H][FIELD_W])
     return playfield[row][col].type != AIR;
 }
 
-void DetonateBomb(Vector2 position, float strength, Cell playfield[FIELD_H][FIELD_W])
+void detonateBomb(Vector2 position, float radius, float damage, Cell playfield[FIELD_H][FIELD_W])
 {
-    int bombCellX = (int)position.x;
-    int bombCellY = (int)position.y;
-    for (int col = bombCellX - strength; col <= bombCellX + strength; col++)
+	Axial bombCell = toCellCoords(position);
+    for (int col = (int)(bombCell.q) - radius; col <= (int)(bombCell.q) + radius; col++)
     {
-        for (int row = bombCellY - strength; row <= bombCellY + strength; row++)
+        for (int row = (int)(bombCell.r) - radius; row <= (int)(bombCell.r) + radius; row++)
         {
             if (col >= 0 && col < FIELD_W && row >= 0 && row < FIELD_H)
             {
-                if (isPointInSolidCell((Vector2){col, row}, playfield))
-                {
-                    playfield[row][col].type = AIR;
-                }
+				int cellDamage = damage - axialDistance((Axial){.q = col, .r = row}, bombCell) * 25;
+                damageCell(row, col, cellDamage, playfield);
             }
         }
     }
@@ -99,12 +97,31 @@ void initPlayers(Player players[MAX_PLAYERS])
 		players[i].score = 0;
 		players[i].active = false;
 		players[i].color = playerColors[i];
-        players[i].inventory[0] = (WeaponSlot) { .type = BOMB, .quantity = 5 };
+        players[i].inventory[0] = (WeaponSlot) { .type = BOMB, .quantity = 20 };
         players[i].activeSlot = 0;
 	}
 
 	players[0].active = true;
     players[1].active = true;
+}
+
+void damageCell(int row, int col, int damage, Cell playfield[FIELD_H][FIELD_W])
+{
+	if (damage < 0)
+	{
+		return;
+	}
+	playfield[row][col].health -= damage;
+	if (playfield[row][col].health <= 0)
+	{
+		playfield[row][col].type = AIR;
+	}
+}
+
+void damageCellAtPos(Vector2 pos, int damage, Cell playfield[FIELD_H][FIELD_W])
+{
+	Axial cell = toCellCoords(pos);
+	damageCell(cell.r, cell.q, damage, playfield);
 }
 
 void initBombs(Bomb bombsList[MAX_BOMBS])
@@ -114,7 +131,7 @@ void initBombs(Bomb bombsList[MAX_BOMBS])
         bombsList[i].active = false;
         bombsList[i].fuseTimer = 0;
         bombsList[i].position = (Vector2){0, 0};
-        bombsList[i].detonationFunc = DetonateBomb;
+        bombsList[i].detonationFunc = detonateBomb;
     }
 }
 
@@ -138,7 +155,7 @@ void initGameState(GameState *state)
     initBombs(state->bombs);
 }
 
-void SpawnBomb(WeaponType wepType, Vector2 pos, Bomb bombsList[MAX_BOMBS])
+void spawnBomb(WeaponType wepType, Vector2 pos, Bomb bombsList[MAX_BOMBS])
 {
     // Find an inactive bomb
     for (int i = 0; i < MAX_BOMBS; i++)
@@ -149,7 +166,7 @@ void SpawnBomb(WeaponType wepType, Vector2 pos, Bomb bombsList[MAX_BOMBS])
             bombsList[i].active = true;
             bombsList[i].position = pos;
             bombsList[i].fuseTimer = 3;
-            bombsList[i].detonationFunc = &DetonateBomb;
+            bombsList[i].detonationFunc = &detonateBomb;
             break;
         }
     }
@@ -164,7 +181,7 @@ void updateBombs(Bomb bombsList[MAX_BOMBS], Cell playfield[FIELD_H][FIELD_W])
             bombsList[i].fuseTimer -= GetFrameTime();
             if (bombsList[i].fuseTimer <= 0)
             {
-                bombsList[i].detonationFunc(bombsList[i].position, 3, playfield);
+                bombsList[i].detonationFunc(bombsList[i].position, 6, 150, playfield);
                 bombsList[i].active = false;
             }
         }
@@ -200,11 +217,7 @@ void updatePlayer(GameState* state, int playerNum, PlayerInputState* pInput)
     const int miningSpeed = 10;
     if (state->playfield[row][col].type != AIR)
     {
-        state->playfield[row][col].health -= miningSpeed;
-        if (state->playfield[row][col].health <= 0)
-        {
-            state->playfield[row][col].type = AIR;
-        }
+		damageCell(row, col, miningSpeed, state->playfield);
     }
 	// Attacking
     if (pInput->attackPressed)
@@ -214,7 +227,7 @@ void updatePlayer(GameState* state, int playerNum, PlayerInputState* pInput)
         {
             slot->quantity--;
             printf("Using a %d! (%d left)\n", slot->type, slot->quantity);
-            SpawnBomb(slot->type, state->players[0].position, state->bombs);
+            spawnBomb(slot->type, state->players[0].position, state->bombs);
         }
         
     }
