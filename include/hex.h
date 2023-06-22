@@ -5,15 +5,15 @@
 
 typedef struct Cube
 {
-	float q;
-	float r;
-	float s;
+    float q;
+    float r;
+    float s;
 } Cube;
 
 typedef struct Axial
 {
-	float q;
-	float r;
+    float q;
+    float r;
 } Axial;
 
 Cube cubeRound(Cube frac);

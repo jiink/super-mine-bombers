@@ -11,7 +11,7 @@ int main(void)
 
     GameState state;
     InputState inputState;
-	Bindings bindings;
+    Bindings bindings;
 
     initGameState(&state);
     initInputState(&inputState, &bindings);

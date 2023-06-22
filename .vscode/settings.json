@@ -14,5 +14,6 @@
 		"activityBar.background": "#511931",
 		"titleBar.activeBackground": "#722345",
 		"titleBar.activeForeground": "#FEFCFD"
-	}
+	},
+	"editor.detectIndentation": false
 }

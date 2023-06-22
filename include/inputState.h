@@ -8,25 +8,25 @@
 #define DEADZONE 0.4f
 
 typedef enum {
-	UP,
-	DOWN,
-	LEFT,
-	RIGHT,
-	ATTACK,
-	NUM_ACTIONS
+    UP,
+    DOWN,
+    LEFT,
+    RIGHT,
+    ATTACK,
+    NUM_ACTIONS
 } BindingAction;
 
 typedef struct {
-	BindingAction action;
-	int key;
+    BindingAction action;
+    int key;
 } KeyBind;
 
 typedef struct {
-	KeyBind bindings[NUM_ACTIONS];
+    KeyBind bindings[NUM_ACTIONS];
 } PlayerBindings;
 
 typedef struct {
-	PlayerBindings player[MAX_PLAYERS];
+    PlayerBindings player[MAX_PLAYERS];
 } Bindings;
 
 typedef struct {
@@ -36,7 +36,7 @@ typedef struct {
 } PlayerInputState;
 
 typedef struct {
-	PlayerInputState player[MAX_PLAYERS];
+    PlayerInputState player[MAX_PLAYERS];
 } InputState;
 
 void initInputState(InputState* inputState, Bindings* bindings);

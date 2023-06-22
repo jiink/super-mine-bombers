@@ -26,9 +26,9 @@ typedef struct {
 } Cell;
 
 typedef struct {
-	float startingFuse;
-	int damage;
-	float radius;
+    float startingFuse;
+    int damage;
+    float radius;
 } WeaponProperties;
 
 // Enum to represent weapon types
@@ -59,7 +59,7 @@ typedef struct {
 // Struct to represent a bomb entity
 typedef struct {
     bool active;
-	WeaponType type;
+    WeaponType type;
     Vector2 position;
     float fuseTimer;
     void (*detonationFunc)(Vector2, float, float, Cell[FIELD_H][FIELD_W]);
