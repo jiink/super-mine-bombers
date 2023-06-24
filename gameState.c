@@ -10,17 +10,20 @@ WeaponProperties weaponProperties[MAX_WEAPONS] = {
     [BOMB] = {
         .startingFuse = 2.0f,
         .damage = 150,
-        .radius = 6
+        .radius = 6,
+		.detonationFunc = explode,
         },            
     [MINE] = {
         .startingFuse = 5.0f,
         .damage = 5,
-        .radius = 5
+        .radius = 5,
+		.detonationFunc = explode,
         },             
     [SHARP_BOMB] = {
         .startingFuse = 5.0f,
         .damage = 200,
-        .radius = 20
+        .radius = 20,
+		.detonationFunc = explode,
         },     
 };
 
@@ -53,7 +56,7 @@ bool isPointInSolidCell(Vector2 point, Cell playfield[FIELD_H][FIELD_W])
     return playfield[row][col].type != AIR;
 }
 
-void detonateBomb(Vector2 position, float radius, float damage, Cell playfield[FIELD_H][FIELD_W])
+void explode(Vector2 position, float radius, float damage, Cell playfield[FIELD_H][FIELD_W])
 {
     // Get the cell coordinates of the bomb
     Axial bombCell = toCellCoords(position);
@@ -155,7 +158,6 @@ void initBombs(Bomb bombsList[MAX_BOMBS])
         bombsList[i].active = false;
         bombsList[i].fuseTimer = 0;
         bombsList[i].position = (Vector2){0, 0};
-        bombsList[i].detonationFunc = detonateBomb;
     }
 }
 
@@ -191,7 +193,6 @@ void spawnBomb(WeaponType wepType, Vector2 pos, Bomb bombsList[MAX_BOMBS])
             bombsList[i].position = pos;
             bombsList[i].fuseTimer = getWeaponProperties(wepType).startingFuse;
             bombsList[i].type = wepType;
-            bombsList[i].detonationFunc = &detonateBomb;
             break;
         }
     }
@@ -207,7 +208,7 @@ void updateBombs(Bomb bombsList[MAX_BOMBS], Cell playfield[FIELD_H][FIELD_W])
             if (bombsList[i].fuseTimer <= 0)
             {
                 WeaponProperties props = getWeaponProperties(bombsList[i].type);
-                bombsList[i].detonationFunc(bombsList[i].position, props.radius, props.damage, playfield);
+                props.detonationFunc(bombsList[i].position, props.radius, props.damage, playfield);
                 bombsList[i].active = false;
             }
         }

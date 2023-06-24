@@ -29,6 +29,7 @@ typedef struct {
     float startingFuse;
     int damage;
     float radius;
+	void (*detonationFunc)(Vector2, float, float, Cell[FIELD_H][FIELD_W]);
 } WeaponProperties;
 
 // Enum to represent weapon types
@@ -62,7 +63,6 @@ typedef struct {
     WeaponType type;
     Vector2 position;
     float fuseTimer;
-    void (*detonationFunc)(Vector2, float, float, Cell[FIELD_H][FIELD_W]);
 } Bomb;
 
 // Struct to represent the game state
@@ -81,6 +81,7 @@ void initPlayfield(Cell playfield[FIELD_H][FIELD_W]);
 void initPlayers(Player players[MAX_PLAYERS]);
 void damageCell(int row, int col, int damage, Cell playfield[FIELD_H][FIELD_W]);
 void damageCellAtPos(Vector2 pos, int damage, Cell playfield[FIELD_H][FIELD_W]);
+void explode(Vector2 position, float radius, float damage, Cell playfield[FIELD_H][FIELD_W]);
 WeaponProperties getWeaponProperties(WeaponType type);
 
 #endif  // GAMESTATE_H

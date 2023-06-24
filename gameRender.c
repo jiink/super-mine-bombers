@@ -35,11 +35,7 @@ void drawPlayfield(Cell playfield[FIELD_H][FIELD_W])
                 col * CELL_H_SPACING * CELL_SCALE,
                 row * CELL_V_SPACING * CELL_SCALE + (0.5 * CELL_V_SPACING * col * CELL_SCALE)
             };
-            
-            // Draw a dot here
-            const Rectangle dot = { cell_pos.x, cell_pos.y, 0.1, 0.1 };
-            DrawRectangleRec(dot, BLACK);
-            
+                        
             CellType thisCell = playfield[row][col].type;
             if (thisCell == AIR)
                 continue;
