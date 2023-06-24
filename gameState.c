@@ -248,12 +248,12 @@ void updatePlayer(GameState* state, int playerNum, PlayerInputState* pInput)
     // Attacking
     if (pInput->attackPressed)
     {
-        WeaponSlot* slot = &state->players[0].inventory[state->players[0].activeSlot];
+        WeaponSlot* slot = &player->inventory[player->activeSlot];
         if (slot->quantity > 0)
         {
             slot->quantity--;
             printf("Using a %d! (%d left)\n", slot->type, slot->quantity);
-            spawnBomb(slot->type, state->players[0].position, state->bombs);
+            spawnBomb(slot->type, player->position, state->bombs);
         }
         
     }
