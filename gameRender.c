@@ -106,8 +106,10 @@ Vector2 getPlayersMidpoint(Player players[MAX_PLAYERS])
 {
     Vector2 accumulation = { 0.0f, 0.0f };
     int numPlayers = getNumPlayers(players);
-    for (int i = 0; i < numPlayers; i++)
+	if (numPlayers == 0) return (Vector2){ 0.0f, 0.0f };
+    for (int i = 0; i < MAX_PLAYERS; i++)
     {
+		if (!players[i].active) continue;
         accumulation = Vector2Add(accumulation, players[i].position);
     }
     return (Vector2) {
@@ -132,7 +134,12 @@ void updateCamera(Camera2D *cam, Player players[MAX_PLAYERS], float smoothness)
     // Zoom to show all players
     float zoomOffset = 50.0f;
     float zoomMultiplier = 10.0f;
-    cam->zoom = zoomOffset - logf(getPlayersGreatestDistance(players)) * zoomMultiplier;
+	float minZoom = 0.5f;
+	float maxZoom = 50.0f;
+    float zoomTarget = zoomOffset - logf(getPlayersGreatestDistance(players)) * zoomMultiplier;
+	if (zoomTarget < minZoom) zoomTarget = minZoom;
+	if (zoomTarget > maxZoom) zoomTarget = maxZoom;
+	cam->zoom = Lerp(cam->zoom, zoomTarget, 0.1f);
 }
 
 void drawGameState(GameState *state, InputState *input)

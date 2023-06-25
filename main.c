@@ -1,4 +1,5 @@
 #include <stdbool.h>
+#include <stdio.h>
 #include "include/raylib.h"
 #include "include/gameState.h"
 #include "include/gameRender.h"
@@ -25,6 +26,12 @@ int main(void)
         updateInputState(&inputState, &bindings);
         updateGameState(&state, &inputState);
         drawGameState(&state, &inputState);
+
+		// If R is pressed, restart by initializing the game state again
+		if (IsKeyPressed(KEY_R))
+		{
+			initGameState(&state);
+		}
     }
 
     CloseWindow();

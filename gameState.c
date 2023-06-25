@@ -284,9 +284,13 @@ void updatePlayer(GameState* state, int playerNum, PlayerInputState* pInput)
 
 void updatePlayers(GameState* state, InputState* input)
 {
-    for (int i = 0; i < getNumPlayers(state->players); i++)
+	// todo: make this work when some players are inactive
+    for (int i = 0; i < MAX_PLAYERS; i++)
     {
-        updatePlayer(state, i, &input->player[i]);
+		if (state->players[i].active)
+		{
+        	updatePlayer(state, i, &input->player[i]);
+		}
     }
 }
 
