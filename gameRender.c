@@ -4,6 +4,7 @@
 #include <math.h>
 #include "include/gameRender.h"
 #include "include/raymath.h"
+#include "include/hex.h"
 
 Camera2D camera = { 0 };
 
@@ -29,10 +30,7 @@ void drawPlayfield(Cell playfield[FIELD_H][FIELD_W])
     {
         for (int row = 0; row < FIELD_H; row++)
         {
-            const Vector2 cell_pos = {
-                col * CELL_H_SPACING * CELL_SCALE,
-                row * CELL_V_SPACING * CELL_SCALE + (0.5 * CELL_V_SPACING * col * CELL_SCALE)
-            };
+            const Vector2 cell_pos = toPixelCoords((Axial){ col, row });
                         
             CellType thisCell = playfield[row][col].type;
             if (thisCell == AIR)
@@ -54,7 +52,7 @@ void drawPlayer(Player* player)
 	};
 	DrawCircleV(drawPos, diameter, player->color);
 	// Draw health ring
-	DrawRing(drawPos, diameter + 0.1f, diameter + 0.2f, 0, player->health * 3.60f, 30, ColorAlpha(player->color, 0.5f));
+	DrawRing(drawPos, diameter + 0.1f, diameter + 0.2f, 0, player->health * 1.80f, 30, player->color);
 }
 
 void drawPlayers(Player players[MAX_PLAYERS])
@@ -130,13 +128,14 @@ void updateCamera(Camera2D *cam, Player players[MAX_PLAYERS], float smoothness)
     cam->target = newPosition;
 
     // Zoom to show all players
-    float zoomOffset = 50.0f;
-    float zoomMultiplier = 10.0f;
+    float zoomOffset = 1.0f;
+    float zoomMultiplier = 4.2f;
 	float minZoom = 0.5f;
 	float maxZoom = 50.0f;
-    float zoomTarget = zoomOffset - logf(getPlayersGreatestDistance(players)) * zoomMultiplier;
-	if (zoomTarget < minZoom) zoomTarget = minZoom;
-	if (zoomTarget > maxZoom) zoomTarget = maxZoom;
+    //float zoomTarget = zoomOffset - (getPlayersGreatestDistance(players)) * zoomMultiplier;
+	float zoomTarget = (1.0f / powf(getPlayersGreatestDistance(players), 0.5f)) * 100.0f;
+	// if (zoomTarget < minZoom) zoomTarget = minZoom;
+	// if (zoomTarget > maxZoom) zoomTarget = maxZoom;
 	cam->zoom = Lerp(cam->zoom, zoomTarget, 0.1f);
 }
 
@@ -147,7 +146,7 @@ void drawGameState(GameState *state, InputState *input)
     BeginDrawing();
         BeginMode2D(camera);
 
-            ClearBackground(RAYWHITE);
+            ClearBackground(BLACK);
                     
             drawPlayfield(state->playfield);
             drawPlayers(state->players);
@@ -161,5 +160,7 @@ void drawGameState(GameState *state, InputState *input)
         // UI
         // draw fps
 		//DrawText(TextFormat("%d", GetFPS()), 10, 10, 20, GREEN);
+		// draw camera zoom
+		DrawText(TextFormat("%f", camera.zoom), 10, 30, 60, BLUE);
     EndDrawing();
 }
