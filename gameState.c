@@ -56,7 +56,20 @@ bool isPointInSolidCell(Vector2 point, Cell playfield[FIELD_H][FIELD_W])
     return playfield[row][col].type != AIR;
 }
 
-void explode(Vector2 position, float radius, float damage, Cell playfield[FIELD_H][FIELD_W])
+void damagePlayer(Player *player, int damage)
+{
+	if (!player->active)
+	{
+		return;
+	}
+	player->health -= damage;
+	if (player->health <= 0)
+	{
+		player->active = false;
+	}
+}
+
+void explode(Vector2 position, float radius, float damage, Cell playfield[FIELD_H][FIELD_W], Player players[MAX_PLAYERS])
 {
     // Get the cell coordinates of the bomb
     Axial bombCell = toCellCoords(position);
@@ -66,8 +79,17 @@ void explode(Vector2 position, float radius, float damage, Cell playfield[FIELD_
         {
             if (col >= 0 && col < FIELD_W && row >= 0 && row < FIELD_H)
             {
-                int cellDamage = damage - axialDistance((Axial){.q = col, .r = row}, bombCell) * 25;
+				Axial thisCell = (Axial){.q = col, .r = row};
+                int cellDamage = damage - axialDistance(thisCell, bombCell) * 25;
                 damageCell(row, col, cellDamage, playfield);
+				// If there are any players in this cell, damage them too
+				for (int i = 0; i < MAX_PLAYERS; i++)
+				{
+					if (axialDistance(toCellCoords(players[i].position), thisCell) <= 0)
+					{
+						damagePlayer(&players[i], cellDamage);
+					}
+				}
             }
         }
     }
@@ -198,7 +220,7 @@ void spawnBomb(WeaponType wepType, Vector2 pos, Bomb bombsList[MAX_BOMBS])
     }
 }
 
-void updateBombs(Bomb bombsList[MAX_BOMBS], Cell playfield[FIELD_H][FIELD_W])
+void updateBombs(Bomb bombsList[MAX_BOMBS], Cell playfield[FIELD_H][FIELD_W], Player players[MAX_PLAYERS])
 {
     for (int i = 0; i < MAX_BOMBS; i++)
     {
@@ -208,7 +230,7 @@ void updateBombs(Bomb bombsList[MAX_BOMBS], Cell playfield[FIELD_H][FIELD_W])
             if (bombsList[i].fuseTimer <= 0)
             {
                 WeaponProperties props = getWeaponProperties(bombsList[i].type);
-                props.detonationFunc(bombsList[i].position, props.radius, props.damage, playfield);
+                props.detonationFunc(bombsList[i].position, props.radius, props.damage, playfield, players);
                 bombsList[i].active = false;
             }
         }
@@ -271,5 +293,5 @@ void updatePlayers(GameState* state, InputState* input)
 void updateGameState(GameState* state, InputState* input)
 {
     updatePlayers(state, input);
-    updateBombs(state->bombs, state->playfield);
+    updateBombs(state->bombs, state->playfield, state->players);
 }

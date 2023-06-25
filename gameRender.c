@@ -46,17 +46,24 @@ void drawPlayfield(Cell playfield[FIELD_H][FIELD_W])
     }
 }
 
+void drawPlayer(Player* player)
+{
+	if (!player->active) return;
+	const float diameter = 0.15f;
+	Vector2 drawPos = {
+		player->position.x,
+		player->position.y
+	};
+	DrawCircleV(drawPos, diameter, player->color);
+	// Draw health ring
+	DrawRing(drawPos, diameter + 0.1f, diameter + 0.2f, 0, player->health * 3.60f, 30, ColorAlpha(player->color, 0.5f));
+}
+
 void drawPlayers(Player players[MAX_PLAYERS])
 {
     for (int i = 0; i < MAX_PLAYERS; i++)
     {
-        if (!players[i].active) continue;
-        const float diameter = 0.15f;
-        Vector2 drawPos = {
-            players[i].position.x,
-            players[i].position.y
-        };
-        DrawCircleV(drawPos, diameter, players[i].color);
+        drawPlayer(&players[i]);
     }
 }
 
