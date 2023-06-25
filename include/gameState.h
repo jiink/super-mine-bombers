@@ -16,7 +16,7 @@ typedef enum {
     STONE,
     TREASURE,
     WALL,
-    NUM_CELL_TYPES
+    MAX_CELL_TYPES
 } CellType;
 
 // Struct to represent a cell in the playfield
@@ -24,6 +24,11 @@ typedef struct {
     CellType type;
     char health;
 } Cell;
+
+typedef struct {
+	char maxHealth;
+	bool indestructible;
+} CellProperties;
 
 // Enum to represent weapon types
 typedef enum {
@@ -84,5 +89,6 @@ void damageCell(int row, int col, int damage, Cell playfield[FIELD_H][FIELD_W]);
 void damageCellAtPos(Vector2 pos, int damage, Cell playfield[FIELD_H][FIELD_W]);
 void explode(Vector2 position, float radius, float damage, Cell playfield[FIELD_H][FIELD_W], Player players[MAX_PLAYERS]);
 WeaponProperties getWeaponProperties(WeaponType type);
+CellProperties getCellProperties(CellType type);
 
 #endif  // GAMESTATE_H

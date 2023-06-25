@@ -20,7 +20,7 @@ int main(void)
     
     InitWindow(screenWidth, screenHeight, "Super Mine Bombers");
 
-    SetTargetFPS(60);
+	SetWindowState(FLAG_VSYNC_HINT);
     while (!WindowShouldClose())
     {
         updateInputState(&inputState, &bindings);

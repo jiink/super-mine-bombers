@@ -7,22 +7,20 @@
 
 Camera2D camera = { 0 };
 
+Color cellColorLookup[MAX_CELL_TYPES] = {
+	[AIR] = (Color) { 255, 0, 0, 100 },
+	[DIRT] = BROWN,
+	[STONE] = GRAY,
+	[TREASURE] = YELLOW,
+	[WALL] = ORANGE,
+};
+
 void initGameRender(int screenWidth, int screenHeight)
 {
-    initCellColorLookup();
     camera.target = (Vector2){ 0, 0 };
     camera.offset = (Vector2){ screenWidth / 2.0f, screenHeight / 2.0f };
     camera.rotation = 0.0f;
     camera.zoom = 20.0f;
-}
-
-void initCellColorLookup()
-{
-    cellColorLookup[AIR] = ColorAlpha(RED, 0.5);
-    cellColorLookup[DIRT] = BROWN;
-    cellColorLookup[STONE] = BLACK;
-    cellColorLookup[TREASURE] = YELLOW;
-    cellColorLookup[WALL] = BLUE;
 }
 
 void drawPlayfield(Cell playfield[FIELD_H][FIELD_W])
@@ -82,7 +80,7 @@ void drawBombs(Bomb bombs[MAX_BOMBS])
 float getPlayersGreatestDistance(Player players[MAX_PLAYERS])
 {
     int numPlayers = getNumPlayers(players);
-    float greatestDistance = 4.0f;
+    float greatestDistance = 1.0f;
     if (numPlayers < 2)
     {
         return greatestDistance;
@@ -144,6 +142,8 @@ void updateCamera(Camera2D *cam, Player players[MAX_PLAYERS], float smoothness)
 
 void drawGameState(GameState *state, InputState *input)
 {
+	cellColorLookup[WALL] = ColorFromHSV((float)GetTime() * 10.0f, 0.5f, 0.5f);
+
     BeginDrawing();
         BeginMode2D(camera);
 
@@ -156,14 +156,13 @@ void drawGameState(GameState *state, InputState *input)
             updateCamera(&camera, state->players, 0.1);
             //camera.zoom += ((float)GetMouseWheelMove() * 3.0f);
 
-            if (camera.zoom > 50.0f) camera.zoom = 50.0f;
-            else if (camera.zoom < 0.5f) camera.zoom = 0.5f;
-
         EndMode2D();
 
         // UI
         //char inputReport[128];
         //sprintf(inputReport, "Direction: %f, %f\nAttack: %d", input->direction.x, input->direction.y, input->attack);
         //DrawText(inputReport, 10, 10, 20, GRAY);
+		// draw fps
+		//DrawText(TextFormat("%d", GetFPS()), 10, 10, 20, GRAY);
     EndDrawing();
 }

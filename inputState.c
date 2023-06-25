@@ -56,19 +56,19 @@ void updatePlayerInputState(PlayerInputState* pInput, PlayerBindings* pBindings,
     // Movement
     if (IsKeyDown(pBindings->bindings[UP].key))
     {
-        pInput->direction.y = -1;
+        pInput->direction.y -= 1;
     }
     if (IsKeyDown(pBindings->bindings[DOWN].key))
     {
-        pInput->direction.y = 1;
+        pInput->direction.y += 1;
     }
     if (IsKeyDown(pBindings->bindings[LEFT].key))
     {
-        pInput->direction.x = -1;
+        pInput->direction.x -= 1;
     }
     if (IsKeyDown(pBindings->bindings[RIGHT].key))
     {
-        pInput->direction.x = 1;
+        pInput->direction.x += 1;
     }
     if (IsGamepadAvailable(gamepadNum))
     {

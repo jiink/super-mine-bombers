@@ -6,7 +6,7 @@
 #include "include/gameState.h"
 #include "gameState.h"
 
-WeaponProperties weaponProperties[MAX_WEAPONS] = {
+WeaponProperties weaponProperties[MAX_CELL_TYPES] = {
     [BOMB] = {
         .startingFuse = 2.0f,
         .damage = 150,
@@ -25,6 +25,29 @@ WeaponProperties weaponProperties[MAX_WEAPONS] = {
         .radius = 20,
 		.detonationFunc = explode,
         },     
+};
+
+CellProperties cellProperties[MAX_CELL_TYPES] = {
+	[AIR] = {
+		.maxHealth = 0,
+		.indestructible = true,
+	},
+	[DIRT] = {
+		.maxHealth = 50,
+		.indestructible = false,
+	},
+	[STONE] = {
+		.maxHealth = 100,
+		.indestructible = false,
+	},
+	[TREASURE] = {
+		.maxHealth = 1,
+		.indestructible = true,
+	},
+	[WALL] = {
+		.maxHealth = 127,
+		.indestructible = true,
+	},
 };
 
 int clamp(int value, int min, int max)
@@ -151,14 +174,21 @@ void initPlayers(Player players[MAX_PLAYERS])
 
 void damageCell(int row, int col, int damage, Cell playfield[FIELD_H][FIELD_W])
 {
-    if (damage < 0)
+    if (damage < 0
+		|| row < 0
+		|| row >= FIELD_H
+		|| col < 0
+		|| col >= FIELD_W
+		|| getCellProperties(playfield[row][col].type).indestructible
+	)
     {
         return;
     }
-    playfield[row][col].health -= damage;
-    if (playfield[row][col].health <= 0)
+	Cell* cell = &playfield[row][col];
+    cell->health -= damage;
+    if (cell->health <= 0)
     {
-        playfield[row][col].type = AIR;
+        cell->type = AIR;
     }
 }
 
@@ -237,6 +267,11 @@ void updateBombs(Bomb bombsList[MAX_BOMBS], Cell playfield[FIELD_H][FIELD_W], Pl
     }
 }
 
+CellProperties getCellProperties(CellType type)
+{
+	return cellProperties[type];
+}
+
 void updatePlayer(GameState* state, int playerNum, PlayerInputState* pInput)
 {
     playerNum = clamp(playerNum, 0, MAX_PLAYERS - 1);
@@ -264,7 +299,7 @@ void updatePlayer(GameState* state, int playerNum, PlayerInputState* pInput)
     int col = pos.q;
     int row = pos.r;
     const int miningSpeed = 10;
-    if (state->playfield[row][col].type != AIR)
+    if (!getCellProperties(state->playfield[row][col].type).indestructible)
     {
         damageCell(row, col, miningSpeed, state->playfield);
     }
