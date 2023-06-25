@@ -29,24 +29,24 @@ WeaponProperties weaponProperties[MAX_CELL_TYPES] = {
 
 CellProperties cellProperties[MAX_CELL_TYPES] = {
 	[AIR] = {
-		.maxHealth = 0,
-		.indestructible = true,
+		.resistance = 0.0f,
+		.solid = false,
 	},
 	[DIRT] = {
-		.maxHealth = 50,
-		.indestructible = false,
+		.resistance = 1.0f,
+		.solid = true,
 	},
 	[STONE] = {
-		.maxHealth = 100,
-		.indestructible = false,
+		.resistance = 2.0f,
+		.solid = true,
 	},
 	[TREASURE] = {
-		.maxHealth = 1,
-		.indestructible = true,
+		.resistance = 0.5f,
+		.solid = true,
 	},
 	[WALL] = {
-		.maxHealth = 127,
-		.indestructible = true,
+		.resistance = 999999.0f,
+		.solid = true,
 	},
 };
 
@@ -139,16 +139,17 @@ void initPlayfield(Cell playfield[FIELD_H][FIELD_W]){
     {
         for (int row = 0; row < FIELD_H; row++)
         {
+			Cell* cell = &playfield[row][col];
 			// Make the type random dirt or stone
 			if (GetRandomValue(0, 1) == 0)
 			{
-				playfield[row][col].type = DIRT;
+				cell->type = DIRT;
 			}
 			else
 			{
-				playfield[row][col].type = STONE;
+				cell->type = STONE;
 			}
-            playfield[row][col].health = 100;
+            cell->health = 100;
         }
     }
 
@@ -182,18 +183,23 @@ void initPlayers(Player players[MAX_PLAYERS])
 
 void damageCell(int row, int col, int damage, Cell playfield[FIELD_H][FIELD_W])
 {
-    if (damage < 0
+	Cell* cell = &playfield[row][col];
+	if (damage < 0
 		|| row < 0
 		|| row >= FIELD_H
 		|| col < 0
 		|| col >= FIELD_W
-		|| getCellProperties(playfield[row][col].type).indestructible
 	)
     {
         return;
     }
-	Cell* cell = &playfield[row][col];
-    cell->health -= damage;
+	CellProperties cellProps = getCellProperties(cell->type);
+	if (!cellProps.solid)
+	{
+		return;
+	}
+	int appliedDamage = (int)((float)damage / cellProps.resistance);
+    cell->health -= appliedDamage;
     if (cell->health <= 0)
     {
         cell->type = AIR;

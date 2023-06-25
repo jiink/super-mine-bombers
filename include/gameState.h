@@ -26,8 +26,8 @@ typedef struct {
 } Cell;
 
 typedef struct {
-	char maxHealth;
-	bool indestructible;
+	float resistance;
+	bool solid;
 } CellProperties;
 
 // Enum to represent weapon types
