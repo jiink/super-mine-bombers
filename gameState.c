@@ -139,7 +139,15 @@ void initPlayfield(Cell playfield[FIELD_H][FIELD_W]){
     {
         for (int row = 0; row < FIELD_H; row++)
         {
-            playfield[row][col].type = DIRT;
+			// Make the type random dirt or stone
+			if (GetRandomValue(0, 1) == 0)
+			{
+				playfield[row][col].type = DIRT;
+			}
+			else
+			{
+				playfield[row][col].type = STONE;
+			}
             playfield[row][col].health = 100;
         }
     }
@@ -298,11 +306,8 @@ void updatePlayer(GameState* state, int playerNum, PlayerInputState* pInput)
     Axial pos = toCellCoords(desiredPosition);
     int col = pos.q;
     int row = pos.r;
-    const int miningSpeed = 10;
-    if (!getCellProperties(state->playfield[row][col].type).indestructible)
-    {
-        damageCell(row, col, miningSpeed, state->playfield);
-    }
+    const int miningSpeed = 2;
+    damageCell(row, col, miningSpeed, state->playfield);
     // Attacking
     if (pInput->attackPressed)
     {
