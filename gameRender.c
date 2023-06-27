@@ -125,7 +125,7 @@ void updateCamera(Camera2D *cam, Player players[MAX_PLAYERS], float smoothness)
     // Determine 🔍 zoom needed to have all players 👯‍♂️👯‍♀️ in view
     float zoomOffset = 1.0f;
     float zoomMultiplier = 0.75f;
-	float minZoom = 16.0f;
+	float minZoom = 7.0f;
 	float maxZoom = 50.0f;
 	float zoomTarget = zoomMultiplier * (GetScreenHeight() / getPlayersGreatestDistance(players));
 	if (zoomTarget < minZoom) zoomTarget = minZoom;
