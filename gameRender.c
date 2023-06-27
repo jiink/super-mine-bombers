@@ -116,26 +116,22 @@ Vector2 getPlayersMidpoint(Player players[MAX_PLAYERS])
 
 void updateCamera(Camera2D *cam, Player players[MAX_PLAYERS], float smoothness)
 {
-    // Calculate the difference between the current position and the target position
+    // Get camera target 🎯
     Vector2 targetPosition = getPlayersMidpoint(players);
-    Vector2 positionDiff = Vector2Subtract(targetPosition, cam->target);
+    float camLerpFac = 0.05;
+    // 📷 Smoothly interpolate camera's position to the camera target
+    cam->target = Vector2Lerp(cam->target, targetPosition, camLerpFac);
 
-    // Calculate the new position with interpolation
-    Vector2 newPosition = Vector2Add(cam->target, Vector2Scale(positionDiff, smoothness));
-
-    // Update the camera position
-    cam->offset = Vector2Subtract(cam->offset, Vector2Subtract(newPosition, cam->target));
-    cam->target = newPosition;
-
-    // Zoom to show all players
+    // Determine 🔍 zoom needed to have all players 👯‍♂️👯‍♀️ in view
     float zoomOffset = 1.0f;
-    float zoomMultiplier = 4.2f;
-	float minZoom = 0.5f;
+    float zoomMultiplier = 0.75f;
+	float minZoom = 16.0f;
 	float maxZoom = 50.0f;
-    //float zoomTarget = zoomOffset - (getPlayersGreatestDistance(players)) * zoomMultiplier;
-	float zoomTarget = (1.0f / powf(getPlayersGreatestDistance(players), 0.5f)) * 100.0f;
-	// if (zoomTarget < minZoom) zoomTarget = minZoom;
-	// if (zoomTarget > maxZoom) zoomTarget = maxZoom;
+	float zoomTarget = zoomMultiplier * (GetScreenHeight() / getPlayersGreatestDistance(players));
+	if (zoomTarget < minZoom) zoomTarget = minZoom;
+	if (zoomTarget > maxZoom) zoomTarget = maxZoom;
+    
+    // Camera zoom --> target zoom, smooothly🌊 😸
 	cam->zoom = Lerp(cam->zoom, zoomTarget, 0.1f);
 }
 
