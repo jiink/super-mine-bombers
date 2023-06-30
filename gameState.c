@@ -8,8 +8,8 @@
 
 Axial playerSpawnPoints[MAX_PLAYERS] = {
 	{ 1, 1 },
-	{ FIELD_H - 2, FIELD_W - 2 },
 	{ 1, 1 },
+	{ FIELD_H - 2, FIELD_W - 2 },
 	{ 1, 1 },
 };
 
@@ -174,7 +174,7 @@ void initPlayers(Player players[MAX_PLAYERS])
     const Color playerColors[MAX_PLAYERS] = { RED, BLUE, GREEN, YELLOW };
     for (int i = 0; i < MAX_PLAYERS; i++)
     {
-        players[i].position = toPixelCoords(playerSpawnPoints[i]);
+        players[i].position = toWorldCoords(playerSpawnPoints[i]);
         players[i].health = 100;
         players[i].score = 0;
         players[i].active = false;
@@ -318,7 +318,7 @@ void updatePlayer(GameState* state, int playerNum, PlayerInputState* pInput)
     Axial pos = toCellCoords(desiredPosition);
     int col = pos.q;
     int row = pos.r;
-    const int miningSpeed = 2;
+    const int miningSpeed = 100;
     damageCell(row, col, miningSpeed, state->playfield);
     // Attacking
     if (pInput->attackPressed)

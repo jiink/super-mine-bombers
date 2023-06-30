@@ -24,20 +24,43 @@ void initGameRender(int screenWidth, int screenHeight)
     camera.zoom = 20.0f;
 }
 
+void drawHexagon(Vector2 center, Color color)
+{
+    const float size = 0.625f;
+    const float width = 2.0f * size;
+    const float height = 4.0f/3.0f * size;
+    const float THIRD = 1.0f / 3.0f;
+    Vector2 verts[8] = {
+        // Center for triangle fan
+        (Vector2){ center.x, center.y },
+        // Verts along hexagon counter-clockwise so it shows up
+        (Vector2){ center.x + size, center.y },
+        (Vector2){ center.x + THIRD * size, center.y - height * 0.5f },
+        (Vector2){ center.x - THIRD * size, center.y - height * 0.5f },
+        (Vector2){ center.x - size, center.y },
+        (Vector2){ center.x - THIRD * size, center.y + height * 0.5f },
+        (Vector2){ center.x + THIRD * size, center.y + height * 0.5f },
+        // Return to first vert of hexagon for triangle fan to be complete
+        (Vector2){ center.x + size, center.y },
+    };
+    DrawTriangleFan(verts, 8, color);
+}
+
 void drawPlayfield(Cell playfield[FIELD_H][FIELD_W])
 {
     for (int col = 0; col < FIELD_W; col++)
     {
         for (int row = 0; row < FIELD_H; row++)
         {
-            const Vector2 cell_pos = toPixelCoords((Axial){ col, row });
+            const Vector2 cell_pos = toDrawCoords((Axial){ col, row });
                         
             CellType thisCell = playfield[row][col].type;
             if (thisCell == AIR)
                 continue;
 
             Color color = ColorBrightness(cellColorLookup[thisCell], -(100 - playfield[row][col].health) / 100.0f);
-            DrawPoly(cell_pos, 6, CELL_SCALE * (2.0/3.0) * (SQRT_3/2.0), 30.0, color);
+            //DrawPoly(cell_pos, 6, CELL_SCALE * (2.0/3.0) * (SQRT_3/2.0) * 0.1, 30.0, color);
+            drawHexagon(cell_pos, color);
         }
     }
 }
@@ -50,7 +73,8 @@ void drawPlayer(Player* player)
 		player->position.x,
 		player->position.y
 	};
-	DrawCircleV(drawPos, diameter, player->color);
+	//DrawCircleV(drawPos, diameter, player->color);
+    drawHexagon(drawPos, player->color);
 	// Draw health ring
 	DrawRing(drawPos, diameter + 0.1f, diameter + 0.2f, 0, player->health * 1.80f, 30, player->color);
 }
@@ -142,7 +166,10 @@ void drawGameState(GameState *state, InputState *input)
     BeginDrawing();
         BeginMode2D(camera);
 
-            ClearBackground(BLACK);
+            ClearBackground(WHITE);
+
+            // draw a unit line
+            DrawLine(0, 0, 1, 0, RED);
                     
             drawPlayfield(state->playfield);
             drawPlayers(state->players);
