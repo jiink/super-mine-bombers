@@ -100,8 +100,8 @@ void drawBombs(Bomb bombs[MAX_BOMBS])
     {
         if (!bombs[i].active) continue;
         float diameter = sinf(bombs[i].fuseTimer * 30.0f) * 0.1f + 0.2f;
-        DrawCircleV(bombs[i].position, diameter + 0.1f, WHITE);
-        DrawCircleV(bombs[i].position, diameter, MAGENTA);
+        DrawCircleV(worldToDrawCoords(bombs[i].position), diameter + 0.1f, WHITE);
+        DrawCircleV(worldToDrawCoords(bombs[i].position), diameter, MAGENTA);
     }
 }
 
