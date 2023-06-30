@@ -5,6 +5,8 @@
 #include "include/gameRender.h"
 #include "include/inputState.h"
 
+#define ENABLE_MSAA false
+
 int main(void)
 {
     const int screenWidth = 1280;
@@ -17,9 +19,12 @@ int main(void)
     initGameState(&state);
     initInputState(&inputState, &bindings);
     initGameRender(screenWidth, screenHeight);
-    
-    InitWindow(screenWidth, screenHeight, "Super Mine Bombers");
 
+    if (ENABLE_MSAA)
+    {
+        SetConfigFlags(FLAG_MSAA_4X_HINT);
+    }
+    InitWindow(screenWidth, screenHeight, "Super Mine Bombers");
 	SetWindowState(FLAG_VSYNC_HINT);
     while (!WindowShouldClose())
     {

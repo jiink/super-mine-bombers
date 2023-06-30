@@ -82,15 +82,6 @@ Vector2 toWorldCoords(Axial cell)
 	};
 }
 
-Vector2 toDrawCoords(Axial cell)
-{
-    const float worldSpaceHexHeightToDrawSpaceHexHeightMultiplier = 4.0f / (3.0f * SQRT_3);
-	return (Vector2) { 
-		cell.q * CELL_H_SPACING * CELL_SCALE,
-        (cell.r * CELL_V_SPACING * CELL_SCALE + (0.5 * CELL_V_SPACING * cell.q * CELL_SCALE)) * worldSpaceHexHeightToDrawSpaceHexHeightMultiplier
-	};
-}
-
 Cube cubeSubtract(Cube a, Cube b)
 {
     return (Cube)

@@ -16,6 +16,17 @@ Color cellColorLookup[MAX_CELL_TYPES] = {
 	[WALL] = ORANGE,
 };
 
+// Everything is a little squished
+// normal hex -> our hex is multiplying its height by (4 / 3sqrt3)
+Vector2 worldToDrawCoords(Vector2 worldCoords)
+{
+    const float heightMult = 4.0f / (3.0f * SQRT_3);
+    return (Vector2) {
+        worldCoords.x,
+        worldCoords.y * heightMult
+    };
+}
+
 void initGameRender(int screenWidth, int screenHeight)
 {
     camera.target = (Vector2){ 0, 0 };
@@ -26,7 +37,7 @@ void initGameRender(int screenWidth, int screenHeight)
 
 void drawHexagon(Vector2 center, Color color)
 {
-    const float size = 0.625f;
+    const float size = 0.626f; // Seams appear at 0.625f
     const float width = 2.0f * size;
     const float height = 4.0f/3.0f * size;
     const float THIRD = 1.0f / 3.0f;
@@ -52,7 +63,7 @@ void drawPlayfield(Cell playfield[FIELD_H][FIELD_W])
     {
         for (int row = 0; row < FIELD_H; row++)
         {
-            const Vector2 cell_pos = toDrawCoords((Axial){ col, row });
+            const Vector2 cell_pos = worldToDrawCoords(toWorldCoords((Axial){ col, row }));
                         
             CellType thisCell = playfield[row][col].type;
             if (thisCell == AIR)
@@ -69,12 +80,8 @@ void drawPlayer(Player* player)
 {
 	if (!player->active) return;
 	const float diameter = 0.15f;
-	Vector2 drawPos = {
-		player->position.x,
-		player->position.y
-	};
-	//DrawCircleV(drawPos, diameter, player->color);
-    drawHexagon(drawPos, player->color);
+	Vector2 drawPos = worldToDrawCoords(player->position);
+	DrawCircleV(drawPos, diameter, player->color);
 	// Draw health ring
 	DrawRing(drawPos, diameter + 0.1f, diameter + 0.2f, 0, player->health * 1.80f, 30, player->color);
 }

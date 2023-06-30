@@ -22,7 +22,6 @@ Cube axialToCube(Axial hex);
 Axial axialRound(Axial hex);
 Axial toCellCoords(Vector2 point);
 Vector2 toWorldCoords(Axial cell);
-Vector2 toDrawCoords(Axial cell);
 Cube cubeSubtract(Cube a, Cube b);
 float cubeDistance(Cube a, Cube b);
 float axialDistance(Axial a, Axial b);
