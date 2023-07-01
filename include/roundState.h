@@ -76,6 +76,7 @@ typedef struct {
     Player players[MAX_PLAYERS];
     Bomb bombs[MAX_BOMBS]; // MAX_BOMBS is the maximum number of bombs allowed
     float roundTime;
+    bool roundOver;
 } RoundState;
 
 int getNumAlivePlayers(Player players[MAX_PLAYERS]);

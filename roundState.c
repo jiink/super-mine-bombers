@@ -288,6 +288,8 @@ int getNumAlivePlayers(Player players[MAX_PLAYERS])
 
 void initRoundState(RoundState *state)
 {
+    state->roundTime = 30.0f;
+    state->roundOver = false;
     initPlayfield(state->playfield);
     initPlayers(state->players);
     initBombs(state->bombs);
@@ -417,8 +419,12 @@ void updateRoundState(RoundState* state, InputState* input)
 {
     if (gameOverCondition(state))
     {
-        // Restart the game
-        initRoundState(state);
+        state->roundOver = true;
+    }
+    // Press R to skip round
+    if (IsKeyPressed(KEY_R))
+    {
+        state->roundOver = true;
     }
     updatePlayers(state, input);
     updateBombs(state->bombs, state->playfield, state->players);
