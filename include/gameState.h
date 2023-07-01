@@ -6,7 +6,7 @@
 #include "raylib.h"
 #include "inputState.h"
 
-#define INVENTORY_SIZE 5
+#define INVENTORY_SIZE 8
 #define MAX_BOMBS 32
 
 // Enum to represent the type of a cell
@@ -35,7 +35,7 @@ typedef enum {
     BOMB,
     MINE,
     SHARP_BOMB,
-    MAX_WEAPONS
+    MAX_WEAPON_TYPE
 } WeaponType;
 
 // Struct to represent a weapon in the inventory
@@ -89,6 +89,7 @@ void damageCell(int row, int col, int damage, Cell playfield[FIELD_H][FIELD_W]);
 void damageCellAtPos(Vector2 pos, int damage, Cell playfield[FIELD_H][FIELD_W]);
 void explode(Vector2 position, float radius, float damage, Cell playfield[FIELD_H][FIELD_W], Player players[MAX_PLAYERS]);
 WeaponProperties getWeaponProperties(WeaponType type);
+const char* getWeaponName(WeaponType type);
 CellProperties getCellProperties(CellType type);
 
 #endif  // GAMESTATE_H

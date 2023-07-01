@@ -186,6 +186,15 @@ void initPlayfield(Cell playfield[FIELD_H][FIELD_W]){
     }
 }
 
+void clearInventory(Player* player)
+{
+    for (int i = 0; i < INVENTORY_SIZE; i++)
+    {
+        player->inventory[i].type = BOMB;
+        player->inventory[i].quantity = 0;
+    }
+}
+
 void initPlayers(Player players[MAX_PLAYERS])
 {
     const Color playerColors[MAX_PLAYERS] = { RED, BLUE, GREEN, YELLOW };
@@ -196,7 +205,9 @@ void initPlayers(Player players[MAX_PLAYERS])
         players[i].score = 0;
         players[i].active = false;
         players[i].color = playerColors[i];
-        players[i].inventory[0] = (WeaponSlot) { .type = SHARP_BOMB, .quantity = 20 };
+        clearInventory(&players[i]);
+        players[i].inventory[0] = (WeaponSlot) { .type = SHARP_BOMB, .quantity = 5 };
+        players[i].inventory[1] = (WeaponSlot) { .type = BOMB, .quantity = 10 };
         players[i].activeSlot = 0;
     }
 
@@ -238,6 +249,19 @@ void damageCellAtPos(Vector2 pos, int damage, Cell playfield[FIELD_H][FIELD_W])
 WeaponProperties getWeaponProperties(WeaponType type)
 {
     return weaponProperties[type];
+}
+
+const char* getWeaponName(WeaponType type)
+{
+    switch(type)
+    {
+        case BOMB:
+            return "Bomb";
+        case SHARP_BOMB:
+            return "Sharp Bomb";
+        default:
+            return "Unknown";
+    }
 }
 
 void initBombs(Bomb bombsList[MAX_BOMBS])
@@ -309,6 +333,19 @@ CellProperties getCellProperties(CellType type)
 	return cellProperties[type];
 }
 
+int getNumInventorySlotsUsed(Player* player)
+{
+    int numUsed = 0;
+    for (int i = 0; i < INVENTORY_SIZE; i++)
+    {
+        if (player->inventory[i].quantity > 0)
+        {
+            numUsed++;
+        }
+    }
+    return numUsed;
+}
+
 void updatePlayer(GameState* state, int playerNum, PlayerInputState* pInput)
 {
     playerNum = clamp(playerNum, 0, MAX_PLAYERS - 1);
@@ -341,12 +378,20 @@ void updatePlayer(GameState* state, int playerNum, PlayerInputState* pInput)
     if (pInput->attackPressed)
     {
         WeaponSlot* slot = &player->inventory[player->activeSlot];
-        if (slot->quantity > 0)
+        if (slot->quantity > 0 && slot->type < MAX_WEAPON_TYPE)
         {
             slot->quantity--;
             printf("Using a %d! (%d left)\n", slot->type, slot->quantity);
             spawnBomb(slot->type, player->position, state->bombs);
         }
+    }
+    // Switching weapons
+    // TODO: Fix this. If you use up all your first weapon (of two),
+    // you can't switch to the second one because getNumInventorySlotsUsed
+    // will return 1
+    if (pInput->wepSelectPressed)
+    {
+        player->activeSlot = (player->activeSlot + 1) % getNumInventorySlotsUsed(player);
     }
 }
 
@@ -366,7 +411,7 @@ void updatePlayers(GameState* state, InputState* input)
 bool gameOverCondition(GameState* state)
 {
     int numPlayers = getNumAlivePlayers(state->players);
-    return numPlayers < 1;
+    return numPlayers <= 1; // uh, if there's 1 guy left, he is the winner
 }
 
 void updateGameState(GameState* state, InputState* input)

@@ -8,6 +8,7 @@ void initPlayerInputState(PlayerInputState *pInput)
     pInput->direction.y = 0;
     pInput->attack = false;
     pInput->attackPressed = false;
+    pInput->wepSelectPressed = false;
 }
 
 void initPlayerBindings(PlayerBindings* pBindings, int playerNum)
@@ -20,6 +21,7 @@ void initPlayerBindings(PlayerBindings* pBindings, int playerNum)
         pBindings->bindings[LEFT].key = KEY_A;
         pBindings->bindings[RIGHT].key = KEY_D;
         pBindings->bindings[ATTACK].key = KEY_E;
+        pBindings->bindings[WEP_SELECT].key = KEY_Q;
         break;
     case 1:
         pBindings->bindings[UP].key = KEY_I;
@@ -27,6 +29,7 @@ void initPlayerBindings(PlayerBindings* pBindings, int playerNum)
         pBindings->bindings[LEFT].key = KEY_J;
         pBindings->bindings[RIGHT].key = KEY_L;
         pBindings->bindings[ATTACK].key = KEY_O;
+        pBindings->bindings[WEP_SELECT].key = KEY_U;
         break;
     default:
         pBindings->bindings[UP].key = KEY_NULL;
@@ -34,6 +37,7 @@ void initPlayerBindings(PlayerBindings* pBindings, int playerNum)
         pBindings->bindings[LEFT].key = KEY_NULL;
         pBindings->bindings[RIGHT].key = KEY_NULL;
         pBindings->bindings[ATTACK].key = KEY_NULL;
+        pBindings->bindings[WEP_SELECT].key = KEY_NULL;
         break;
     }
 }
@@ -97,6 +101,10 @@ void updatePlayerInputState(PlayerInputState* pInput, PlayerBindings* pBindings,
     {
         pInput->attack = pInput->attack || IsGamepadButtonDown(gamepadNum, GAMEPAD_BUTTON_RIGHT_FACE_DOWN);
         pInput->attackPressed = pInput->attackPressed || IsGamepadButtonPressed(gamepadNum, GAMEPAD_BUTTON_RIGHT_FACE_DOWN);
+    }
+    if (IsKeyPressed(pBindings->bindings[WEP_SELECT].key))
+    {
+        pInput->wepSelectPressed = true;
     }
 }
 

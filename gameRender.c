@@ -100,8 +100,26 @@ void drawBombs(Bomb bombs[MAX_BOMBS])
     {
         if (!bombs[i].active) continue;
         float diameter = sinf(bombs[i].fuseTimer * 30.0f) * 0.1f + 0.2f;
-        DrawCircleV(worldToDrawCoords(bombs[i].position), diameter + 0.1f, WHITE);
-        DrawCircleV(worldToDrawCoords(bombs[i].position), diameter, MAGENTA);
+        Vector2 drawCoords = worldToDrawCoords(bombs[i].position);
+        DrawCircleV(drawCoords, diameter + 0.1f, WHITE);
+        switch (bombs[i].type)
+        {
+            case BOMB:
+                DrawCircleV(drawCoords, diameter, RED);
+                break;
+            case MINE:
+                DrawCircleV(drawCoords, diameter, BLUE);
+                break;
+            case SHARP_BOMB:
+                DrawCircleV(drawCoords, diameter, GREEN);
+                break;
+            default:
+                break;
+        }
+        // Draw fuse timer ring
+        float relativeTimeLeft = bombs[i].fuseTimer / getWeaponProperties(bombs[i].type).startingFuse;
+        DrawRing(drawCoords, diameter + 0.3f, diameter + 0.4f, 0, relativeTimeLeft * 360.0f, 30, WHITE);
+        DrawRing(drawCoords, diameter + 0.2f, diameter + 0.3f, 0, relativeTimeLeft * 360.0f, 30, BLACK);
     }
 }
 
@@ -174,9 +192,6 @@ void drawGameState(GameState *state, InputState *input)
         BeginMode2D(camera);
 
             ClearBackground(WHITE);
-
-            // draw a unit line
-            DrawLine(0, 0, 1, 0, RED);
                     
             drawPlayfield(state->playfield);
             drawPlayers(state->players);
@@ -191,6 +206,14 @@ void drawGameState(GameState *state, InputState *input)
         // draw fps
 		//DrawText(TextFormat("%d", GetFPS()), 10, 10, 20, GREEN);
 		// draw camera zoom
-		DrawText(TextFormat("%f", camera.zoom), 10, 30, 60, BLUE);
+		//DrawText(TextFormat("%f", camera.zoom), 10, 30, 60, BLUE);
+        // Draw each player's selected weapon and quantity
+        for (int i = 0; i < MAX_PLAYERS; i++)
+        {
+            Player* player = &state->players[i];
+            if (!player->active) continue;
+            Vector2 drawPos = { 10.0f, 10.0f + 20.0f * i };
+            DrawText(TextFormat("%s: %d", getWeaponName(player->inventory[player->activeSlot].type), player->inventory[player->activeSlot].quantity), drawPos.x, drawPos.y, 20, state->players[i].color);
+        }
     EndDrawing();
 }

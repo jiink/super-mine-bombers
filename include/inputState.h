@@ -13,6 +13,7 @@ typedef enum {
     LEFT,
     RIGHT,
     ATTACK,
+    WEP_SELECT,
     NUM_ACTIONS
 } BindingAction;
 
@@ -33,6 +34,7 @@ typedef struct {
     Vector2 direction;
     bool attack;
     bool attackPressed;
+    bool wepSelectPressed;
 } PlayerInputState;
 
 typedef struct {
