@@ -13,6 +13,9 @@ Axial playerSpawnPoints[MAX_PLAYERS] = {
 	{ 1, 1 },
 };
 
+// Bomb detonation prototypes
+static void sharpBombDetonate(Vector2 position, float radius, float damage, Cell playfield[FIELD_H][FIELD_W], Player players[MAX_PLAYERS]);
+
 WeaponProperties weaponProperties[MAX_CELL_TYPES] = {
     [BOMB] = {
         .startingFuse = 2.0f,
@@ -27,10 +30,10 @@ WeaponProperties weaponProperties[MAX_CELL_TYPES] = {
 		.detonationFunc = explode,
         },             
     [SHARP_BOMB] = {
-        .startingFuse = 5.0f,
-        .damage = 200,
-        .radius = 20,
-		.detonationFunc = explode,
+        .startingFuse = 3.0f,
+        .damage = 500,
+        .radius = 40,
+		.detonationFunc = sharpBombDetonate,
         },     
 };
 
@@ -125,6 +128,20 @@ void explode(Vector2 position, float radius, float damage, Cell playfield[FIELD_
     }
 }
 
+static void sharpBombDetonate(Vector2 position, float radius, float damage, Cell playfield[FIELD_H][FIELD_W], Player players[MAX_PLAYERS])
+{
+    // Cause a series of small explosions in a line above and below, to the left and to the right
+    // the reach of the line of explosions is determined by the radius
+    for (int i = 0; i < radius; i++)
+    {
+        explode((Vector2){.x = position.x + i * CELL_H_SPACING, .y = position.y}, 1.0f / (float)(i / 2 + 1), damage / (i / 2 + 1), playfield, players);
+        explode((Vector2){.x = position.x - i * CELL_H_SPACING, .y = position.y}, 1.0f / (float)(i / 2 + 1), damage / (i / 2 + 1), playfield, players);
+        explode((Vector2){.x = position.x, .y = position.y + i * CELL_V_SPACING}, 1.0f / (float)(i / 2 + 1), damage / (i / 2 + 1), playfield, players);
+        explode((Vector2){.x = position.x, .y = position.y - i * CELL_V_SPACING}, 1.0f / (float)(i / 2 + 1), damage / (i / 2 + 1), playfield, players);
+    }
+    
+}
+
 void borderPlayfield(Cell playfield[FIELD_H][FIELD_W])
 {
     for (int i = 0; i < FIELD_W; i++)
@@ -179,7 +196,7 @@ void initPlayers(Player players[MAX_PLAYERS])
         players[i].score = 0;
         players[i].active = false;
         players[i].color = playerColors[i];
-        players[i].inventory[0] = (WeaponSlot) { .type = BOMB, .quantity = 20 };
+        players[i].inventory[0] = (WeaponSlot) { .type = SHARP_BOMB, .quantity = 20 };
         players[i].activeSlot = 0;
     }
 
@@ -297,7 +314,7 @@ void updatePlayer(GameState* state, int playerNum, PlayerInputState* pInput)
     playerNum = clamp(playerNum, 0, MAX_PLAYERS - 1);
     Player* player = &state->players[playerNum];
     // Movement control
-    const float speed = 10.0f;
+    const float speed = 7.0f;
     Vector2 playerPos = player->position;
     Vector2 desiredPosition = Vector2Add(playerPos, Vector2Scale(pInput->direction, speed * GetFrameTime()));
     Vector2 destination = desiredPosition;
@@ -318,7 +335,7 @@ void updatePlayer(GameState* state, int playerNum, PlayerInputState* pInput)
     Axial pos = toCellCoords(desiredPosition);
     int col = pos.q;
     int row = pos.r;
-    const int miningSpeed = 100;
+    const int miningSpeed = 10;
     damageCell(row, col, miningSpeed, state->playfield);
     // Attacking
     if (pInput->attackPressed)
