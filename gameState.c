@@ -8,8 +8,8 @@
 
 Axial playerSpawnPoints[MAX_PLAYERS] = {
 	{ 1, 1 },
-	{ 1, 1 },
 	{ FIELD_H - 2, FIELD_W - 2 },
+	{ 1, 1 },
 	{ 1, 1 },
 };
 

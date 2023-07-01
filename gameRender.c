@@ -148,7 +148,7 @@ Vector2 getPlayersMidpoint(Player players[MAX_PLAYERS])
 void updateCamera(Camera2D *cam, Player players[MAX_PLAYERS], float smoothness)
 {
     // Get camera target 🎯
-    Vector2 targetPosition = getPlayersMidpoint(players);
+    Vector2 targetPosition = worldToDrawCoords( getPlayersMidpoint(players));
     float camLerpFac = 0.05;
     // 📷 Smoothly interpolate camera's position to the camera target
     cam->target = Vector2Lerp(cam->target, targetPosition, camLerpFac);
