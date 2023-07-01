@@ -1,6 +1,6 @@
 {
     "files.associations": {
-		"gamestate.h": "c",
+		"roundstate.h": "c",
 		"stdio.h": "c",
 		"stdbool.h": "c",
 		"raylib.h": "c",

@@ -2,12 +2,12 @@
 #define GAMERENDER_H
 
 #include "raylib.h"
-#include "gameState.h"
+#include "roundState.h"
 #include "inputState.h"
 
 void initGameRender(int screenWidth, int screenHeight);
 void initCellColorLookup();
-void drawGameState(GameState *gameState, InputState *input);
+void drawRoundState(RoundState *roundState, InputState *input);
 void drawPlayfield(Cell playfield[FIELD_H][FIELD_W]);
 void drawPlayers(Player players[MAX_PLAYERS]);
 void drawPlayer(Player *player);

@@ -1,6 +1,6 @@
 #include "include/inputState.h"
 #include "include/raymath.h"
-#include "include/gameState.h"
+#include "include/roundState.h"
 
 void initPlayerInputState(PlayerInputState *pInput)
 {

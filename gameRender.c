@@ -184,7 +184,7 @@ void updateCamera(Camera2D *cam, Player players[MAX_PLAYERS], float smoothness)
 	cam->zoom = Lerp(cam->zoom, zoomTarget, 0.1f);
 }
 
-void drawGameState(GameState *state, InputState *input)
+void drawRoundState(RoundState *state, InputState *input)
 {
 	cellColorLookup[WALL] = ColorFromHSV((float)GetTime() * 10.0f, 0.5f, 0.5f);
 

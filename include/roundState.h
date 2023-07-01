@@ -1,5 +1,5 @@
-#ifndef GAMESTATE_H
-#define GAMESTATE_H
+#ifndef ROUNDSTATE_H
+#define ROUNDSTATE_H
 
 #include <stdbool.h>
 #include "common.h"
@@ -76,11 +76,11 @@ typedef struct {
     Player players[MAX_PLAYERS];
     Bomb bombs[MAX_BOMBS]; // MAX_BOMBS is the maximum number of bombs allowed
     float roundTime;
-} GameState;
+} RoundState;
 
 int getNumAlivePlayers(Player players[MAX_PLAYERS]);
-void initGameState(GameState* state);
-void updateGameState(GameState* state, InputState* input);
+void initRoundState(RoundState* state);
+void updateRoundState(RoundState* state, InputState* input);
 void borderPlayfield(Cell playfield[FIELD_H][FIELD_W]);
 void initPlayfield(Cell playfield[FIELD_H][FIELD_W]);
 void initPlayers(Player players[MAX_PLAYERS]);
@@ -92,4 +92,4 @@ WeaponProperties getWeaponProperties(WeaponType type);
 const char* getWeaponName(WeaponType type);
 CellProperties getCellProperties(CellType type);
 
-#endif  // GAMESTATE_H
+#endif  // ROUNDSTATE_H

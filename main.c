@@ -1,7 +1,7 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include "include/raylib.h"
-#include "include/gameState.h"
+#include "include/roundState.h"
 #include "include/gameRender.h"
 #include "include/inputState.h"
 
@@ -12,11 +12,11 @@ int main(void)
     const int screenWidth = 1280;
     const int screenHeight = 720;
 
-    GameState state;
+    RoundState state;
     InputState inputState;
     Bindings bindings;
 
-    initGameState(&state);
+    initRoundState(&state);
     initInputState(&inputState, &bindings);
     initGameRender(screenWidth, screenHeight);
 
@@ -29,13 +29,13 @@ int main(void)
     while (!WindowShouldClose())
     {
         updateInputState(&inputState, &bindings);
-        updateGameState(&state, &inputState);
-        drawGameState(&state, &inputState);
+        updateRoundState(&state, &inputState);
+        drawRoundState(&state, &inputState);
 
 		// If R is pressed, restart by initializing the game state again
 		if (IsKeyPressed(KEY_R))
 		{
-			initGameState(&state);
+			initRoundState(&state);
 		}
     }
 

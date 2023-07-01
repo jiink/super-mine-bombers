@@ -1,10 +1,10 @@
 #include <stdio.h>
 #include <stdbool.h>
-#include "include/gameState.h"
+#include "include/roundState.h"
 #include "include/raymath.h"
 #include "include/hex.h"
-#include "include/gameState.h"
-#include "gameState.h"
+#include "include/roundState.h"
+#include "roundState.h"
 
 Axial playerSpawnPoints[MAX_PLAYERS] = {
 	{ 1, 1 },
@@ -75,7 +75,6 @@ int clamp(int value, int min, int max)
         return value;
     }
 }
-
 
 bool isPointInSolidCell(Vector2 point, Cell playfield[FIELD_H][FIELD_W])
 {
@@ -287,7 +286,7 @@ int getNumAlivePlayers(Player players[MAX_PLAYERS])
     return numPlayers;
 }
 
-void initGameState(GameState *state)
+void initRoundState(RoundState *state)
 {
     initPlayfield(state->playfield);
     initPlayers(state->players);
@@ -346,7 +345,7 @@ int getNumInventorySlotsUsed(Player* player)
     return numUsed;
 }
 
-void updatePlayer(GameState* state, int playerNum, PlayerInputState* pInput)
+void updatePlayer(RoundState* state, int playerNum, PlayerInputState* pInput)
 {
     playerNum = clamp(playerNum, 0, MAX_PLAYERS - 1);
     Player* player = &state->players[playerNum];
@@ -395,7 +394,7 @@ void updatePlayer(GameState* state, int playerNum, PlayerInputState* pInput)
     }
 }
 
-void updatePlayers(GameState* state, InputState* input)
+void updatePlayers(RoundState* state, InputState* input)
 {
 	// todo: make this work when some players are inactive
     for (int i = 0; i < MAX_PLAYERS; i++)
@@ -408,18 +407,18 @@ void updatePlayers(GameState* state, InputState* input)
 }
 
 // Returns true if it's game over!
-bool gameOverCondition(GameState* state)
+bool gameOverCondition(RoundState* state)
 {
     int numPlayers = getNumAlivePlayers(state->players);
     return numPlayers <= 1; // uh, if there's 1 guy left, he is the winner
 }
 
-void updateGameState(GameState* state, InputState* input)
+void updateRoundState(RoundState* state, InputState* input)
 {
     if (gameOverCondition(state))
     {
         // Restart the game
-        initGameState(state);
+        initRoundState(state);
     }
     updatePlayers(state, input);
     updateBombs(state->bombs, state->playfield, state->players);
