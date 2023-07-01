@@ -78,7 +78,7 @@ typedef struct {
     float roundTime;
 } GameState;
 
-int getNumPlayers(Player players[MAX_PLAYERS]);
+int getNumAlivePlayers(Player players[MAX_PLAYERS]);
 void initGameState(GameState* state);
 void updateGameState(GameState* state, InputState* input);
 void borderPlayfield(Cell playfield[FIELD_H][FIELD_W]);

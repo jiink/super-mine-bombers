@@ -108,7 +108,7 @@ void drawBombs(Bomb bombs[MAX_BOMBS])
 // Find the distance that lies between the 2 players who are the farthest apart
 float getPlayersGreatestDistance(Player players[MAX_PLAYERS])
 {
-    int numPlayers = getNumPlayers(players);
+    int numPlayers = getNumAlivePlayers(players);
     float greatestDistance = 1.0f;
     if (numPlayers < 2)
     {
@@ -132,7 +132,7 @@ float getPlayersGreatestDistance(Player players[MAX_PLAYERS])
 Vector2 getPlayersMidpoint(Player players[MAX_PLAYERS])
 {
     Vector2 accumulation = { 0.0f, 0.0f };
-    int numPlayers = getNumPlayers(players);
+    int numPlayers = getNumAlivePlayers(players);
 	if (numPlayers == 0) return (Vector2){ 0.0f, 0.0f };
     for (int i = 0; i < MAX_PLAYERS; i++)
     {

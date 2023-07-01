@@ -250,7 +250,7 @@ void initBombs(Bomb bombsList[MAX_BOMBS])
     }
 }
 
-int getNumPlayers(Player players[MAX_PLAYERS])
+int getNumAlivePlayers(Player players[MAX_PLAYERS])
 {
     int numPlayers = 0;
     for (int i = 0; i < MAX_PLAYERS; i++)
@@ -347,7 +347,6 @@ void updatePlayer(GameState* state, int playerNum, PlayerInputState* pInput)
             printf("Using a %d! (%d left)\n", slot->type, slot->quantity);
             spawnBomb(slot->type, player->position, state->bombs);
         }
-        
     }
 }
 
@@ -363,8 +362,20 @@ void updatePlayers(GameState* state, InputState* input)
     }
 }
 
+// Returns true if it's game over!
+bool gameOverCondition(GameState* state)
+{
+    int numPlayers = getNumAlivePlayers(state->players);
+    return numPlayers < 1;
+}
+
 void updateGameState(GameState* state, InputState* input)
 {
+    if (gameOverCondition(state))
+    {
+        // Restart the game
+        initGameState(state);
+    }
     updatePlayers(state, input);
     updateBombs(state->bombs, state->playfield, state->players);
 }
