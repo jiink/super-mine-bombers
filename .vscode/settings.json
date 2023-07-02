@@ -1,15 +1,16 @@
 {
     "files.associations": {
-		"roundstate.h": "c",
-		"stdio.h": "c",
-		"stdbool.h": "c",
-		"raylib.h": "c",
-		"gamerender.h": "c",
-		"inputstate.h": "c",
-		"raymath.h": "c",
-		"common.h": "c",
-		"hex.h": "c"
-	},
+        "roundstate.h": "c",
+        "stdio.h": "c",
+        "stdbool.h": "c",
+        "raylib.h": "c",
+        "gamerender.h": "c",
+        "inputstate.h": "c",
+        "raymath.h": "c",
+        "common.h": "c",
+        "hex.h": "c",
+        "matchrender.h": "c"
+    },
 	"workbench.colorCustomizations": {
 		"activityBar.background": "#511931",
 		"titleBar.activeBackground": "#722345",

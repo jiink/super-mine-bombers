@@ -2,7 +2,7 @@
 
 #include <stdio.h>
 #include <math.h>
-#include "include/gameRender.h"
+#include "include/roundRender.h"
 #include "include/raymath.h"
 #include "include/hex.h"
 
@@ -38,7 +38,6 @@ void initGameRender(int screenWidth, int screenHeight)
 void drawHexagon(Vector2 center, Color color)
 {
     const float size = 0.626f; // Seams appear at 0.625f
-    const float width = 2.0f * size;
     const float height = 4.0f/3.0f * size;
     const float THIRD = 1.0f / 3.0f;
     Vector2 verts[8] = {
@@ -172,7 +171,6 @@ void updateCamera(Camera2D *cam, Player players[MAX_PLAYERS], float smoothness)
     cam->target = Vector2Lerp(cam->target, targetPosition, camLerpFac);
 
     // Determine 🔍 zoom needed to have all players 👯‍♂️👯‍♀️ in view
-    float zoomOffset = 1.0f;
     float zoomMultiplier = 0.75f;
 	float minZoom = 7.0f;
 	float maxZoom = 50.0f;
@@ -187,33 +185,31 @@ void updateCamera(Camera2D *cam, Player players[MAX_PLAYERS], float smoothness)
 void drawRoundState(RoundState *state, InputState *input)
 {
 	cellColorLookup[WALL] = ColorFromHSV((float)GetTime() * 10.0f, 0.5f, 0.5f);
+    BeginMode2D(camera);
 
-    BeginDrawing();
-        BeginMode2D(camera);
+        ClearBackground(WHITE);
+                
+        drawPlayfield(state->playfield);
+        drawPlayers(state->players);
+        drawBombs(state->bombs);
 
-            ClearBackground(WHITE);
-                    
-            drawPlayfield(state->playfield);
-            drawPlayers(state->players);
-            drawBombs(state->bombs);
+        updateCamera(&camera, state->players, 0.1);
+        //camera.zoom += ((float)GetMouseWheelMove() * 3.0f);
 
-            updateCamera(&camera, state->players, 0.1);
-            //camera.zoom += ((float)GetMouseWheelMove() * 3.0f);
+    EndMode2D();
 
-        EndMode2D();
-
-        // UI
-        // draw fps
-		//DrawText(TextFormat("%d", GetFPS()), 10, 10, 20, GREEN);
-		// draw camera zoom
-		//DrawText(TextFormat("%f", camera.zoom), 10, 30, 60, BLUE);
-        // Draw each player's selected weapon and quantity
-        for (int i = 0; i < MAX_PLAYERS; i++)
-        {
-            Player* player = &state->players[i];
-            if (!player->active) continue;
-            Vector2 drawPos = { 10.0f, 10.0f + 20.0f * i };
-            DrawText(TextFormat("%s: %d", getWeaponName(player->inventory[player->activeSlot].type), player->inventory[player->activeSlot].quantity), drawPos.x, drawPos.y, 20, state->players[i].color);
-        }
-    EndDrawing();
+    // UI
+    // draw fps
+    //DrawText(TextFormat("%d", GetFPS()), 10, 10, 20, GREEN);
+    // draw camera zoom
+    //DrawText(TextFormat("%f", camera.zoom), 10, 30, 60, BLUE);
+    // Draw each player's selected weapon and quantity
+    for (int i = 0; i < MAX_PLAYERS; i++)
+    {
+        Player* player = &state->players[i];
+        if (!player->active) continue;
+        Vector2 drawPos = { 10.0f, 10.0f + 20.0f * i };
+        DrawText(TextFormat("%s: %d", getWeaponName(player->inventory[player->activeSlot].type), player->inventory[player->activeSlot].quantity), drawPos.x, drawPos.y, 20, state->players[i].color);
+    }
+    
 }

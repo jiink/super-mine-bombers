@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include "matchState.h"
 
 void initMatchState(MatchState *matchState)

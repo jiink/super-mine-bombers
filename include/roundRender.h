@@ -1,5 +1,5 @@
-#ifndef GAMERENDER_H
-#define GAMERENDER_H
+#ifndef ROUNDRENDER_H
+#define ROUNDRENDER_H
 
 #include "raylib.h"
 #include "roundState.h"
@@ -12,4 +12,4 @@ void drawPlayfield(Cell playfield[FIELD_H][FIELD_W]);
 void drawPlayers(Player players[MAX_PLAYERS]);
 void drawPlayer(Player *player);
 
-#endif // GAMERENDER_H
+#endif // ROUNDRENDER_H

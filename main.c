@@ -3,7 +3,7 @@
 #include "include/raylib.h"
 #include "include/roundState.h"
 #include "include/matchState.h"
-#include "include/gameRender.h"
+#include "include/matchRender.h"
 #include "include/inputState.h"
 
 #define ENABLE_MSAA false
@@ -31,7 +31,7 @@ int main(void)
     {
         updateInputState(&inputState, &bindings);
         updateMatchState(&matchState, &inputState);
-        drawRoundState(&matchState.roundState, &inputState);
+        drawMatchState(&matchState, &inputState);
     }
 
     CloseWindow();
