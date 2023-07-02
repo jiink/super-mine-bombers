@@ -411,8 +411,8 @@ void updatePlayer(RoundState* state, int playerNum, PlayerInputState* pInput)
     Axial pos = toCellCoords(desiredPosition);
     int col = pos.q;
     int row = pos.r;
-    const int miningSpeed = 10;
-    damageCell(row, col, miningSpeed, state->playfield);
+    const int miningSpeed = 600; // Health per second
+    damageCell(row, col, (int)((float)miningSpeed * GetFrameTime()), state->playfield);
     // Attacking
     if (pInput->attackPressed)
     {
