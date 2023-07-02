@@ -55,13 +55,6 @@ typedef struct {
     int activeSlot;
 } Player;
 
-typedef struct {
-    float startingFuse;
-    int damage;
-    float radius;
-	void (*detonationFunc)(Vector2, float, float, Cell[FIELD_H][FIELD_W], Player[MAX_PLAYERS]);
-} WeaponProperties;
-
 // Struct to represent a bomb entity
 typedef struct {
     bool active;
@@ -79,6 +72,14 @@ typedef struct {
     bool roundOver;
 } RoundState;
 
+typedef struct {
+    float startingFuse;
+    int damage;
+    float radius;
+	bool (*detonationFunc)(Vector2, float, float, Cell[FIELD_H][FIELD_W], Player[MAX_PLAYERS]); // Should return true if the bomb sucessfully detonated. False if it did not (e.g. if a mine did not find a reason to explode)
+    void (*updateFunc)(Bomb*, const RoundState*);
+} WeaponProperties;
+
 int getNumAlivePlayers(Player players[MAX_PLAYERS]);
 void initRoundState(RoundState* state);
 void updateRoundState(RoundState* state, InputState* input);
@@ -88,7 +89,7 @@ void initPlayers(Player players[MAX_PLAYERS]);
 void damagePlayer(Player* player, int damage);
 void damageCell(int row, int col, int damage, Cell playfield[FIELD_H][FIELD_W]);
 void damageCellAtPos(Vector2 pos, int damage, Cell playfield[FIELD_H][FIELD_W]);
-void explode(Vector2 position, float radius, float damage, Cell playfield[FIELD_H][FIELD_W], Player players[MAX_PLAYERS]);
+bool explode(Vector2 position, float radius, float damage, Cell playfield[FIELD_H][FIELD_W], Player players[MAX_PLAYERS]);
 WeaponProperties getWeaponProperties(WeaponType type);
 const char* getWeaponName(WeaponType type);
 CellProperties getCellProperties(CellType type);
