@@ -97,14 +97,15 @@ void updatePlayerInputState(PlayerInputState* pInput, PlayerBindings* pBindings,
     {
         pInput->attackPressed = true;
     }
+    if (IsKeyPressed(pBindings->bindings[WEP_SELECT].key))
+    {
+        pInput->wepSelectPressed = true;
+    }
     if (IsGamepadAvailable(gamepadNum))
     {
         pInput->attack = pInput->attack || IsGamepadButtonDown(gamepadNum, GAMEPAD_BUTTON_RIGHT_FACE_DOWN);
         pInput->attackPressed = pInput->attackPressed || IsGamepadButtonPressed(gamepadNum, GAMEPAD_BUTTON_RIGHT_FACE_DOWN);
-    }
-    if (IsKeyPressed(pBindings->bindings[WEP_SELECT].key))
-    {
-        pInput->wepSelectPressed = true;
+        pInput->wepSelectPressed = pInput->wepSelectPressed || IsGamepadButtonPressed(gamepadNum, GAMEPAD_BUTTON_RIGHT_FACE_LEFT);
     }
 }
 
