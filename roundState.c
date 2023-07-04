@@ -214,9 +214,36 @@ void clearInventory(Player* player)
 {
     for (int i = 0; i < INVENTORY_SIZE; i++)
     {
-        player->inventory[i].type = BOMB;
+        player->inventory[i].type = MAX_WEAPON_TYPE;
         player->inventory[i].quantity = 0;
     }
+}
+
+// Returns true if the item was given, false if there was no room
+bool giveItem(Player* player, WeaponType type, int amount)
+{
+    for (int i = 0; i < INVENTORY_SIZE; i++)
+    {
+        if (player->inventory[i].type == type)
+        {
+            player->inventory[i].quantity += amount;
+            return true;
+        }
+    }
+    // If we get here, we didn't find the item in the inventory
+    // So we need to add it
+    for (int i = 0; i < INVENTORY_SIZE; i++)
+    {
+        // Found an empty slot
+        if (player->inventory[i].type == MAX_WEAPON_TYPE)
+        {
+            player->inventory[i].type = type;
+            player->inventory[i].quantity = amount;
+            return true;
+        }
+    }
+    // No room
+    return false;
 }
 
 void initPlayers(Player players[MAX_PLAYERS])
@@ -229,9 +256,6 @@ void initPlayers(Player players[MAX_PLAYERS])
         players[i].active = false;
         players[i].color = playerColors[i];
         clearInventory(&players[i]);
-        players[i].inventory[0] = (WeaponSlot) { .type = SHARP_BOMB, .quantity = 5 };
-        players[i].inventory[1] = (WeaponSlot) { .type = BOMB, .quantity = 10 };
-        players[i].inventory[2] = (WeaponSlot) { .type = MINE, .quantity = 3 };
         players[i].activeSlot = 0;
         players[i].position = toWorldCoords(playerSpawnPoints[i]);
         players[i].velocity = (Vector2) { 0.0f, 0.0f };
@@ -393,6 +417,7 @@ void updatePlayer(RoundState* state, int playerNum, PlayerInputState* pInput)
 {
     playerNum = clampInt(playerNum, 0, MAX_PLAYERS - 1);
     Player* player = &state->players[playerNum];
+
     // Movement control
     Vector2 playerPos = player->position;
     player->targetSpeed = Vector2Length(pInput->direction) * player->topSpeed;
@@ -442,7 +467,16 @@ void updatePlayer(RoundState* state, int playerNum, PlayerInputState* pInput)
     // will return 1
     if (pInput->wepSelectPressed)
     {
-        player->activeSlot = (player->activeSlot + 1) % getNumInventorySlotsUsed(player);
+        // Find next available slot
+        for (int i = 0; i < INVENTORY_SIZE; i++)
+        {
+            int nextSlot = (player->activeSlot + i) % INVENTORY_SIZE;
+            if (player->inventory[nextSlot].quantity > 0 && player->inventory[nextSlot].type < MAX_WEAPON_TYPE)
+            {
+                player->activeSlot = nextSlot;
+                break;
+            }
+        }
     }
 }
 

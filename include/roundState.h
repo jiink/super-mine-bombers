@@ -91,6 +91,7 @@ void updateRoundState(RoundState* state, InputState* input);
 void borderPlayfield(Cell playfield[FIELD_H][FIELD_W]);
 void initPlayfield(Cell playfield[FIELD_H][FIELD_W]);
 void initPlayers(Player players[MAX_PLAYERS]);
+bool giveItem(Player* player, WeaponType type, int amount);
 void damagePlayer(Player* player, int damage);
 void damageCell(int row, int col, int damage, Cell playfield[FIELD_H][FIELD_W]);
 void damageCellAtPos(Vector2 pos, int damage, Cell playfield[FIELD_H][FIELD_W]);
