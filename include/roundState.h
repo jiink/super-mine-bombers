@@ -48,11 +48,16 @@ typedef struct {
 typedef struct {
     bool active;
     int health;
-    Vector2 position;
     Color color;
     int score;
     WeaponSlot inventory[INVENTORY_SIZE];
     int activeSlot;
+    Vector2 position;
+    Vector2 velocity;
+    float targetSpeed;
+    float topSpeed;
+    float acceleration;
+    float friction;
 } Player;
 
 // Struct to represent a bomb entity

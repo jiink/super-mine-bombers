@@ -9,7 +9,8 @@
         "raymath.h": "c",
         "common.h": "c",
         "hex.h": "c",
-        "matchrender.h": "c"
+        "matchrender.h": "c",
+        "matchstate.h": "c"
     },
 	"workbench.colorCustomizations": {
 		"activityBar.background": "#511931",

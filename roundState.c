@@ -17,7 +17,6 @@ Axial playerSpawnPoints[MAX_PLAYERS] = {
 static bool sharpBombDetonate(Vector2 position, float radius, float damage, Cell playfield[FIELD_H][FIELD_W], Player players[MAX_PLAYERS]);
 static bool mineTryDetonate(Vector2 position, float radius, float damage, Cell playfield[FIELD_H][FIELD_W], Player players[MAX_PLAYERS]);
 static void bombUpdateNothing(Bomb* bomb, const RoundState* roundState);
-static void mineUpdate(Bomb* bomb, const RoundState* roundState);
 
 WeaponProperties weaponProperties[MAX_CELL_TYPES] = {
     [BOMB] = {
@@ -66,7 +65,7 @@ CellProperties cellProperties[MAX_CELL_TYPES] = {
 	},
 };
 
-int clamp(int value, int min, int max)
+int clampInt(int value, int min, int max)
 {
     if (value < min)
     {
@@ -225,7 +224,6 @@ void initPlayers(Player players[MAX_PLAYERS])
     const Color playerColors[MAX_PLAYERS] = { RED, BLUE, GREEN, YELLOW };
     for (int i = 0; i < MAX_PLAYERS; i++)
     {
-        players[i].position = toWorldCoords(playerSpawnPoints[i]);
         players[i].health = 100;
         players[i].score = 0;
         players[i].active = false;
@@ -235,6 +233,12 @@ void initPlayers(Player players[MAX_PLAYERS])
         players[i].inventory[1] = (WeaponSlot) { .type = BOMB, .quantity = 10 };
         players[i].inventory[2] = (WeaponSlot) { .type = MINE, .quantity = 3 };
         players[i].activeSlot = 0;
+        players[i].position = toWorldCoords(playerSpawnPoints[i]);
+        players[i].velocity = (Vector2) { 0.0f, 0.0f };
+        players[i].targetSpeed = 0.0f;
+        players[i].topSpeed = 7.0f;
+        players[i].acceleration = 20.0f;
+        players[i].friction = 2.0f;
     }
 
     players[0].active = true;
@@ -387,12 +391,20 @@ int getNumInventorySlotsUsed(Player* player)
 
 void updatePlayer(RoundState* state, int playerNum, PlayerInputState* pInput)
 {
-    playerNum = clamp(playerNum, 0, MAX_PLAYERS - 1);
+    playerNum = clampInt(playerNum, 0, MAX_PLAYERS - 1);
     Player* player = &state->players[playerNum];
     // Movement control
-    const float speed = 7.0f;
     Vector2 playerPos = player->position;
-    Vector2 desiredPosition = Vector2Add(playerPos, Vector2Scale(pInput->direction, speed * GetFrameTime()));
+    player->targetSpeed = Vector2Length(pInput->direction) * player->topSpeed;
+    if (player->targetSpeed > Vector2Length(player->velocity))
+    {
+        player->velocity = Vector2Add(player->velocity, Vector2Scale(pInput->direction, player->acceleration * GetFrameTime()));
+    }
+    else if (player->targetSpeed < Vector2Length(player->velocity))
+    {
+        player->velocity = Vector2Scale(player->velocity, 0.9f);
+    }
+    Vector2 desiredPosition = Vector2Add(playerPos, Vector2Scale(player->velocity, GetFrameTime()));
     Vector2 destination = desiredPosition;
     // Check if the player (point) is trying to move into a solid cell (rectanlge)
     if (isPointInSolidCell((Vector2){desiredPosition.x, playerPos.y}, state->playfield))

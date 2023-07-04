@@ -211,5 +211,16 @@ void drawRoundState(RoundState *state, InputState *input)
         Vector2 drawPos = { 10.0f, 10.0f + 20.0f * i };
         DrawText(TextFormat("%s: %d", getWeaponName(player->inventory[player->activeSlot].type), player->inventory[player->activeSlot].quantity), drawPos.x, drawPos.y, 20, state->players[i].color);
     }
+    // Draw player 1's:
+    //currentSpeed
+    // targetSpeed
+    // topSpeed
+    // acceleration
+    // deceleration
+    DrawText(TextFormat("Speed: %f", state->players[0].velocity.y), 10, 100, 20, state->players[0].color);
+    DrawText(TextFormat("Target: %f", state->players[0].targetSpeed), 10, 120, 20, state->players[0].color);
+    DrawText(TextFormat("Top: %f", state->players[0].topSpeed), 10, 140, 20, state->players[0].color);
+    DrawText(TextFormat("Accel: %f", state->players[0].acceleration), 10, 160, 20, state->players[0].color);
+    DrawText(TextFormat("Decel: %f", state->players[0].friction), 10, 180, 20, state->players[0].color);
     
 }
