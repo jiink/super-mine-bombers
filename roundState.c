@@ -23,6 +23,7 @@ WeaponProperties weaponProperties[MAX_CELL_TYPES] = {
         .startingFuse = 2.0f,
         .damage = 150,
         .radius = 6,
+        .price = 1,
 		.detonationFunc = explode,
         .updateFunc = bombUpdateNothing,
         },            
@@ -30,6 +31,7 @@ WeaponProperties weaponProperties[MAX_CELL_TYPES] = {
         .startingFuse = 5.0f,
         .damage = 200,
         .radius = 10,
+        .price = 2,
 		.detonationFunc = mineTryDetonate,
         .updateFunc = bombUpdateNothing,
         },             
@@ -37,6 +39,7 @@ WeaponProperties weaponProperties[MAX_CELL_TYPES] = {
         .startingFuse = 3.0f,
         .damage = 500,
         .radius = 40,
+        .price = 3,
 		.detonationFunc = sharpBombDetonate,
         .updateFunc = bombUpdateNothing,
         },     
@@ -470,7 +473,7 @@ void updatePlayer(RoundState* state, int playerNum, PlayerInputState* pInput)
         // Find next available slot
         for (int i = 0; i < INVENTORY_SIZE; i++)
         {
-            int nextSlot = (player->activeSlot + i) % INVENTORY_SIZE;
+            int nextSlot = (player->activeSlot + i + 1) % INVENTORY_SIZE;
             if (player->inventory[nextSlot].quantity > 0 && player->inventory[nextSlot].type < MAX_WEAPON_TYPE)
             {
                 player->activeSlot = nextSlot;

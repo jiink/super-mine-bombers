@@ -30,7 +30,6 @@ typedef struct {
 	bool solid;
 } CellProperties;
 
-// Enum to represent weapon types
 typedef enum {
     BOMB,
     MINE,
@@ -81,6 +80,7 @@ typedef struct {
     float startingFuse;
     int damage;
     float radius;
+    int price;
 	bool (*detonationFunc)(Vector2, float, float, Cell[FIELD_H][FIELD_W], Player[MAX_PLAYERS]); // Should return true if the bomb sucessfully detonated. False if it did not (e.g. if a mine did not find a reason to explode)
     void (*updateFunc)(Bomb*, const RoundState*);
 } WeaponProperties;

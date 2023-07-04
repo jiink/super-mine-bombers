@@ -9,6 +9,7 @@ typedef struct {
 
 typedef struct {
     ShoppingCart shoppingCarts[MAX_PLAYERS]; // you can buy stuff between each round
+    int wallets[MAX_PLAYERS];
     RoundState roundState;
     int roundNumber;
 } MatchState;
