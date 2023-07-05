@@ -26,7 +26,7 @@ int main(void)
     }
     InitWindow(screenWidth, screenHeight, "Super Mine Bombers");
 	SetWindowState(FLAG_VSYNC_HINT);
-    
+
     initRoundRender(screenWidth, screenHeight);
     while (!WindowShouldClose())
     {

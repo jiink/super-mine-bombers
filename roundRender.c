@@ -141,11 +141,14 @@ static void drawPlayer(Player* player)
 	if (!player->active) return;
 	const float diameter = 0.15f;
 	Vector2 drawPos = worldToDrawCoords(player->position);
-	DrawCircleV(drawPos, diameter, player->color);
+	//DrawCircleV(drawPos, diameter, player->color);
 	// Draw health ring
 	DrawRing(drawPos, diameter + 0.1f, diameter + 0.2f, 0, player->health * 1.80f, 30, player->color);
     // Draw sprite
-    drawVitmap(characterSprite, drawPos, (Vector2) { sin(GetTime()) * 0.25 + 0.5, cos(GetTime()) * 0.25 + 0.5 }, 0.0f);
+    drawVitmap(characterSprite,
+        Vector2Add(drawPos, (Vector2) {-0.35f, -0.75f}),
+        (Vector2) { 0.05, 0.05 },
+        0.0f);
 }
 
 static void drawPlayers(Player players[MAX_PLAYERS])
@@ -189,7 +192,7 @@ static void drawBombs(Bomb bombs[MAX_BOMBS])
 static float getPlayersGreatestDistance(Player players[MAX_PLAYERS])
 {
     int numPlayers = getNumAlivePlayers(players);
-    float greatestDistance = 1.0f;
+    float greatestDistance = 0.1f;
     if (numPlayers < 2)
     {
         return greatestDistance;
@@ -242,9 +245,9 @@ static void updateCamera(Camera2D *cam, Player players[MAX_PLAYERS], float smoot
     cam->target = Vector2Lerp(cam->target, targetPosition, camLerpFac);
 
     // Determine 🔍 zoom needed to have all players 👯‍♂️👯‍♀️ in view
-    float zoomMultiplier = 0.75f;
+    float zoomMultiplier = 1.0f;
 	float minZoom = 7.0f;
-	float maxZoom = 50.0f;
+	float maxZoom = 100.0f;
 	float zoomTarget = zoomMultiplier * (GetScreenHeight() / getPlayersGreatestDistance(players));
 	if (zoomTarget < minZoom) zoomTarget = minZoom;
 	if (zoomTarget > maxZoom) zoomTarget = maxZoom;
