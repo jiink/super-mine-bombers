@@ -19,7 +19,6 @@ int main(void)
 
     initMatchState(&matchState);
     initInputState(&inputState, &bindings);
-    initRoundRender(screenWidth, screenHeight);
 
     if (ENABLE_MSAA)
     {
@@ -27,6 +26,8 @@ int main(void)
     }
     InitWindow(screenWidth, screenHeight, "Super Mine Bombers");
 	SetWindowState(FLAG_VSYNC_HINT);
+    
+    initRoundRender(screenWidth, screenHeight);
     while (!WindowShouldClose())
     {
         updateInputState(&inputState, &bindings);

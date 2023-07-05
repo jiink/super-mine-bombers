@@ -6,6 +6,7 @@
 #include "include/raymath.h"
 #include "include/hex.h"
 #include "include/vitmap.h"
+#include "include/rlgl.h"
 
 Camera2D camera = { 0 };
 
@@ -36,6 +37,7 @@ static void updateCamera(Camera2D *cam, Player players[MAX_PLAYERS], float smoot
 
 void initRoundRender(int screenWidth, int screenHeight)
 {
+    rlDisableBackfaceCulling(); // TODO: Turn clockwise triangles into counter-clockwise ones during vitmap shape baking so we don't have to do this
     initCamera(screenWidth, screenHeight);
     characterSprite = loadAndBakeVitmap("assets/cubil.vmp");
 }
@@ -143,7 +145,7 @@ static void drawPlayer(Player* player)
 	// Draw health ring
 	DrawRing(drawPos, diameter + 0.1f, diameter + 0.2f, 0, player->health * 1.80f, 30, player->color);
     // Draw sprite
-    // drawVitmap(characterSprite, drawPos);
+    drawVitmap(characterSprite, drawPos, (Vector2) { sin(GetTime()) * 0.25 + 0.5, cos(GetTime()) * 0.25 + 0.5 }, 0.0f);
 }
 
 static void drawPlayers(Player players[MAX_PLAYERS])

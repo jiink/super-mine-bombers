@@ -45,5 +45,6 @@ Vitmap* addVitmapToAnimation(VitmapAnimation* animation, Vitmap vitmap);
 void saveVitmapToFile(Vitmap* vitmap, const char* filename);
 Vitmap loadVitmapFromFile(const char* filename);
 Vitmap* loadAndBakeVitmap(const char* filename);
+void drawVitmap(Vitmap *vitmap, Vector2 position, Vector2 scale, float rotation);
 
 #endif // VITMAP_H

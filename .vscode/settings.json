@@ -11,7 +11,8 @@
         "hex.h": "c",
         "matchrender.h": "c",
         "matchstate.h": "c",
-        "vitmap.h": "c"
+        "vitmap.h": "c",
+        "roundrender.h": "c"
     },
 	"workbench.colorCustomizations": {
 		"activityBar.background": "#511931",
