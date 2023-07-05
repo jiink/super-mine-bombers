@@ -5,10 +5,11 @@
 #include "include/roundRender.h"
 #include "include/raymath.h"
 #include "include/hex.h"
+#include "include/vitmap.h"
 
 Camera2D camera = { 0 };
 
-// Vitmap* characterSprite;
+Vitmap* characterSprite;
 
 Color cellColorLookup[MAX_CELL_TYPES] = {
 	[AIR] = (Color) { 255, 0, 0, 100 },
@@ -36,7 +37,7 @@ static void updateCamera(Camera2D *cam, Player players[MAX_PLAYERS], float smoot
 void initRoundRender(int screenWidth, int screenHeight)
 {
     initCamera(screenWidth, screenHeight);
-    // characterSprite = LoadVitmap("assets/character.png");
+    characterSprite = loadAndBakeVitmap("assets/cubil.vmp");
 }
 
 void drawRoundState(RoundState *state, InputState *input)
