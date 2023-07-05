@@ -5,7 +5,7 @@
 #include "roundState.h"
 #include "inputState.h"
 
-void initCamera(int screenWidth, int screenHeight);
+void initRoundRender(int screenWidth, int screenHeight);
 void drawRoundState(RoundState *roundState, InputState *input);
 
 #endif // ROUNDRENDER_H

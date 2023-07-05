@@ -8,6 +8,8 @@
 
 Camera2D camera = { 0 };
 
+// Vitmap* characterSprite;
+
 Color cellColorLookup[MAX_CELL_TYPES] = {
 	[AIR] = (Color) { 255, 0, 0, 100 },
 	[DIRT] = BROWN,
@@ -17,6 +19,7 @@ Color cellColorLookup[MAX_CELL_TYPES] = {
 };
 
 // Local functions
+
 static Vector2 worldToDrawCoords(Vector2 worldCoords);
 static void drawHexagon(Vector2 center, Color color);
 static void drawPlayfield(Cell playfield[FIELD_H][FIELD_W]);
@@ -25,14 +28,15 @@ static void drawPlayers(Player players[MAX_PLAYERS]);
 static void drawBombs(Bomb bombs[MAX_BOMBS]);
 static float getPlayersGreatestDistance(Player players[MAX_PLAYERS]);
 static Vector2 getPlayersMidpoint(Player players[MAX_PLAYERS]);
+static void initCamera(int screenWidth, int screenHeight);
 static void updateCamera(Camera2D *cam, Player players[MAX_PLAYERS], float smoothness);
 
-void initCamera(int screenWidth, int screenHeight)
+// Function definitions
+
+void initRoundRender(int screenWidth, int screenHeight)
 {
-    camera.target = (Vector2){ 0, 0 };
-    camera.offset = (Vector2){ screenWidth / 2.0f, screenHeight / 2.0f };
-    camera.rotation = 0.0f;
-    camera.zoom = 20.0f;
+    initCamera(screenWidth, screenHeight);
+    // characterSprite = LoadVitmap("assets/character.png");
 }
 
 void drawRoundState(RoundState *state, InputState *input)
@@ -137,6 +141,8 @@ static void drawPlayer(Player* player)
 	DrawCircleV(drawPos, diameter, player->color);
 	// Draw health ring
 	DrawRing(drawPos, diameter + 0.1f, diameter + 0.2f, 0, player->health * 1.80f, 30, player->color);
+    // Draw sprite
+    // drawVitmap(characterSprite, drawPos);
 }
 
 static void drawPlayers(Player players[MAX_PLAYERS])
@@ -214,6 +220,14 @@ static Vector2 getPlayersMidpoint(Player players[MAX_PLAYERS])
         accumulation.x / (float)numPlayers,
         accumulation.y / (float)numPlayers
     };
+}
+
+static void initCamera(int screenWidth, int screenHeight)
+{
+    camera.target = (Vector2){ 0, 0 };
+    camera.offset = (Vector2){ screenWidth / 2.0f, screenHeight / 2.0f };
+    camera.rotation = 0.0f;
+    camera.zoom = 20.0f;
 }
 
 static void updateCamera(Camera2D *cam, Player players[MAX_PLAYERS], float smoothness)
