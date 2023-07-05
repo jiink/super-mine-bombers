@@ -14,9 +14,13 @@ Axial playerSpawnPoints[MAX_PLAYERS] = {
 };
 
 // Bomb detonation prototypes
+
 static bool sharpBombDetonate(Vector2 position, float radius, float damage, Cell playfield[FIELD_H][FIELD_W], Player players[MAX_PLAYERS]);
 static bool mineTryDetonate(Vector2 position, float radius, float damage, Cell playfield[FIELD_H][FIELD_W], Player players[MAX_PLAYERS]);
 static void bombUpdateNothing(Bomb* bomb, const RoundState* roundState);
+static bool explode(Vector2 position, float radius, float damage, Cell playfield[FIELD_H][FIELD_W], Player players[MAX_PLAYERS]);
+
+// Properties
 
 WeaponProperties weaponProperties[MAX_CELL_TYPES] = {
     [BOMB] = {
@@ -68,7 +72,121 @@ CellProperties cellProperties[MAX_CELL_TYPES] = {
 	},
 };
 
-int clampInt(int value, int min, int max)
+// Local functions
+
+static int clampInt(int value, int min, int max);
+static bool isPointInSolidCell(Vector2 point, Cell playfield[FIELD_H][FIELD_W]);
+static void damagePlayer(Player *player, int damage);
+static void borderPlayfield(Cell playfield[FIELD_H][FIELD_W]);
+static void initPlayfield(Cell playfield[FIELD_H][FIELD_W]);
+static void clearInventory(Player* player);
+static void initPlayers(Player players[MAX_PLAYERS]);
+static void damageCell(int row, int col, int damage, Cell playfield[FIELD_H][FIELD_W]);
+static void damageCellAtPos(Vector2 pos, int damage, Cell playfield[FIELD_H][FIELD_W]);
+static void initBombs(Bomb bombsList[MAX_BOMBS]);
+static void spawnBomb(WeaponType wepType, Vector2 pos, Bomb bombsList[MAX_BOMBS]);
+static void updateBombs(Bomb bombsList[MAX_BOMBS], const RoundState* roundState, Cell playfield[FIELD_H][FIELD_W], Player players[MAX_PLAYERS]);
+static int getNumInventorySlotsUsed(Player* player);
+static void updatePlayer(RoundState* state, int playerNum, PlayerInputState* pInput);
+static void updatePlayers(RoundState* state, InputState* input);
+static bool gameOverCondition(RoundState* state);
+
+// Function definitions
+
+void initRoundState(RoundState *state)
+{
+    state->roundTime = 30.0f;
+    state->roundOver = false;
+    initPlayfield(state->playfield);
+    initPlayers(state->players);
+    initBombs(state->bombs);
+}
+
+void updateRoundState(RoundState* state, InputState* input)
+{
+    if (gameOverCondition(state))
+    {
+        state->roundOver = true;
+    }
+    // Press R to skip round
+    if (IsKeyPressed(KEY_R))
+    {
+        state->roundOver = true;
+    }
+    updatePlayers(state, input);
+    updateBombs(state->bombs, state, state->playfield, state->players);
+}
+
+// Returns true if the item was given, false if there was no room
+bool giveItem(Player* player, WeaponType type, int amount)
+{
+    for (int i = 0; i < INVENTORY_SIZE; i++)
+    {
+        if (player->inventory[i].type == type)
+        {
+            player->inventory[i].quantity += amount;
+            return true;
+        }
+    }
+    // If we get here, we didn't find the item in the inventory
+    // So we need to add it
+    for (int i = 0; i < INVENTORY_SIZE; i++)
+    {
+        // Found an empty slot
+        if (player->inventory[i].type == MAX_WEAPON_TYPE)
+        {
+            player->inventory[i].type = type;
+            player->inventory[i].quantity = amount;
+            return true;
+        }
+    }
+    // No room
+    return false;
+}
+
+WeaponProperties getWeaponProperties(WeaponType type)
+{
+    return weaponProperties[type];
+}
+
+CellProperties getCellProperties(CellType type)
+{
+	return cellProperties[type];
+}
+
+int getNumAlivePlayers(Player players[MAX_PLAYERS])
+{
+    int numPlayers = 0;
+    for (int i = 0; i < MAX_PLAYERS; i++)
+    {
+        if (players[i].active)
+        {
+            numPlayers++;
+        }
+    }
+    return numPlayers;
+}
+
+const char* getWeaponName(WeaponType type)
+{
+    switch(type)
+    {
+        case BOMB:
+            return "Bomb";
+            break;
+        case SHARP_BOMB:
+            return "Sharp Bomb";
+            break;
+        case MINE:
+            return "Mine";
+            break;
+        default:
+            return "Unknown";
+            break;
+    }
+}
+
+static int clampInt(int value, int min, int max)
 {
     if (value < min)
     {
@@ -84,7 +202,7 @@ int clampInt(int value, int min, int max)
     }
 }
 
-bool isPointInSolidCell(Vector2 point, Cell playfield[FIELD_H][FIELD_W])
+static bool isPointInSolidCell(Vector2 point, Cell playfield[FIELD_H][FIELD_W])
 {
     // Get the cell coordinates of the point
     int col, row;
@@ -96,7 +214,7 @@ bool isPointInSolidCell(Vector2 point, Cell playfield[FIELD_H][FIELD_W])
     return playfield[row][col].type != AIR;
 }
 
-void damagePlayer(Player *player, int damage)
+static void damagePlayer(Player *player, int damage)
 {
 	if (!player->active)
 	{
@@ -109,7 +227,7 @@ void damagePlayer(Player *player, int damage)
 	}
 }
 
-bool explode(Vector2 position, float radius, float damage, Cell playfield[FIELD_H][FIELD_W], Player players[MAX_PLAYERS])
+static bool explode(Vector2 position, float radius, float damage, Cell playfield[FIELD_H][FIELD_W], Player players[MAX_PLAYERS])
 {
     // Get the cell coordinates of the bomb
     Axial bombCell = toCellCoords(position);
@@ -150,7 +268,7 @@ static bool sharpBombDetonate(Vector2 position, float radius, float damage, Cell
     return true;
 }
 
-bool mineTryDetonate(Vector2 position, float radius, float damage, Cell playfield[FIELD_H][FIELD_W], Player players[MAX_PLAYERS])
+static bool mineTryDetonate(Vector2 position, float radius, float damage, Cell playfield[FIELD_H][FIELD_W], Player players[MAX_PLAYERS])
 {
     // See if any players are nearby. If so, explode. Otherwise, return false.
     for (int i = 0; i < MAX_PLAYERS; i++)
@@ -169,7 +287,7 @@ static void bombUpdateNothing(Bomb* bomb, const RoundState* roundState)
     return;
 }
 
-void borderPlayfield(Cell playfield[FIELD_H][FIELD_W])
+static void borderPlayfield(Cell playfield[FIELD_H][FIELD_W])
 {
     for (int i = 0; i < FIELD_W; i++)
     {
@@ -184,7 +302,7 @@ void borderPlayfield(Cell playfield[FIELD_H][FIELD_W])
     }
 }
 
-void initPlayfield(Cell playfield[FIELD_H][FIELD_W]){
+static void initPlayfield(Cell playfield[FIELD_H][FIELD_W]){
     // Fill whole field
     for (int col = 0; col < FIELD_W; col++)
     {
@@ -213,7 +331,7 @@ void initPlayfield(Cell playfield[FIELD_H][FIELD_W]){
     }
 }
 
-void clearInventory(Player* player)
+static void clearInventory(Player* player)
 {
     for (int i = 0; i < INVENTORY_SIZE; i++)
     {
@@ -222,34 +340,7 @@ void clearInventory(Player* player)
     }
 }
 
-// Returns true if the item was given, false if there was no room
-bool giveItem(Player* player, WeaponType type, int amount)
-{
-    for (int i = 0; i < INVENTORY_SIZE; i++)
-    {
-        if (player->inventory[i].type == type)
-        {
-            player->inventory[i].quantity += amount;
-            return true;
-        }
-    }
-    // If we get here, we didn't find the item in the inventory
-    // So we need to add it
-    for (int i = 0; i < INVENTORY_SIZE; i++)
-    {
-        // Found an empty slot
-        if (player->inventory[i].type == MAX_WEAPON_TYPE)
-        {
-            player->inventory[i].type = type;
-            player->inventory[i].quantity = amount;
-            return true;
-        }
-    }
-    // No room
-    return false;
-}
-
-void initPlayers(Player players[MAX_PLAYERS])
+static void initPlayers(Player players[MAX_PLAYERS])
 {
     const Color playerColors[MAX_PLAYERS] = { RED, BLUE, GREEN, YELLOW };
     for (int i = 0; i < MAX_PLAYERS; i++)
@@ -272,7 +363,7 @@ void initPlayers(Player players[MAX_PLAYERS])
     players[1].active = true;
 }
 
-void damageCell(int row, int col, int damage, Cell playfield[FIELD_H][FIELD_W])
+static void damageCell(int row, int col, int damage, Cell playfield[FIELD_H][FIELD_W])
 {
 	Cell* cell = &playfield[row][col];
 	if (damage < 0
@@ -297,37 +388,13 @@ void damageCell(int row, int col, int damage, Cell playfield[FIELD_H][FIELD_W])
     }
 }
 
-void damageCellAtPos(Vector2 pos, int damage, Cell playfield[FIELD_H][FIELD_W])
+static void damageCellAtPos(Vector2 pos, int damage, Cell playfield[FIELD_H][FIELD_W])
 {
     Axial cell = toCellCoords(pos);
     damageCell(cell.r, cell.q, damage, playfield);
 }
 
-WeaponProperties getWeaponProperties(WeaponType type)
-{
-    return weaponProperties[type];
-}
-
-const char* getWeaponName(WeaponType type)
-{
-    switch(type)
-    {
-        case BOMB:
-            return "Bomb";
-            break;
-        case SHARP_BOMB:
-            return "Sharp Bomb";
-            break;
-        case MINE:
-            return "Mine";
-            break;
-        default:
-            return "Unknown";
-            break;
-    }
-}
-
-void initBombs(Bomb bombsList[MAX_BOMBS])
+static void initBombs(Bomb bombsList[MAX_BOMBS])
 {
     for (int i = 0; i < MAX_BOMBS; i++)
     {
@@ -337,29 +404,7 @@ void initBombs(Bomb bombsList[MAX_BOMBS])
     }
 }
 
-int getNumAlivePlayers(Player players[MAX_PLAYERS])
-{
-    int numPlayers = 0;
-    for (int i = 0; i < MAX_PLAYERS; i++)
-    {
-        if (players[i].active)
-        {
-            numPlayers++;
-        }
-    }
-    return numPlayers;
-}
-
-void initRoundState(RoundState *state)
-{
-    state->roundTime = 30.0f;
-    state->roundOver = false;
-    initPlayfield(state->playfield);
-    initPlayers(state->players);
-    initBombs(state->bombs);
-}
-
-void spawnBomb(WeaponType wepType, Vector2 pos, Bomb bombsList[MAX_BOMBS])
+static void spawnBomb(WeaponType wepType, Vector2 pos, Bomb bombsList[MAX_BOMBS])
 {
     // Find an inactive bomb
     for (int i = 0; i < MAX_BOMBS; i++)
@@ -376,7 +421,7 @@ void spawnBomb(WeaponType wepType, Vector2 pos, Bomb bombsList[MAX_BOMBS])
     }
 }
 
-void updateBombs(Bomb bombsList[MAX_BOMBS], const RoundState* roundState, Cell playfield[FIELD_H][FIELD_W], Player players[MAX_PLAYERS])
+static void updateBombs(Bomb bombsList[MAX_BOMBS], const RoundState* roundState, Cell playfield[FIELD_H][FIELD_W], Player players[MAX_PLAYERS])
 {
     for (int i = 0; i < MAX_BOMBS; i++)
     {
@@ -398,12 +443,7 @@ void updateBombs(Bomb bombsList[MAX_BOMBS], const RoundState* roundState, Cell p
     }
 }
 
-CellProperties getCellProperties(CellType type)
-{
-	return cellProperties[type];
-}
-
-int getNumInventorySlotsUsed(Player* player)
+static int getNumInventorySlotsUsed(Player* player)
 {
     int numUsed = 0;
     for (int i = 0; i < INVENTORY_SIZE; i++)
@@ -416,7 +456,7 @@ int getNumInventorySlotsUsed(Player* player)
     return numUsed;
 }
 
-void updatePlayer(RoundState* state, int playerNum, PlayerInputState* pInput)
+static void updatePlayer(RoundState* state, int playerNum, PlayerInputState* pInput)
 {
     playerNum = clampInt(playerNum, 0, MAX_PLAYERS - 1);
     Player* player = &state->players[playerNum];
@@ -465,9 +505,6 @@ void updatePlayer(RoundState* state, int playerNum, PlayerInputState* pInput)
         }
     }
     // Switching weapons
-    // TODO: Fix this. If you use up all your first weapon (of two),
-    // you can't switch to the second one because getNumInventorySlotsUsed
-    // will return 1
     if (pInput->wepSelectPressed)
     {
         // Find next available slot
@@ -483,7 +520,7 @@ void updatePlayer(RoundState* state, int playerNum, PlayerInputState* pInput)
     }
 }
 
-void updatePlayers(RoundState* state, InputState* input)
+static void updatePlayers(RoundState* state, InputState* input)
 {
 	// todo: make this work when some players are inactive
     for (int i = 0; i < MAX_PLAYERS; i++)
@@ -496,23 +533,8 @@ void updatePlayers(RoundState* state, InputState* input)
 }
 
 // Returns true if it's game over!
-bool gameOverCondition(RoundState* state)
+static bool gameOverCondition(RoundState* state)
 {
     int numPlayers = getNumAlivePlayers(state->players);
     return numPlayers <= 1; // uh, if there's 1 guy left, he is the winner
-}
-
-void updateRoundState(RoundState* state, InputState* input)
-{
-    if (gameOverCondition(state))
-    {
-        state->roundOver = true;
-    }
-    // Press R to skip round
-    if (IsKeyPressed(KEY_R))
-    {
-        state->roundOver = true;
-    }
-    updatePlayers(state, input);
-    updateBombs(state->bombs, state, state->playfield, state->players);
 }

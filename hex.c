@@ -2,15 +2,10 @@
 #include "include/hex.h"
 #include "include/common.h"
 
-float max(float x, float y)
-{
-   return (x > y) ? x : y;
-}
-
-float maxOfThree(float m, float n, float p)
-{
-   return max(max(m, n), p);
-}
+// Local functions
+static float max(float x, float y);
+static float maxOfThree(float m, float n, float p);
+static float clampf(float d, float min, float max);
 
 Cube cubeRound(Cube frac)
 {
@@ -58,11 +53,6 @@ Axial axialRound(Axial hex)
     return cubeToAxial(cubeRound(axialToCube(hex)));
 }
 
-float clampf(float d, float min, float max) {
-  const float t = d < min ? min : d;
-  return t > max ? max : t;
-}
-
 Axial toCellCoords(Vector2 point)
 {
     const float size = CELL_H_SPACING * (2.0f / 3.0f);
@@ -104,4 +94,19 @@ float axialDistance(Axial a, Axial b)
     Cube ac = axialToCube(a);
     Cube bc = axialToCube(b);
     return cubeDistance(ac, bc);
+}
+
+static float max(float x, float y)
+{
+   return (x > y) ? x : y;
+}
+
+static float maxOfThree(float m, float n, float p)
+{
+   return max(max(m, n), p);
+}
+
+static float clampf(float d, float min, float max) {
+  const float t = d < min ? min : d;
+  return t > max ? max : t;
 }

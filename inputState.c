@@ -2,7 +2,33 @@
 #include "include/raymath.h"
 #include "include/roundState.h"
 
-void initPlayerInputState(PlayerInputState *pInput)
+// Local functions
+static void initPlayerInputState(PlayerInputState *pInput);
+static void initPlayerBindings(PlayerBindings* pBindings, int playerNum);
+static void updatePlayerInputState(PlayerInputState* pInput, PlayerBindings* pBindings, int gamepadNum);
+
+void initInputState(InputState* input, Bindings* bindings)
+{
+    for (int i = 0; i < MAX_PLAYERS; i++)
+    {
+        PlayerInputState* pInput = &input->player[i];
+        PlayerBindings* pBindings = &bindings->player[i];
+        initPlayerInputState(pInput);
+        initPlayerBindings(pBindings, i);
+    }
+}
+
+void updateInputState(InputState *input, Bindings* bindings)
+{
+    for(int i = 0; i < MAX_PLAYERS; i++)
+    {
+        PlayerInputState* pInput = &input->player[i];
+        PlayerBindings* pBindings = &bindings->player[i];
+        updatePlayerInputState(pInput, pBindings, i);
+    }
+}
+
+static void initPlayerInputState(PlayerInputState *pInput)
 {
     pInput->direction.x = 0;
     pInput->direction.y = 0;
@@ -11,7 +37,7 @@ void initPlayerInputState(PlayerInputState *pInput)
     pInput->wepSelectPressed = false;
 }
 
-void initPlayerBindings(PlayerBindings* pBindings, int playerNum)
+static void initPlayerBindings(PlayerBindings* pBindings, int playerNum)
 {
     switch (playerNum)
     {
@@ -42,18 +68,7 @@ void initPlayerBindings(PlayerBindings* pBindings, int playerNum)
     }
 }
 
-void initInputState(InputState* input, Bindings* bindings)
-{
-    for (int i = 0; i < MAX_PLAYERS; i++)
-    {
-        PlayerInputState* pInput = &input->player[i];
-        PlayerBindings* pBindings = &bindings->player[i];
-        initPlayerInputState(pInput);
-        initPlayerBindings(pBindings, i);
-    }
-}
-
-void updatePlayerInputState(PlayerInputState* pInput, PlayerBindings* pBindings, int gamepadNum)
+static void updatePlayerInputState(PlayerInputState* pInput, PlayerBindings* pBindings, int gamepadNum)
 {
     initPlayerInputState(pInput);
 
@@ -109,12 +124,3 @@ void updatePlayerInputState(PlayerInputState* pInput, PlayerBindings* pBindings,
     }
 }
 
-void updateInputState(InputState *input, Bindings* bindings)
-{
-    for(int i = 0; i < MAX_PLAYERS; i++)
-    {
-        PlayerInputState* pInput = &input->player[i];
-        PlayerBindings* pBindings = &bindings->player[i];
-        updatePlayerInputState(pInput, pBindings, i);
-    }
-}

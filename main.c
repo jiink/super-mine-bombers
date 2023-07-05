@@ -19,7 +19,7 @@ int main(void)
 
     initMatchState(&matchState);
     initInputState(&inputState, &bindings);
-    initGameRender(screenWidth, screenHeight);
+    initCamera(screenWidth, screenHeight);
 
     if (ENABLE_MSAA)
     {
