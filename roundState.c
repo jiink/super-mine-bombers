@@ -74,6 +74,8 @@ CellProperties cellProperties[MAX_CELL_TYPES] = {
 
 // Local functions
 
+static Vector2 vec2FromAngle(float angle);
+static float lerpAngle( float a, float b, float weight );
 static int clampInt(int value, int min, int max);
 static bool isPointInSolidCell(Vector2 point, Cell playfield[FIELD_H][FIELD_W]);
 static void damagePlayer(Player *player, int damage);
@@ -184,6 +186,20 @@ const char* getWeaponName(WeaponType type)
             return "Unknown";
             break;
     }
+}
+
+static Vector2 vec2FromAngle(float angle) //Hopefully returns a vec2 length 1 based off the angle??
+{
+    Vector2 out = (Vector2){ cosf(angle), sinf(angle) };
+    return out;
+}
+
+static float lerpAngle( float a, float b, float weight )
+{
+    float diff = b - a;
+    if ( diff > PI ) diff -= 2.0f * PI;
+    if ( diff < -PI ) diff += 2.0f * PI;
+    return a + diff * weight;
 }
 
 static int clampInt(int value, int min, int max)
@@ -353,10 +369,15 @@ static void initPlayers(Player players[MAX_PLAYERS])
         players[i].activeSlot = 0;
         players[i].position = toWorldCoords(playerSpawnPoints[i]);
         players[i].velocity = (Vector2) { 0.0f, 0.0f };
-        players[i].targetSpeed = 0.0f;
-        players[i].topSpeed = 7.0f;
-        players[i].acceleration = 20.0f;
-        players[i].friction = 2.0f;
+        players[i].defSpeed = 7.0f;
+        players[i].defFriction = 2.0f;
+        players[i].defRotSpeed = 0.2f; // 0<x<1 (we lerp with this)
+        players[i].rotSlowdown = 5.0f;
+        players[i].inputDirInterp = (Vector2) { 0.0f, 0.0f };
+
+        players[i].speed = players[i].defSpeed;
+        players[i].friction = players[i].defFriction;
+        players[i].rotSpeed = players[i].defRotSpeed;
     }
 
     players[0].active = true;
@@ -463,15 +484,27 @@ static void updatePlayer(RoundState* state, int playerNum, PlayerInputState* pIn
 
     // Movement control
     Vector2 playerPos = player->position;
-    player->targetSpeed = Vector2Length(pInput->direction) * player->topSpeed;
-    if (player->targetSpeed > Vector2Length(player->velocity))
+    //pInput->direction
+
+    float rotSpeedMod = 0.0;
+
+    if (Vector2Length(pInput->direction) > 0.1)
     {
-        player->velocity = Vector2Add(player->velocity, Vector2Scale(pInput->direction, player->acceleration * GetFrameTime()));
+        float angleInterp = lerpAngle(
+            Vector2Angle(player->inputDirInterp, (Vector2){ 1.0, 0.0 }),
+            Vector2Angle(pInput->direction, (Vector2){ 1.0, 0.0 }),
+            player->rotSpeed
+        );
+        player->inputDirInterp = Vector2Scale( Vector2Rotate((Vector2){1.0, 0.0}, angleInterp), Vector2Length(pInput->direction));
+        float angleDiff = fabsf(Vector2Angle(player->inputDirInterp, pInput->direction));
+        rotSpeedMod = powf(1.0 - (angleDiff / (2.0 * PI)), player->rotSlowdown);
     }
-    else if (player->targetSpeed < Vector2Length(player->velocity))
-    {
-        player->velocity = Vector2Scale(player->velocity, 0.9f);
-    }
+
+    Vector2 forceDir = Vector2Scale(player->inputDirInterp, player->speed * rotSpeedMod);//...
+    player->velocity = Vector2Add((Vector2Scale(player->velocity, player->friction)), forceDir);
+
+
+
     Vector2 desiredPosition = Vector2Add(playerPos, Vector2Scale(player->velocity, GetFrameTime()));
     Vector2 destination = desiredPosition;
     // Check if the player (point) is trying to move into a solid cell (rectanlge)
