@@ -55,13 +55,9 @@ typedef struct {
     Vector2 velocity;
     Vector2 lastVelocity;
     float defSpeed; //How fast you walk by default
-    float speed; //How fast you're actually walking
+    float targetSpeed; //How fast you want to walk
     float defFriction;
     float friction;
-    float defRotSpeed;
-    float rotSpeed;
-    float rotSlowdown; //How much does changing directions slow you down? 🏃‍♀️🏃‍♂️💨
-    Vector2 inputDirInterp; //interpolated input direction
 } Player;
 
 // Struct to represent a bomb entity

@@ -78,10 +78,10 @@ void drawRoundState(RoundState *state, InputState *input)
     // acceleration
     // deceleration
     DrawText(TextFormat("Speed: %f", state->players[0].velocity.y), 10, 100, 20, state->players[0].color);
-    DrawText(TextFormat("Target: %f", state->players[0].speed), 10, 120, 20, state->players[0].color);
+    // DrawText(TextFormat("Target: %f", state->players[0].speed), 10, 120, 20, state->players[0].color);
     DrawText(TextFormat("Top: %f", state->players[0].defSpeed), 10, 140, 20, state->players[0].color);
-    DrawText(TextFormat("Accel: %f", state->players[0].rotSpeed), 10, 160, 20, state->players[0].color);
-    DrawText(TextFormat("Decel: %f", state->players[0].inputDirInterp), 10, 180, 20, state->players[0].color);
+    // DrawText(TextFormat("Accel: %f", state->players[0].rotSpeed), 10, 160, 20, state->players[0].color);
+    // DrawText(TextFormat("Decel: %f", state->players[0].inputDirInterp), 10, 180, 20, state->players[0].color);
     
 }
 
