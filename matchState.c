@@ -5,6 +5,25 @@
 static void fillWallets(int wallets[MAX_PLAYERS], int amount);
 static bool buyItem(ShoppingCart* shoppingCart, int* wallet, WeaponType type, int quantity);
 static void clearShoppingCarts(ShoppingCart shoppingCarts[MAX_PLAYERS]);
+static void checkoutAll(ShoppingCart shoppingCarts[MAX_PLAYERS], Player players[MAX_PLAYERS]);
+
+// Add bought items to the players' inventories
+static void checkoutAll(ShoppingCart shoppingCarts[MAX_PLAYERS], Player players[MAX_PLAYERS])
+{
+    for (int i = 0; i < MAX_PLAYERS; i++)
+    {
+        for (int j = 0; j < INVENTORY_SIZE; j++)
+        {
+            if (shoppingCarts[i].orders[j].type != MAX_WEAPON_TYPE)
+            {
+                if (!giveItem(&players[i], shoppingCarts[i].orders[j].type, shoppingCarts[i].orders[j].quantity))
+                {
+                    printf("Player %d could not buy %d\n", i, shoppingCarts[i].orders[j].type);
+                }
+            }
+        }
+    }
+}
 
 void initMatchState(MatchState *matchState)
 {
@@ -18,20 +37,8 @@ void initMatchState(MatchState *matchState)
     buyItem(&matchState->shoppingCarts[1], &matchState->wallets[1], MINE, 5);
     buyItem(&matchState->shoppingCarts[1], &matchState->wallets[1], SHARP_BOMB, 6);
     initRoundState(&matchState->roundState);
-    // Add bought items to the players' inventories
-    for (int i = 0; i < MAX_PLAYERS; i++)
-    {
-        for (int j = 0; j < INVENTORY_SIZE; j++)
-        {
-            if (matchState->shoppingCarts[i].orders[j].type != MAX_WEAPON_TYPE)
-            {
-                if (!giveItem(&matchState->roundState.players[i], matchState->shoppingCarts[i].orders[j].type, matchState->shoppingCarts[i].orders[j].quantity))
-                {
-                    printf("Player %d could not buy %d\n", i, matchState->shoppingCarts[i].orders[j].type);
-                }
-            }
-        }
-    }
+    checkoutAll(matchState->shoppingCarts, matchState->roundState.players);
+    clearShoppingCarts(matchState->shoppingCarts);
 }
 
 void updateMatchState(MatchState *matchState, const InputState *inputState)
@@ -40,7 +47,17 @@ void updateMatchState(MatchState *matchState, const InputState *inputState)
     {
         matchState->roundNumber++;
         printf("Starting round %d!\n", matchState->roundNumber);
+        
+        fillWallets(matchState->wallets, 50);
+        buyItem(&matchState->shoppingCarts[0], &matchState->wallets[0], BOMB, 15);
+        buyItem(&matchState->shoppingCarts[0], &matchState->wallets[0], MINE, 5);
+        buyItem(&matchState->shoppingCarts[0], &matchState->wallets[0], SHARP_BOMB, 6);
+        buyItem(&matchState->shoppingCarts[1], &matchState->wallets[1], BOMB, 15);
+        buyItem(&matchState->shoppingCarts[1], &matchState->wallets[1], MINE, 5);
+        buyItem(&matchState->shoppingCarts[1], &matchState->wallets[1], SHARP_BOMB, 6);
         initRoundState(&matchState->roundState);
+        checkoutAll(matchState->shoppingCarts, matchState->roundState.players);
+        clearShoppingCarts(matchState->shoppingCarts);
     }
     else
     {
