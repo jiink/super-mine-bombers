@@ -6,6 +6,6 @@
 #include "inputState.h"
 
 void initRoundRender(int screenWidth, int screenHeight);
-void drawRoundState(RoundState *roundState, InputState *input);
+void drawRoundState(const RoundState* roundState, const InputState* input);
 
 #endif // ROUNDRENDER_H

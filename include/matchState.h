@@ -15,6 +15,6 @@ typedef struct {
 } MatchState;
 
 void initMatchState(MatchState* matchState);
-void updateMatchState(MatchState* matchState, InputState* inputState);
+void updateMatchState(MatchState* matchState, const InputState* inputState);
 
 #endif // MATCHSTATE_H

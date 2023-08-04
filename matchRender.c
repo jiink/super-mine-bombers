@@ -1,6 +1,6 @@
 #include "matchRender.h"
 
-void drawMatchState(MatchState* matchState, InputState* input)
+void drawMatchState(const MatchState* matchState, const InputState* input)
 {
     BeginDrawing();
         drawRoundState(&matchState->roundState, input);

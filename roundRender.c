@@ -24,14 +24,14 @@ Color cellColorLookup[MAX_CELL_TYPES] = {
 
 static Vector2 worldToDrawCoords(Vector2 worldCoords);
 static void drawHexagon(Vector2 center, Color color);
-static void drawPlayfield(Cell playfield[FIELD_H][FIELD_W]);
-static void drawPlayer(Player* player);
-static void drawPlayers(Player players[MAX_PLAYERS]);
-static void drawBombs(Bomb bombs[MAX_BOMBS]);
-static float getPlayersGreatestDistance(Player players[MAX_PLAYERS]);
-static Vector2 getPlayersMidpoint(Player players[MAX_PLAYERS]);
+static void drawPlayfield(const Cell playfield[FIELD_H][FIELD_W]);
+static void drawPlayer(const Player* player);
+static void drawPlayers(const Player players[MAX_PLAYERS]);
+static void drawBombs(const Bomb bombs[MAX_BOMBS]);
+static float getPlayersGreatestDistance(const Player players[MAX_PLAYERS]);
+static Vector2 getPlayersMidpoint(const Player players[MAX_PLAYERS]);
 static void initCamera(int screenWidth, int screenHeight);
-static void updateCamera(Camera2D *cam, Player players[MAX_PLAYERS], float smoothness);
+static void updateCamera(Camera2D *cam, const Player players[MAX_PLAYERS], float smoothness);
 
 // Function definitions
 
@@ -42,7 +42,7 @@ void initRoundRender(int screenWidth, int screenHeight)
     characterSprite = loadAndBakeVitmap("assets/cubil.vmp");
 }
 
-void drawRoundState(RoundState *state, InputState *input)
+void drawRoundState(const RoundState *state, const InputState *input)
 {
 	cellColorLookup[WALL] = ColorFromHSV((float)GetTime() * 10.0f, 0.5f, 0.5f);
     BeginMode2D(camera);
@@ -66,7 +66,7 @@ void drawRoundState(RoundState *state, InputState *input)
     // Draw each player's selected weapon and quantity
     for (int i = 0; i < MAX_PLAYERS; i++)
     {
-        Player* player = &state->players[i];
+        const Player* player = &state->players[i];
         if (!player->active) continue;
         Vector2 drawPos = { 10.0f, 10.0f + 20.0f * i };
         DrawText(TextFormat("%s: %d", getWeaponName(player->inventory[player->activeSlot].type), player->inventory[player->activeSlot].quantity), drawPos.x, drawPos.y, 20, state->players[i].color);
@@ -117,7 +117,7 @@ static void drawHexagon(Vector2 center, Color color)
     DrawTriangleFan(verts, 8, color);
 }
 
-static void drawPlayfield(Cell playfield[FIELD_H][FIELD_W])
+static void drawPlayfield(const Cell playfield[FIELD_H][FIELD_W])
 {
     for (int col = 0; col < FIELD_W; col++)
     {
@@ -136,7 +136,7 @@ static void drawPlayfield(Cell playfield[FIELD_H][FIELD_W])
     }
 }
 
-static void drawPlayer(Player* player)
+static void drawPlayer(const Player* player)
 {
 	if (!player->active) return;
 	const float diameter = 0.15f;
@@ -151,7 +151,7 @@ static void drawPlayer(Player* player)
         0.0f);
 }
 
-static void drawPlayers(Player players[MAX_PLAYERS])
+static void drawPlayers(const Player players[MAX_PLAYERS])
 {
     for (int i = 0; i < MAX_PLAYERS; i++)
     {
@@ -159,7 +159,7 @@ static void drawPlayers(Player players[MAX_PLAYERS])
     }
 }
 
-static void drawBombs(Bomb bombs[MAX_BOMBS])
+static void drawBombs(const Bomb bombs[MAX_BOMBS])
 {
     for (int i = 0; i < MAX_BOMBS; i++)
     {
@@ -189,7 +189,7 @@ static void drawBombs(Bomb bombs[MAX_BOMBS])
 }
 
 // Find the distance that lies between the 2 players who are the farthest apart
-static float getPlayersGreatestDistance(Player players[MAX_PLAYERS])
+static float getPlayersGreatestDistance(const Player players[MAX_PLAYERS])
 {
     int numPlayers = getNumAlivePlayers(players);
     float greatestDistance = 0.1f;
@@ -212,7 +212,7 @@ static float getPlayersGreatestDistance(Player players[MAX_PLAYERS])
     return greatestDistance;
 }
 
-static Vector2 getPlayersMidpoint(Player players[MAX_PLAYERS])
+static Vector2 getPlayersMidpoint(const Player players[MAX_PLAYERS])
 {
     Vector2 accumulation = { 0.0f, 0.0f };
     int numPlayers = getNumAlivePlayers(players);
@@ -236,7 +236,7 @@ static void initCamera(int screenWidth, int screenHeight)
     camera.zoom = 20.0f;
 }
 
-static void updateCamera(Camera2D *cam, Player players[MAX_PLAYERS], float smoothness)
+static void updateCamera(Camera2D *cam, const Player players[MAX_PLAYERS], float smoothness)
 {
     // Get camera target 🎯
     Vector2 targetPosition = worldToDrawCoords( getPlayersMidpoint(players));

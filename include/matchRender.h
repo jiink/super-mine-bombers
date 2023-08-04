@@ -3,6 +3,6 @@
 #include "roundRender.h"
 #include "matchState.h"
 
-void drawMatchState(MatchState* matchState, InputState* input);
+void drawMatchState(const MatchState* matchState, const InputState* input);
 
 #endif // MATCHRENDER_H

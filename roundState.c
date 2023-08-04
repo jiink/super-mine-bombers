@@ -89,8 +89,8 @@ static void initBombs(Bomb bombsList[MAX_BOMBS]);
 static void spawnBomb(WeaponType wepType, Vector2 pos, Bomb bombsList[MAX_BOMBS]);
 static void updateBombs(Bomb bombsList[MAX_BOMBS], const RoundState* roundState, Cell playfield[FIELD_H][FIELD_W], Player players[MAX_PLAYERS]);
 static int getNumInventorySlotsUsed(Player* player);
-static void updatePlayer(RoundState* state, int playerNum, PlayerInputState* pInput);
-static void updatePlayers(RoundState* state, InputState* input);
+static void updatePlayer(RoundState* state, int playerNum, const PlayerInputState* pInput);
+static void updatePlayers(RoundState* state, const InputState* input);
 static bool gameOverCondition(RoundState* state);
 
 // Function definitions
@@ -104,7 +104,7 @@ void initRoundState(RoundState *state)
     initBombs(state->bombs);
 }
 
-void updateRoundState(RoundState* state, InputState* input)
+void updateRoundState(RoundState* state, const InputState* input)
 {
     if (gameOverCondition(state))
     {
@@ -156,7 +156,7 @@ CellProperties getCellProperties(CellType type)
 	return cellProperties[type];
 }
 
-int getNumAlivePlayers(Player players[MAX_PLAYERS])
+int getNumAlivePlayers(const Player players[MAX_PLAYERS])
 {
     int numPlayers = 0;
     for (int i = 0; i < MAX_PLAYERS; i++)
@@ -465,7 +465,7 @@ static int getNumInventorySlotsUsed(Player* player)
     return numUsed;
 }
 
-static void updatePlayer(RoundState* state, int playerNum, PlayerInputState* pInput)
+static void updatePlayer(RoundState* state, int playerNum, const PlayerInputState* pInput)
 {
     playerNum = clampInt(playerNum, 0, MAX_PLAYERS - 1);
     Player* player = &state->players[playerNum];
@@ -529,7 +529,7 @@ static void updatePlayer(RoundState* state, int playerNum, PlayerInputState* pIn
     }
 }
 
-static void updatePlayers(RoundState* state, InputState* input)
+static void updatePlayers(RoundState* state, const InputState* input)
 {
 	// todo: make this work when some players are inactive
     for (int i = 0; i < MAX_PLAYERS; i++)
