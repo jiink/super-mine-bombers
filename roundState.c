@@ -72,6 +72,8 @@ CellProperties cellProperties[MAX_CELL_TYPES] = {
 	},
 };
 
+Color playerColors[MAX_PLAYERS] = { RED, BLUE, GREEN, YELLOW };
+
 // Local functions
 
 static Vector2 vec2FromAngle(float angle);
@@ -82,7 +84,7 @@ static void damagePlayer(Player *player, int damage);
 static void borderPlayfield(Cell playfield[FIELD_H][FIELD_W]);
 static void initPlayfield(Cell playfield[FIELD_H][FIELD_W]);
 static void clearInventory(Player* player);
-static void initPlayers(Player players[MAX_PLAYERS]);
+static void initPlayers(Player players[MAX_PLAYERS], int numPlayers);
 static void damageCell(int row, int col, int damage, Cell playfield[FIELD_H][FIELD_W]);
 static void damageCellAtPos(Vector2 pos, int damage, Cell playfield[FIELD_H][FIELD_W]);
 static void initBombs(Bomb bombsList[MAX_BOMBS]);
@@ -95,12 +97,12 @@ static bool gameOverCondition(RoundState* state);
 
 // Function definitions
 
-void initRoundState(RoundState *state)
+void initRoundState(RoundState *state, int numPlayers)
 {
     state->roundTime = 30.0f;
     state->roundOver = false;
     initPlayfield(state->playfield);
-    initPlayers(state->players);
+    initPlayers(state->players, numPlayers);
     initBombs(state->bombs);
 }
 
@@ -348,9 +350,8 @@ static void clearInventory(Player* player)
     }
 }
 
-static void initPlayers(Player players[MAX_PLAYERS])
+static void initPlayers(Player players[MAX_PLAYERS], int numPlayers)
 {
-    const Color playerColors[MAX_PLAYERS] = { RED, BLUE, GREEN, YELLOW };
     for (int i = 0; i < MAX_PLAYERS; i++)
     {
         players[i].health = 100;
@@ -367,9 +368,10 @@ static void initPlayers(Player players[MAX_PLAYERS])
         players[i].targetSpeed = players[i].defSpeed;
         players[i].friction = players[i].defFriction;
     }
-
-    players[0].active = true;
-    players[1].active = true;
+    for (int i = 0; i < numPlayers; i++)
+    {
+        players[i].active = true;
+    }
 }
 
 static void damageCell(int row, int col, int damage, Cell playfield[FIELD_H][FIELD_W])

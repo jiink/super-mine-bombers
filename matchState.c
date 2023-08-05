@@ -25,43 +25,120 @@ static void checkoutAll(ShoppingCart shoppingCarts[MAX_PLAYERS], Player players[
     }
 }
 
-void initMatchState(MatchState *matchState)
+void initShopperStates(ShopperState shopperStates[MAX_PLAYERS])
 {
-    matchState->roundNumber = 0;
-    clearShoppingCarts(matchState->shoppingCarts);
-    fillWallets(matchState->wallets, 50);
-    buyItem(&matchState->shoppingCarts[0], &matchState->wallets[0], BOMB, 15);
-    buyItem(&matchState->shoppingCarts[0], &matchState->wallets[0], MINE, 5);
-    buyItem(&matchState->shoppingCarts[0], &matchState->wallets[0], SHARP_BOMB, 6);
-    buyItem(&matchState->shoppingCarts[1], &matchState->wallets[1], BOMB, 15);
-    buyItem(&matchState->shoppingCarts[1], &matchState->wallets[1], MINE, 5);
-    buyItem(&matchState->shoppingCarts[1], &matchState->wallets[1], SHARP_BOMB, 6);
-    initRoundState(&matchState->roundState);
-    checkoutAll(matchState->shoppingCarts, matchState->roundState.players);
-    clearShoppingCarts(matchState->shoppingCarts);
+    for (int i = 0; i < MAX_PLAYERS; i++)
+    {
+        shopperStates[i].ready = false;
+        shopperStates[i].chosenWeapon = 0;
+    }
 }
 
-void updateMatchState(MatchState *matchState, const InputState *inputState)
+void initMatchState(MatchState *matchState)
+{
+    matchState->phase = BUYING;
+    matchState->roundNumber = 0;
+    matchState->numPlayers = 4;
+    initShopperStates(matchState->shopperStates);
+    clearShoppingCarts(matchState->shoppingCarts);
+    fillWallets(matchState->wallets, 50);
+}
+
+static bool allShoppersAreReady(const ShopperState shoppers[MAX_PLAYERS], int numPlayers)
+{
+    for (int i = 0; i < numPlayers; i++)
+    {
+        if (!shoppers[i].ready)
+        {
+            return false;
+        }
+    }
+    return true;
+}
+
+void updateBuyingPhase(MatchState* matchState, const InputState* inputState)
+{
+    for (int i = 0; i < matchState->numPlayers; i++)
+    {
+        ShopperState* shopperState = &matchState->shopperStates[i];
+        if (inputState->player[i].wepSelectPressed)
+        {
+            shopperState->chosenWeapon++;
+            if (shopperState->chosenWeapon > MAX_WEAPON_TYPE)
+            {
+                shopperState->chosenWeapon = 0;
+            }
+        }
+        if (inputState->player[i].attackPressed)
+        {
+            if (shopperState->chosenWeapon == MAX_WEAPON_TYPE)
+            {
+                shopperState->ready = !shopperState->ready;
+            }
+            else
+            {
+                if (buyItem(&matchState->shoppingCarts[i], &matchState->wallets[i], shopperState->chosenWeapon, 1))
+                {
+                    printf("Player %d bought %d\n", i, shopperState->chosenWeapon);
+                }
+                else
+                {
+                    printf("Player %d could not buy %d\n", i, shopperState->chosenWeapon);
+                }
+            }
+        }
+    }
+    if (allShoppersAreReady(matchState->shopperStates, matchState->numPlayers))
+    {
+        matchState->phase = FIGHTING;
+        initRoundState(&matchState->roundState, matchState->numPlayers);
+        checkoutAll(matchState->shoppingCarts, matchState->roundState.players);
+    }
+}
+
+void updateFightingPhase(MatchState* matchState, const InputState* inputState)
 {
     if (matchState->roundState.roundOver)
     {
         matchState->roundNumber++;
         printf("Starting round %d!\n", matchState->roundNumber);
-        
-        fillWallets(matchState->wallets, 50);
-        buyItem(&matchState->shoppingCarts[0], &matchState->wallets[0], BOMB, 15);
-        buyItem(&matchState->shoppingCarts[0], &matchState->wallets[0], MINE, 5);
-        buyItem(&matchState->shoppingCarts[0], &matchState->wallets[0], SHARP_BOMB, 6);
-        buyItem(&matchState->shoppingCarts[1], &matchState->wallets[1], BOMB, 15);
-        buyItem(&matchState->shoppingCarts[1], &matchState->wallets[1], MINE, 5);
-        buyItem(&matchState->shoppingCarts[1], &matchState->wallets[1], SHARP_BOMB, 6);
-        initRoundState(&matchState->roundState);
-        checkoutAll(matchState->shoppingCarts, matchState->roundState.players);
+        matchState->phase = BUYING;
+        initShopperStates(matchState->shopperStates);
         clearShoppingCarts(matchState->shoppingCarts);
     }
     else
     {
         updateRoundState(&matchState->roundState, inputState);
+    }
+}
+
+// If a new player presses a button, add them to the game
+void letPlayersJoin(MatchState* matchState, const InputState* inputState)
+{
+    for (int i = 0; i < MAX_PLAYERS; i++)
+    {
+        // if (inputState->player[i].attackPressed && )
+        // {
+        //     matchState->numPlayers++;
+        //     matchState->shopperStates[i].ready = false;
+        //     matchState->shopperStates[i].chosenWeapon = 0;
+        //     matchState->wallets[i] = 50;
+        //     printf("Player %d joined the game!\n", i);
+        // }
+    }
+}
+
+void updateMatchState(MatchState* matchState, const InputState* inputState)
+{
+    switch (matchState->phase)
+    {
+        case BUYING:
+            //letPlayersJoin(matchState, inputState);
+            updateBuyingPhase(matchState, inputState);
+            break;
+        case FIGHTING:
+            updateFightingPhase(matchState, inputState);
+            break;
     }
 }
 

@@ -86,8 +86,10 @@ typedef struct {
     void (*updateFunc)(Bomb*, const RoundState*);
 } WeaponProperties;
 
+extern Color playerColors[MAX_PLAYERS];
+
 int getNumAlivePlayers(const Player players[MAX_PLAYERS]);
-void initRoundState(RoundState* state);
+void initRoundState(RoundState* state, int numPlayers);
 void updateRoundState(RoundState* state, const InputState* input);
 bool giveItem(Player* player, WeaponType type, int amount);
 WeaponProperties getWeaponProperties(WeaponType type);
