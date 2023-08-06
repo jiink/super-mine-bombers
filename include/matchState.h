@@ -16,11 +16,11 @@ typedef struct {
 typedef struct {
     int chosenWeapon;
     bool ready;
+    ShoppingCart shoppingCart;
+    int wallet;
 } ShopperState;
 
 typedef struct {
-    ShoppingCart shoppingCarts[MAX_PLAYERS]; // you can buy stuff between each round
-    int wallets[MAX_PLAYERS];
     RoundState roundState;
     Phase phase;
     int roundNumber;

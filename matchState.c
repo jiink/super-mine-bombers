@@ -2,23 +2,25 @@
 #include "matchState.h"
 
 // Local functions
-static void fillWallets(int wallets[MAX_PLAYERS], int amount);
+static void fillAllWallets(ShopperState shopperStates[MAX_PLAYERS], int amount);
+static void fillWallet(int* wallet, int amount);
 static bool buyItem(ShoppingCart* shoppingCart, int* wallet, WeaponType type, int quantity);
-static void clearShoppingCarts(ShoppingCart shoppingCarts[MAX_PLAYERS]);
-static void checkoutAll(ShoppingCart shoppingCarts[MAX_PLAYERS], Player players[MAX_PLAYERS]);
+static void checkoutAll(ShopperState shopperStates[MAX_PLAYERS], Player players[MAX_PLAYERS]);
+static void clearShoppingCart(ShoppingCart* shoppingCart);
 
 // Add bought items to the players' inventories
-static void checkoutAll(ShoppingCart shoppingCarts[MAX_PLAYERS], Player players[MAX_PLAYERS])
+static void checkoutAll(ShopperState shopperStates[MAX_PLAYERS], Player players[MAX_PLAYERS])
 {
     for (int i = 0; i < MAX_PLAYERS; i++)
     {
         for (int j = 0; j < INVENTORY_SIZE; j++)
         {
-            if (shoppingCarts[i].orders[j].type != MAX_WEAPON_TYPE)
+            ShoppingCart* cart = &shopperStates[i].shoppingCart;
+            if (cart->orders[j].type != MAX_WEAPON_TYPE)
             {
-                if (!giveItem(&players[i], shoppingCarts[i].orders[j].type, shoppingCarts[i].orders[j].quantity))
+                if (!giveItem(&players[i], cart->orders[j].type, cart->orders[j].quantity))
                 {
-                    printf("Player %d could not buy %d\n", i, shoppingCarts[i].orders[j].type);
+                    printf("Player %d could not buy %d\n", i, cart->orders[j].type);
                 }
             }
         }
@@ -31,6 +33,7 @@ void initShopperStates(ShopperState shopperStates[MAX_PLAYERS])
     {
         shopperStates[i].ready = false;
         shopperStates[i].chosenWeapon = 0;
+        clearShoppingCart(&shopperStates[i].shoppingCart);
     }
 }
 
@@ -38,10 +41,9 @@ void initMatchState(MatchState *matchState)
 {
     matchState->phase = BUYING;
     matchState->roundNumber = 0;
-    matchState->numPlayers = 4;
+    matchState->numPlayers = 2;
     initShopperStates(matchState->shopperStates);
-    clearShoppingCarts(matchState->shoppingCarts);
-    fillWallets(matchState->wallets, 50);
+    fillAllWallets(matchState->shopperStates, 50);
 }
 
 static bool allShoppersAreReady(const ShopperState shoppers[MAX_PLAYERS], int numPlayers)
@@ -77,7 +79,7 @@ void updateBuyingPhase(MatchState* matchState, const InputState* inputState)
             }
             else
             {
-                if (buyItem(&matchState->shoppingCarts[i], &matchState->wallets[i], shopperState->chosenWeapon, 1))
+                if (buyItem(&shopperState->shoppingCart, &shopperState->wallet, shopperState->chosenWeapon, 1))
                 {
                     printf("Player %d bought %d\n", i, shopperState->chosenWeapon);
                 }
@@ -92,7 +94,7 @@ void updateBuyingPhase(MatchState* matchState, const InputState* inputState)
     {
         matchState->phase = FIGHTING;
         initRoundState(&matchState->roundState, matchState->numPlayers);
-        checkoutAll(matchState->shoppingCarts, matchState->roundState.players);
+        checkoutAll(matchState->shopperStates, matchState->roundState.players);
     }
 }
 
@@ -104,7 +106,6 @@ void updateFightingPhase(MatchState* matchState, const InputState* inputState)
         printf("Starting round %d!\n", matchState->roundNumber);
         matchState->phase = BUYING;
         initShopperStates(matchState->shopperStates);
-        clearShoppingCarts(matchState->shoppingCarts);
     }
     else
     {
@@ -139,14 +140,24 @@ void updateMatchState(MatchState* matchState, const InputState* inputState)
         case FIGHTING:
             updateFightingPhase(matchState, inputState);
             break;
+        default:
+            break;
     }
 }
 
-static void fillWallets(int wallets[MAX_PLAYERS], int amount)
+static void fillWallet(int* wallet, int amount)
+{
+    if (wallet != NULL)
+    {
+        *wallet = amount;
+    }
+}
+
+static void fillAllWallets(ShopperState shopperStates[MAX_PLAYERS], int amount)
 {
     for (int i = 0; i < MAX_PLAYERS; i++)
     {
-        wallets[i] = amount;
+        fillWallet(&shopperStates[i].wallet, amount);
     }
 }
 
@@ -185,14 +196,11 @@ static bool buyItem(ShoppingCart* shoppingCart, int* wallet, WeaponType type, in
     return false;
 }
 
-static void clearShoppingCarts(ShoppingCart shoppingCarts[MAX_PLAYERS])
+static void clearShoppingCart(ShoppingCart* shoppingCart)
 {
-    for (int i = 0; i < MAX_PLAYERS; i++)
+    for (int j = 0; j < INVENTORY_SIZE; j++)
     {
-        for (int j = 0; j < INVENTORY_SIZE; j++)
-        {
-            shoppingCarts[i].orders[j].type = MAX_WEAPON_TYPE;
-            shoppingCarts[i].orders[j].quantity = 0;
-        }
+        shoppingCart->orders[j].type = MAX_WEAPON_TYPE;
+        shoppingCart->orders[j].quantity = 0;
     }
 }

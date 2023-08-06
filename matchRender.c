@@ -9,27 +9,24 @@ static void drawBuyingPhase(const MatchState* matchState)
     for (int i = 0; i < matchState->numPlayers; i++)
     {
         DrawRectangle(i * GetScreenWidth() / matchState->numPlayers, 0, GetScreenWidth() / matchState->numPlayers, GetScreenHeight(), playerColors[i]);
-    }
-    // Draw the wallets
-    for (int i = 0; i < matchState->numPlayers; i++)
-    {
-        DrawText(TextFormat("Wallet: %d", matchState->wallets[i]), i * GetScreenWidth() / matchState->numPlayers + 10, 10, 20, WHITE);
-    }
-    // Draw the shopping carts
-    for (int i = 0; i < matchState->numPlayers; i++)
-    {
+        const ShopperState* shopper = &matchState->shopperStates[i];
+
+        // Draw the wallets
+        DrawText(TextFormat("Wallet: %d", shopper->wallet), i * GetScreenWidth() / matchState->numPlayers + 10, 10, 20, WHITE);
+    
+        // Draw the shopping carts
+    
         for (int j = 0; j < INVENTORY_SIZE; j++)
         {
-            if (matchState->shoppingCarts[i].orders[j].type != MAX_WEAPON_TYPE)
+            if (shopper->shoppingCart.orders[j].type != MAX_WEAPON_TYPE)
             {
-                DrawText(TextFormat("%d %s", matchState->shoppingCarts[i].orders[j].quantity, getWeaponName(matchState->shoppingCarts[i].orders[j].type)), i * GetScreenWidth() / matchState->numPlayers + 10, 40 + j * 20, 20, WHITE);
+                DrawText(TextFormat("%d %s", shopper->shoppingCart.orders[j].quantity, getWeaponName(shopper->shoppingCart.orders[j].type)), i * GetScreenWidth() / matchState->numPlayers + 10, 40 + j * 20, 20, WHITE);
             }
         }
-    }
-    // Draw the ready states
-    for (int i = 0; i < matchState->numPlayers; i++)
-    {
-        if (matchState->shopperStates[i].ready)
+    
+        // Draw the ready states
+    
+        if (shopper->ready)
         {
             DrawText("Ready", i * GetScreenWidth() / matchState->numPlayers + 10, GetScreenHeight() - 30, 20, WHITE);
         }
@@ -37,12 +34,13 @@ static void drawBuyingPhase(const MatchState* matchState)
         {
             DrawText("Not ready", i * GetScreenWidth() / matchState->numPlayers + 10, GetScreenHeight() - 30, 20, WHITE);
         }
+    
+        // Draw the chosen weapons
+    
+        DrawText(TextFormat("Chosen weapon: %s", getWeaponName(shopper->chosenWeapon)), i * GetScreenWidth() / matchState->numPlayers + 10, GetScreenHeight() - 60, 20, WHITE);
+    
     }
-    // Draw the chosen weapons
-    for (int i = 0; i < matchState->numPlayers; i++)
-    {
-        DrawText(TextFormat("Chosen weapon: %s", getWeaponName(matchState->shopperStates[i].chosenWeapon)), i * GetScreenWidth() / matchState->numPlayers + 10, GetScreenHeight() - 60, 20, WHITE);
-    }
+    
 }
 
 void drawMatchState(const MatchState* matchState, const InputState* input)
@@ -55,6 +53,8 @@ void drawMatchState(const MatchState* matchState, const InputState* input)
                 break;
             case FIGHTING:
                 drawRoundState(&matchState->roundState, input);
+                break;
+            default:
                 break;
         }
         // Draw the round number in the middle
