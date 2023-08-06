@@ -1,5 +1,8 @@
 #include <stdio.h>
+#include <math.h>
 #include "matchState.h"
+
+#define ROUND_OVER_WAIT_TIME 3.0
 
 // Local functions
 static void fillAllWallets(ShopperState shopperStates[MAX_PLAYERS], int amount);
@@ -42,8 +45,9 @@ void initMatchState(MatchState *matchState)
     matchState->phase = BUYING;
     matchState->roundNumber = 0;
     matchState->numPlayers = 2;
+    matchState->roundOverTimer = 0.0;
     initShopperStates(matchState->shopperStates);
-    fillAllWallets(matchState->shopperStates, 50);
+    fillAllWallets(matchState->shopperStates, 10);
 }
 
 static bool allShoppersAreReady(const ShopperState shoppers[MAX_PLAYERS], int numPlayers)
@@ -108,18 +112,31 @@ void updateBuyingPhase(MatchState* matchState, const InputState* inputState)
     }
 }
 
+static double TIMER_diff(double a, double b)
+{
+    return fabs(a - b);
+}
+
 void updateFightingPhase(MatchState* matchState, const InputState* inputState)
 {
     if (matchState->roundState.roundOver)
     {
-        matchState->roundNumber++;
-        printf("Starting round %d!\n", matchState->roundNumber);
-        matchState->phase = BUYING;
-        initShopperStates(matchState->shopperStates);
+        if (TIMER_diff(matchState->roundOverTimer, GetTime()) > ROUND_OVER_WAIT_TIME)
+        {
+            matchState->roundNumber++;
+            printf("Starting round %d!\n", matchState->roundNumber);
+            matchState->phase = BUYING;
+            initShopperStates(matchState->shopperStates);
+        }
     }
     else
     {
         updateRoundState(&matchState->roundState, inputState);
+        if (matchState->roundState.roundOver)
+        {
+            matchState->roundOverTimer = GetTime();
+            printf("Now waiting a bit\n");
+        }
     }
 }
 

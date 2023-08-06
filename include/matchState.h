@@ -26,6 +26,7 @@ typedef struct {
     int roundNumber;
     ShopperState shopperStates[MAX_PLAYERS];
     int numPlayers;
+    float roundOverTimer;
 } MatchState;
 
 void initMatchState(MatchState* matchState);

@@ -318,13 +318,20 @@ static void initPlayfield(Cell playfield[FIELD_H][FIELD_W]){
         {
             Cell* cell = &playfield[row][col];
             // Make the type random dirt or stone
-            if (GetRandomValue(0, 1) == 0)
+            switch (GetRandomValue(0, 3))
             {
-                cell->type = DIRT;
-            }
-            else
-            {
-                cell->type = TREASURE;
+                case 0:
+                    cell->type = DIRT;
+                    break;
+                case 1:
+                    cell->type = STONE;
+                    break;
+                case 2:
+                    cell->type = TREASURE;
+                    break;
+                default:
+                    cell->type = DIRT;
+                    break;
             }
             cell->health = 100;
         }
