@@ -49,6 +49,7 @@ typedef struct {
     int health;
     Color color;
     int score;
+    int* wallet;
     WeaponSlot inventory[INVENTORY_SIZE];
     int activeSlot;
     Vector2 position;
@@ -89,7 +90,7 @@ typedef struct {
 extern Color playerColors[MAX_PLAYERS];
 
 int getNumAlivePlayers(const Player players[MAX_PLAYERS]);
-void initRoundState(RoundState* state, int numPlayers);
+void initRoundState(RoundState* state, int numPlayers, int* wallets[MAX_PLAYERS]);
 void updateRoundState(RoundState* state, const InputState* input);
 bool giveItem(Player* player, WeaponType type, int amount);
 WeaponProperties getWeaponProperties(WeaponType type);

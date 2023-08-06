@@ -58,6 +58,14 @@ static bool allShoppersAreReady(const ShopperState shoppers[MAX_PLAYERS], int nu
     return true;
 }
 
+static void getPointersToWallets(const ShopperState shoppers[MAX_PLAYERS], int* pointersToWallets[MAX_PLAYERS])
+{
+    for (int i = 0; i < MAX_PLAYERS; i++)
+    {
+        pointersToWallets[i] = &shoppers[i].wallet;
+    }
+}
+
 void updateBuyingPhase(MatchState* matchState, const InputState* inputState)
 {
     for (int i = 0; i < matchState->numPlayers; i++)
@@ -93,7 +101,9 @@ void updateBuyingPhase(MatchState* matchState, const InputState* inputState)
     if (allShoppersAreReady(matchState->shopperStates, matchState->numPlayers))
     {
         matchState->phase = FIGHTING;
-        initRoundState(&matchState->roundState, matchState->numPlayers);
+        int* pointersToWallets[MAX_PLAYERS];
+        getPointersToWallets(matchState->shopperStates, pointersToWallets);
+        initRoundState(&matchState->roundState, matchState->numPlayers, pointersToWallets);
         checkoutAll(matchState->shopperStates, matchState->roundState.players);
     }
 }

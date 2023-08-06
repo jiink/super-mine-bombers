@@ -7,10 +7,10 @@
 #include "roundState.h"
 
 Axial playerSpawnPoints[MAX_PLAYERS] = {
-	{ 1, 1 },
-	{ FIELD_H - 2, FIELD_W - 2 },
-	{ 1, 1 },
-	{ 1, 1 },
+    { 1, 1 },
+    { FIELD_H - 2, FIELD_W - 2 },
+    { 1, 1 },
+    { 1, 1 },
 };
 
 // Bomb detonation prototypes
@@ -28,7 +28,7 @@ WeaponProperties weaponProperties[MAX_CELL_TYPES] = {
         .damage = 150,
         .radius = 6,
         .price = 1,
-		.detonationFunc = explode,
+        .detonationFunc = explode,
         .updateFunc = bombUpdateNothing,
         },            
     [MINE] = {
@@ -36,7 +36,7 @@ WeaponProperties weaponProperties[MAX_CELL_TYPES] = {
         .damage = 200,
         .radius = 10,
         .price = 2,
-		.detonationFunc = mineTryDetonate,
+        .detonationFunc = mineTryDetonate,
         .updateFunc = bombUpdateNothing,
         },             
     [SHARP_BOMB] = {
@@ -44,32 +44,32 @@ WeaponProperties weaponProperties[MAX_CELL_TYPES] = {
         .damage = 500,
         .radius = 40,
         .price = 3,
-		.detonationFunc = sharpBombDetonate,
+        .detonationFunc = sharpBombDetonate,
         .updateFunc = bombUpdateNothing,
         },     
 };
 
 CellProperties cellProperties[MAX_CELL_TYPES] = {
-	[AIR] = {
-		.resistance = 0.0f,
-		.solid = false,
-	},
-	[DIRT] = {
-		.resistance = 1.0f,
-		.solid = true,
-	},
-	[STONE] = {
-		.resistance = 2.0f,
-		.solid = true,
-	},
-	[TREASURE] = {
-		.resistance = 0.5f,
-		.solid = true,
-	},
-	[WALL] = {
-		.resistance = 999999.0f,
-		.solid = true,
-	},
+    [AIR] = {
+        .resistance = 0.0f,
+        .solid = false,
+    },
+    [DIRT] = {
+        .resistance = 1.0f,
+        .solid = true,
+    },
+    [STONE] = {
+        .resistance = 2.0f,
+        .solid = true,
+    },
+    [TREASURE] = {
+        .resistance = 0.5f,
+        .solid = true,
+    },
+    [WALL] = {
+        .resistance = 999999.0f,
+        .solid = true,
+    },
 };
 
 Color playerColors[MAX_PLAYERS] = { RED, BLUE, GREEN, YELLOW };
@@ -77,14 +77,13 @@ Color playerColors[MAX_PLAYERS] = { RED, BLUE, GREEN, YELLOW };
 // Local functions
 
 static Vector2 vec2FromAngle(float angle);
-static float lerpAngle( float a, float b, float weight );
 static int clampInt(int value, int min, int max);
-static bool isPointInSolidCell(Vector2 point, Cell playfield[FIELD_H][FIELD_W]);
+static int cellTypeAtPoint(Vector2 point, Cell playfield[FIELD_H][FIELD_W]);
 static void damagePlayer(Player *player, int damage);
 static void borderPlayfield(Cell playfield[FIELD_H][FIELD_W]);
 static void initPlayfield(Cell playfield[FIELD_H][FIELD_W]);
 static void clearInventory(Player* player);
-static void initPlayers(Player players[MAX_PLAYERS], int numPlayers);
+static void initPlayers(Player players[MAX_PLAYERS], int numPlayers, int* wallets[MAX_PLAYERS]);
 static void damageCell(int row, int col, int damage, Cell playfield[FIELD_H][FIELD_W]);
 static void damageCellAtPos(Vector2 pos, int damage, Cell playfield[FIELD_H][FIELD_W]);
 static void initBombs(Bomb bombsList[MAX_BOMBS]);
@@ -97,12 +96,12 @@ static bool gameOverCondition(RoundState* state);
 
 // Function definitions
 
-void initRoundState(RoundState *state, int numPlayers)
+void initRoundState(RoundState *state, int numPlayers, int* wallets[MAX_PLAYERS])
 {
     state->roundTime = 30.0f;
     state->roundOver = false;
     initPlayfield(state->playfield);
-    initPlayers(state->players, numPlayers);
+    initPlayers(state->players, numPlayers, wallets);
     initBombs(state->bombs);
 }
 
@@ -155,7 +154,7 @@ WeaponProperties getWeaponProperties(WeaponType type)
 
 CellProperties getCellProperties(CellType type)
 {
-	return cellProperties[type];
+    return cellProperties[type];
 }
 
 int getNumAlivePlayers(const Player players[MAX_PLAYERS])
@@ -212,7 +211,7 @@ static int clampInt(int value, int min, int max)
     }
 }
 
-static bool isPointInSolidCell(Vector2 point, Cell playfield[FIELD_H][FIELD_W])
+static int cellTypeAtPoint(Vector2 point, Cell playfield[FIELD_H][FIELD_W])
 {
     // Get the cell coordinates of the point
     int col, row;
@@ -220,21 +219,20 @@ static bool isPointInSolidCell(Vector2 point, Cell playfield[FIELD_H][FIELD_W])
     col = pos.q;
     row = pos.r;
     
-    // Check if the cell is solid
-    return playfield[row][col].type != AIR;
+    return playfield[row][col].type;
 }
 
 static void damagePlayer(Player *player, int damage)
 {
-	if (!player->active)
-	{
-		return;
-	}
-	player->health -= damage;
-	if (player->health <= 0)
-	{
-		player->active = false;
-	}
+    if (!player->active)
+    {
+        return;
+    }
+    player->health -= damage;
+    if (player->health <= 0)
+    {
+        player->active = false;
+    }
 }
 
 static bool explode(Vector2 position, float radius, float damage, Cell playfield[FIELD_H][FIELD_W], Player players[MAX_PLAYERS])
@@ -247,17 +245,17 @@ static bool explode(Vector2 position, float radius, float damage, Cell playfield
         {
             if (col >= 0 && col < FIELD_W && row >= 0 && row < FIELD_H)
             {
-				Axial thisCell = (Axial){.q = col, .r = row};
+                Axial thisCell = (Axial){.q = col, .r = row};
                 int cellDamage = damage - axialDistance(thisCell, bombCell) * 25;
                 damageCell(row, col, cellDamage, playfield);
-				// If there are any players in this cell, damage them too
-				for (int i = 0; i < MAX_PLAYERS; i++)
-				{
-					if (axialDistance(toCellCoords(players[i].position), thisCell) <= 0)
-					{
-						damagePlayer(&players[i], cellDamage);
-					}
-				}
+                // If there are any players in this cell, damage them too
+                for (int i = 0; i < MAX_PLAYERS; i++)
+                {
+                    if (axialDistance(toCellCoords(players[i].position), thisCell) <= 0)
+                    {
+                        damagePlayer(&players[i], cellDamage);
+                    }
+                }
             }
         }
     }
@@ -318,22 +316,20 @@ static void initPlayfield(Cell playfield[FIELD_H][FIELD_W]){
     {
         for (int row = 0; row < FIELD_H; row++)
         {
-			Cell* cell = &playfield[row][col];
-			// Make the type random dirt or stone
-			if (GetRandomValue(0, 1) == 0)
-			{
-				cell->type = DIRT;
-			}
-			else
-			{
-				cell->type = STONE;
-			}
+            Cell* cell = &playfield[row][col];
+            // Make the type random dirt or stone
+            if (GetRandomValue(0, 1) == 0)
+            {
+                cell->type = DIRT;
+            }
+            else
+            {
+                cell->type = TREASURE;
+            }
             cell->health = 100;
         }
     }
-
     borderPlayfield(playfield);
-    
     for (int i = 1; i < 5; i++)
     {
         playfield[1][i].type = AIR;
@@ -350,7 +346,7 @@ static void clearInventory(Player* player)
     }
 }
 
-static void initPlayers(Player players[MAX_PLAYERS], int numPlayers)
+static void initPlayers(Player players[MAX_PLAYERS], int numPlayers, int* wallets[MAX_PLAYERS])
 {
     for (int i = 0; i < MAX_PLAYERS; i++)
     {
@@ -367,6 +363,7 @@ static void initPlayers(Player players[MAX_PLAYERS], int numPlayers)
 
         players[i].targetSpeed = players[i].defSpeed;
         players[i].friction = players[i].defFriction;
+        players[i].wallet = wallets[i];
     }
     for (int i = 0; i < numPlayers; i++)
     {
@@ -376,22 +373,22 @@ static void initPlayers(Player players[MAX_PLAYERS], int numPlayers)
 
 static void damageCell(int row, int col, int damage, Cell playfield[FIELD_H][FIELD_W])
 {
-	Cell* cell = &playfield[row][col];
-	if (damage < 0
-		|| row < 0
-		|| row >= FIELD_H
-		|| col < 0
-		|| col >= FIELD_W
-	)
+    Cell* cell = &playfield[row][col];
+    if (damage < 0
+        || row < 0
+        || row >= FIELD_H
+        || col < 0
+        || col >= FIELD_W
+    )
     {
         return;
     }
-	CellProperties cellProps = getCellProperties(cell->type);
-	if (!cellProps.solid)
-	{
-		return;
-	}
-	int appliedDamage = (int)((float)damage / cellProps.resistance);
+    CellProperties cellProps = getCellProperties(cell->type);
+    if (!cellProps.solid)
+    {
+        return;
+    }
+    int appliedDamage = (int)((float)damage / cellProps.resistance);
     cell->health -= appliedDamage;
     if (cell->health <= 0)
     {
@@ -481,22 +478,33 @@ static void updatePlayer(RoundState* state, int playerNum, const PlayerInputStat
     Vector2 destination = desiredPosition;
 
     // Check if the player (point) is trying to move into a solid cell (rectanlge)
-    if (isPointInSolidCell(desiredPosition, state->playfield))
+    if (cellTypeAtPoint(desiredPosition, state->playfield))
     {
         player->velocity = (Vector2) { 0.0f, 0.0f };
     }
 
-    if (isPointInSolidCell((Vector2){desiredPosition.x, playerPos.y}, state->playfield))
+    if (cellTypeAtPoint((Vector2){desiredPosition.x, playerPos.y}, state->playfield))
     {
         // If so, don't move horizontally
         destination.x = playerPos.x;
     }
-    if (isPointInSolidCell((Vector2){playerPos.x, desiredPosition.y}, state->playfield))
+    if (cellTypeAtPoint((Vector2){playerPos.x, desiredPosition.y}, state->playfield))
     {
         // If so, don't move vertically
         destination.y = playerPos.y;
     }
     player->position = destination;
+
+    // If you want to move into a treasure cell, collect the money and destroy the cell
+    if (cellTypeAtPoint(desiredPosition, state->playfield) == TREASURE)
+    {
+        Axial pos = toCellCoords(desiredPosition);
+        int col = pos.q;
+        int row = pos.r;
+        Cell* cell = &state->playfield[row][col];
+        cell->type = AIR;
+        *player->wallet += 1;
+    }
 
     // If you push against a solid cell you start mining it
     Axial pos = toCellCoords(desiredPosition);
@@ -533,13 +541,13 @@ static void updatePlayer(RoundState* state, int playerNum, const PlayerInputStat
 
 static void updatePlayers(RoundState* state, const InputState* input)
 {
-	// todo: make this work when some players are inactive
+    // todo: make this work when some players are inactive
     for (int i = 0; i < MAX_PLAYERS; i++)
     {
-		if (state->players[i].active)
-		{
-        	updatePlayer(state, i, &input->player[i]);
-		}
+        if (state->players[i].active)
+        {
+            updatePlayer(state, i, &input->player[i]);
+        }
     }
 }
 
