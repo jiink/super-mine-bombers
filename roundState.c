@@ -22,8 +22,9 @@ static bool explode(Vector2 position, float radius, float damage, Cell playfield
 
 // Properties
 
-WeaponProperties weaponProperties[MAX_CELL_TYPES] = {
+WeaponProperties weaponProperties[MAX_WEAPON_TYPE] = {
     [BOMB] = {
+        .name = "Bomb",
         .startingFuse = 2.0f,
         .damage = 150,
         .radius = 6,
@@ -32,6 +33,7 @@ WeaponProperties weaponProperties[MAX_CELL_TYPES] = {
         .updateFunc = bombUpdateNothing,
         },            
     [MINE] = {
+        .name = "Mine",
         .startingFuse = 5.0f,
         .damage = 200,
         .radius = 10,
@@ -40,6 +42,7 @@ WeaponProperties weaponProperties[MAX_CELL_TYPES] = {
         .updateFunc = bombUpdateNothing,
         },             
     [SHARP_BOMB] = {
+        .name = "Sharp Bomb",
         .startingFuse = 3.0f,
         .damage = 500,
         .radius = 40,
@@ -47,6 +50,15 @@ WeaponProperties weaponProperties[MAX_CELL_TYPES] = {
         .detonationFunc = sharpBombDetonate,
         .updateFunc = bombUpdateNothing,
         },     
+    [GRENADE] = {
+        .name = "Grenade",
+        .startingFuse = 2.0f,
+        .damage = 100,
+        .radius = 10,
+        .price = 1,
+        .detonationFunc = explode,
+        .updateFunc = bombUpdateNothing,
+        },
 };
 
 CellProperties cellProperties[MAX_CELL_TYPES] = {
@@ -149,7 +161,23 @@ bool giveItem(Player* player, WeaponType type, int amount)
 
 WeaponProperties getWeaponProperties(WeaponType type)
 {
-    return weaponProperties[type];
+    if (type != MAX_WEAPON_TYPE)
+    {
+        return weaponProperties[type];
+    }
+    else
+    {
+        WeaponProperties empty = {
+            .name = "N/A",
+            .startingFuse = 0.0f,
+            .damage = 0,
+            .radius = 0,
+            .price = 0,
+            .detonationFunc = NULL,
+            .updateFunc = NULL,
+        };
+        return empty;
+    }
 }
 
 CellProperties getCellProperties(CellType type)
@@ -172,21 +200,7 @@ int getNumAlivePlayers(const Player players[MAX_PLAYERS])
 
 const char* getWeaponName(WeaponType type)
 {
-    switch(type)
-    {
-        case BOMB:
-            return "Bomb";
-            break;
-        case SHARP_BOMB:
-            return "Sharp Bomb";
-            break;
-        case MINE:
-            return "Mine";
-            break;
-        default:
-            return "Unknown";
-            break;
-    }
+    return getWeaponProperties(type).name;
 }
 
 static Vector2 vec2FromAngle(float angle) //Hopefully returns a vec2 length 1 based off the angle??

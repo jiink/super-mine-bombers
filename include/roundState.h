@@ -34,6 +34,7 @@ typedef enum {
     BOMB,
     MINE,
     SHARP_BOMB,
+    GRENADE,
     MAX_WEAPON_TYPE
 } WeaponType;
 
@@ -85,6 +86,7 @@ typedef struct {
     int price;
 	bool (*detonationFunc)(Vector2, float, float, Cell[FIELD_H][FIELD_W], Player[MAX_PLAYERS]); // Should return true if the bomb sucessfully detonated. False if it did not (e.g. if a mine did not find a reason to explode)
     void (*updateFunc)(Bomb*, const RoundState*);
+    char name[64];
 } WeaponProperties;
 
 extern Color playerColors[MAX_PLAYERS];

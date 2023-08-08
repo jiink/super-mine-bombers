@@ -206,7 +206,7 @@ static bool buyItem(ShoppingCart* shoppingCart, int* wallet, WeaponType type, in
         if (shoppingCart->orders[i].type == type)
         {
             shoppingCart->orders[i].quantity += quantity;
-            *wallet -= quantity;
+            *wallet -= quantity * getWeaponProperties(type).price;
             return true;
         }
     }
@@ -216,7 +216,7 @@ static bool buyItem(ShoppingCart* shoppingCart, int* wallet, WeaponType type, in
         {
             shoppingCart->orders[i].type = type;
             shoppingCart->orders[i].quantity = quantity;
-            *wallet -= quantity;
+            *wallet -= quantity * getWeaponProperties(type).price;
             return true;
         }
     }
