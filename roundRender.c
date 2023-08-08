@@ -27,6 +27,7 @@ static void drawHexagon(Vector2 center, Color color);
 static void drawPlayfield(const Cell playfield[FIELD_H][FIELD_W]);
 static void drawPlayer(const Player* player);
 static void drawPlayers(const Player players[MAX_PLAYERS]);
+static void drawBomb(const Bomb* bomb);
 static void drawBombs(const Bomb bombs[MAX_BOMBS]);
 static float getPlayersGreatestDistance(const Player players[MAX_PLAYERS]);
 static Vector2 getPlayersMidpoint(const Player players[MAX_PLAYERS]);
@@ -78,10 +79,7 @@ void drawRoundState(const RoundState *state, const InputState *input)
     // acceleration
     // deceleration
     DrawText(TextFormat("Speed: %f", state->players[0].velocity.y), 10, 100, 20, state->players[0].color);
-    // DrawText(TextFormat("Target: %f", state->players[0].speed), 10, 120, 20, state->players[0].color);
     DrawText(TextFormat("Top: %f", state->players[0].defSpeed), 10, 140, 20, state->players[0].color);
-    // DrawText(TextFormat("Accel: %f", state->players[0].rotSpeed), 10, 160, 20, state->players[0].color);
-    // DrawText(TextFormat("Decel: %f", state->players[0].inputDirInterp), 10, 180, 20, state->players[0].color);
     
 }
 
@@ -149,6 +147,16 @@ static void drawPlayer(const Player* player)
         Vector2Add(drawPos, (Vector2) {-0.35f, -0.75f}),
         (Vector2) { 0.05, 0.05 },
         0.0f);
+    // Draw bomb over their head if they're holding one
+    if (player->heldBomb != NONE)
+    {
+        Bomb shownBomb = {
+            .position = Vector2Add(player->position, (Vector2) {0.0f, -1.0f}),
+            .type = player->heldBomb,
+            .fuseTimer = sinf(GetTime() * 2.0f) * 0.5f + 0.5f,
+        };
+        drawBomb(&shownBomb);
+    }
 }
 
 static void drawPlayers(const Player players[MAX_PLAYERS])
@@ -159,32 +167,37 @@ static void drawPlayers(const Player players[MAX_PLAYERS])
     }
 }
 
+static void drawBomb(const Bomb* bomb)
+{
+    float diameter = sinf(bomb->fuseTimer * 30.0f) * 0.1f + 0.2f;
+    Vector2 drawCoords = worldToDrawCoords(bomb->position);
+    DrawCircleV(drawCoords, diameter + 0.1f, WHITE);
+    switch (bomb->type)
+    {
+        case BOMB:
+            DrawCircleV(drawCoords, diameter, RED);
+            break;
+        case MINE:
+            DrawCircleV(drawCoords, diameter, BLUE);
+            break;
+        case SHARP_BOMB:
+            DrawCircleV(drawCoords, diameter, GREEN);
+            break;
+        default:
+            break;
+    }
+    // Draw fuse timer ring
+    float relativeTimeLeft = bomb->fuseTimer / getWeaponProperties(bomb->type).startingFuse;
+    DrawRing(drawCoords, diameter + 0.3f, diameter + 0.4f, 0, relativeTimeLeft * 360.0f, 30, WHITE);
+    DrawRing(drawCoords, diameter + 0.2f, diameter + 0.3f, 0, relativeTimeLeft * 360.0f, 30, BLACK);
+}
+
 static void drawBombs(const Bomb bombs[MAX_BOMBS])
 {
     for (int i = 0; i < MAX_BOMBS; i++)
     {
         if (!bombs[i].active) continue;
-        float diameter = sinf(bombs[i].fuseTimer * 30.0f) * 0.1f + 0.2f;
-        Vector2 drawCoords = worldToDrawCoords(bombs[i].position);
-        DrawCircleV(drawCoords, diameter + 0.1f, WHITE);
-        switch (bombs[i].type)
-        {
-            case BOMB:
-                DrawCircleV(drawCoords, diameter, RED);
-                break;
-            case MINE:
-                DrawCircleV(drawCoords, diameter, BLUE);
-                break;
-            case SHARP_BOMB:
-                DrawCircleV(drawCoords, diameter, GREEN);
-                break;
-            default:
-                break;
-        }
-        // Draw fuse timer ring
-        float relativeTimeLeft = bombs[i].fuseTimer / getWeaponProperties(bombs[i].type).startingFuse;
-        DrawRing(drawCoords, diameter + 0.3f, diameter + 0.4f, 0, relativeTimeLeft * 360.0f, 30, WHITE);
-        DrawRing(drawCoords, diameter + 0.2f, diameter + 0.3f, 0, relativeTimeLeft * 360.0f, 30, BLACK);
+        drawBomb(&bombs[i]);
     }
 }
 

@@ -18,6 +18,8 @@ Axial playerSpawnPoints[MAX_PLAYERS] = {
 static bool sharpBombDetonate(Vector2 position, float radius, float damage, Cell playfield[FIELD_H][FIELD_W], Player players[MAX_PLAYERS]);
 static bool mineTryDetonate(Vector2 position, float radius, float damage, Cell playfield[FIELD_H][FIELD_W], Player players[MAX_PLAYERS]);
 static void bombUpdateNothing(Bomb* bomb, const RoundState* roundState);
+static void grenadeUpdate(Bomb* bomb, const RoundState* roundState);
+static void rollerUpdate(Bomb* bomb, const RoundState* roundState);
 static bool explode(Vector2 position, float radius, float damage, Cell playfield[FIELD_H][FIELD_W], Player players[MAX_PLAYERS]);
 
 // Properties
@@ -49,15 +51,24 @@ WeaponProperties weaponProperties[MAX_WEAPON_TYPE] = {
         .price = 3,
         .detonationFunc = sharpBombDetonate,
         .updateFunc = bombUpdateNothing,
-        },     
-    [GRENADE] = {
-        .name = "Grenade",
+        },
+    [ROLLER] = {
+        .name = "Roller",
         .startingFuse = 2.0f,
-        .damage = 100,
+        .damage = 200,
         .radius = 10,
         .price = 1,
         .detonationFunc = explode,
-        .updateFunc = bombUpdateNothing,
+        .updateFunc = rollerUpdate,
+    },  
+    [GRENADE] = {
+        .name = "Grenade",
+        .startingFuse = 2.0f,
+        .damage = 200,
+        .radius = 10,
+        .price = 1,
+        .detonationFunc = explode,
+        .updateFunc = grenadeUpdate,
         },
 };
 
@@ -90,7 +101,7 @@ Color playerColors[MAX_PLAYERS] = { RED, BLUE, GREEN, YELLOW };
 
 static Vector2 vec2FromAngle(float angle);
 static int clampInt(int value, int min, int max);
-static int cellTypeAtPoint(Vector2 point, Cell playfield[FIELD_H][FIELD_W]);
+static CellType cellTypeAtPoint(Vector2 point, const Cell playfield[FIELD_H][FIELD_W]);
 static void damagePlayer(Player *player, int damage);
 static void borderPlayfield(Cell playfield[FIELD_H][FIELD_W]);
 static void initPlayfield(Cell playfield[FIELD_H][FIELD_W]);
@@ -225,7 +236,7 @@ static int clampInt(int value, int min, int max)
     }
 }
 
-static int cellTypeAtPoint(Vector2 point, Cell playfield[FIELD_H][FIELD_W])
+static CellType cellTypeAtPoint(Vector2 point, const Cell playfield[FIELD_H][FIELD_W])
 {
     // Get the cell coordinates of the point
     int col, row;
@@ -309,6 +320,20 @@ static void bombUpdateNothing(Bomb* bomb, const RoundState* roundState)
     return;
 }
 
+static void grenadeUpdate(Bomb* bomb, const RoundState* RoundState)
+{
+    bomb->position.x += 10.0f * GetFrameTime();
+}
+
+static void rollerUpdate(Bomb* bomb, const RoundState* roundState)
+{
+    bomb->position.x += 10.0f * GetFrameTime();
+    if (cellTypeAtPoint(bomb->position, roundState->playfield) == WALL)
+    {
+        bomb->position.x -= 10.0f * GetFrameTime();
+    }
+}
+
 static void borderPlayfield(Cell playfield[FIELD_H][FIELD_W])
 {
     for (int i = 0; i < FIELD_W; i++)
@@ -377,14 +402,15 @@ static void initPlayers(Player players[MAX_PLAYERS], int numPlayers, int* wallet
         players[i].color = playerColors[i];
         clearInventory(&players[i]);
         players[i].activeSlot = 0;
+        players[i].facingDirection = (Vector2) { 1.0f, 0.0f };
         players[i].position = toWorldCoords(playerSpawnPoints[i]);
         players[i].velocity = (Vector2) { 0.0f, 0.0f };
         players[i].defSpeed = 200.0f;
         players[i].defFriction = 0.7f;
-
         players[i].targetSpeed = players[i].defSpeed;
         players[i].friction = players[i].defFriction;
         players[i].wallet = wallets[i];
+        players[i].heldBomb = NONE;
     }
     for (int i = 0; i < numPlayers; i++)
     {
@@ -490,6 +516,11 @@ static void updatePlayer(RoundState* state, int playerNum, const PlayerInputStat
     playerNum = clampInt(playerNum, 0, MAX_PLAYERS - 1);
     Player* player = &state->players[playerNum];
 
+    if (Vector2Length(pInput->direction) > 0.0f)
+    {
+        player->facingDirection = pInput->direction;
+    }
+
     // Movement control
     Vector2 playerPos = player->position;
     player->velocity = Vector2Add(player->velocity, Vector2Scale(pInput->direction, player->defSpeed * GetFrameTime()));
@@ -533,16 +564,26 @@ static void updatePlayer(RoundState* state, int playerNum, const PlayerInputStat
     int row = pos.r;
     const int miningSpeed = 600; // Health per second
     damageCell(row, col, (int)((float)miningSpeed * GetFrameTime()), state->playfield);
-    // Attacking
+    // Attacking. Press attack button down to hold bomb above head. Release to put it down in front of you.
     if (pInput->attackPressed)
     {
         WeaponSlot* slot = &player->inventory[player->activeSlot];
-        if (slot->quantity > 0 && slot->type < MAX_WEAPON_TYPE)
+        if (player->heldBomb == NONE)
+        {
+            player->heldBomb = slot->type;
+        }
+    }
+    else if (pInput->attackReleased)
+    {
+        WeaponSlot* slot = &player->inventory[player->activeSlot];
+        if (player->heldBomb != NONE)
         {
             slot->quantity--;
             printf("Using a %d! (%d left)\n", slot->type, slot->quantity);
-            spawnBomb(slot->type, player->position, state->bombs);
+            Vector2 bombSpawnPos = Vector2Add(player->position, player->facingDirection);
+            spawnBomb(slot->type, bombSpawnPos, state->bombs);
         }
+        player->heldBomb = NONE;
     }
     // Switching weapons
     if (pInput->wepSelectPressed)

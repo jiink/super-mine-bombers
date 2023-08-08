@@ -31,9 +31,11 @@ typedef struct {
 } CellProperties;
 
 typedef enum {
+    NONE,
     BOMB,
     MINE,
     SHARP_BOMB,
+    ROLLER,
     GRENADE,
     MAX_WEAPON_TYPE
 } WeaponType;
@@ -53,6 +55,7 @@ typedef struct {
     int* wallet;
     WeaponSlot inventory[INVENTORY_SIZE];
     int activeSlot;
+    Vector2 facingDirection;
     Vector2 position;
     Vector2 velocity;
     Vector2 lastVelocity;
@@ -60,6 +63,7 @@ typedef struct {
     float targetSpeed; //How fast you want to walk
     float defFriction;
     float friction;
+    WeaponType heldBomb;
 } Player;
 
 // Struct to represent a bomb entity
@@ -68,6 +72,7 @@ typedef struct {
     WeaponType type;
     Vector2 position;
     float fuseTimer;
+    Player* owner;
 } Bomb;
 
 // Struct to represent the game state

@@ -8,7 +8,7 @@ static void drawBuyingPhase(const MatchState* matchState)
     // Draw the players
     for (int i = 0; i < matchState->numPlayers; i++)
     {
-        DrawRectangle(i * GetScreenWidth() / matchState->numPlayers, 0, GetScreenWidth() / matchState->numPlayers, GetScreenHeight(), playerColors[i]);
+        DrawRectangle(i * GetScreenWidth() / matchState->numPlayers, 0, GetScreenWidth() / matchState->numPlayers, GetScreenHeight(), ColorBrightness(playerColors[i], -0.5f));
         const ShopperState* shopper = &matchState->shopperStates[i];
 
         // Draw the wallets

@@ -34,6 +34,7 @@ typedef struct {
     Vector2 direction;
     bool attack;
     bool attackPressed;
+    bool attackReleased;
     bool wepSelectPressed;
 } PlayerInputState;
 
