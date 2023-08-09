@@ -55,8 +55,8 @@ WeaponProperties weaponProperties[MAX_WEAPON_TYPE] = {
     [ROLLER] = {
         .name = "Roller",
         .startingFuse = 2.0f,
-        .damage = 200,
-        .radius = 10,
+        .damage = 100,
+        .radius = 2,
         .price = 1,
         .detonationFunc = explode,
         .updateFunc = rollerUpdate,
@@ -64,8 +64,8 @@ WeaponProperties weaponProperties[MAX_WEAPON_TYPE] = {
     [GRENADE] = {
         .name = "Grenade",
         .startingFuse = 2.0f,
-        .damage = 200,
-        .radius = 10,
+        .damage = 100,
+        .radius = 3,
         .price = 1,
         .detonationFunc = explode,
         .updateFunc = grenadeUpdate,
@@ -331,7 +331,12 @@ static void rollerUpdate(Bomb* bomb, const RoundState* roundState)
     {
         return;
     }
-    bomb->position = Vector2Add(bomb->position, Vector2Scale(bomb->initialVelocity, GetFrameTime() * 10.0f));
+    bomb->position = Vector2Add(bomb->position, Vector2Scale(bomb->initialVelocity, GetFrameTime()));
+    // if we find ourselves in a wall, explode
+    if (cellTypeAtPoint(bomb->position, roundState->playfield) != AIR)
+    {
+        bomb->fuseTimer = 0.0f;
+    }
 }
 
 static void borderPlayfield(Cell playfield[FIELD_H][FIELD_W])
@@ -585,7 +590,7 @@ static void updatePlayer(RoundState* state, int playerNum, const PlayerInputStat
             slot->quantity--;
             printf("Using a %d! (%d left)\n", slot->type, slot->quantity);
             Vector2 bombSpawnPos = Vector2Add(player->position, player->facingDirection);
-            spawnBomb(slot->type, bombSpawnPos, state->bombs, player, player->facingDirection);
+            spawnBomb(slot->type, bombSpawnPos, state->bombs, player, Vector2Scale(player->facingDirection, 50.0f));
         }
         player->heldBomb = NONE;
     }
