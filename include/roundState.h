@@ -73,6 +73,7 @@ typedef struct {
     Vector2 position;
     float fuseTimer;
     Player* owner;
+    Vector2 initialVelocity;
 } Bomb;
 
 // Struct to represent the game state

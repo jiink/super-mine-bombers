@@ -110,7 +110,7 @@ static void initPlayers(Player players[MAX_PLAYERS], int numPlayers, int* wallet
 static void damageCell(int row, int col, int damage, Cell playfield[FIELD_H][FIELD_W]);
 static void damageCellAtPos(Vector2 pos, int damage, Cell playfield[FIELD_H][FIELD_W]);
 static void initBombs(Bomb bombsList[MAX_BOMBS]);
-static void spawnBomb(WeaponType wepType, Vector2 pos, Bomb bombsList[MAX_BOMBS], Player* owner);
+static void spawnBomb(WeaponType wepType, Vector2 pos, Bomb bombsList[MAX_BOMBS], Player* owner, Vector2 initialVelocity);
 static void updateBombs(Bomb bombsList[MAX_BOMBS], const RoundState* roundState, Cell playfield[FIELD_H][FIELD_W], Player players[MAX_PLAYERS]);
 static int getNumInventorySlotsUsed(Player* player);
 static void updatePlayer(RoundState* state, int playerNum, const PlayerInputState* pInput);
@@ -331,7 +331,7 @@ static void rollerUpdate(Bomb* bomb, const RoundState* roundState)
     {
         return;
     }
-    bomb->position = Vector2Add(bomb->position, Vector2Scale(bomb->owner->facingDirection, GetFrameTime() * 10.0f));
+    bomb->position = Vector2Add(bomb->position, Vector2Scale(bomb->initialVelocity, GetFrameTime() * 10.0f));
 }
 
 static void borderPlayfield(Cell playfield[FIELD_H][FIELD_W])
@@ -457,10 +457,11 @@ static void initBombs(Bomb bombsList[MAX_BOMBS])
         bombsList[i].fuseTimer = 0;
         bombsList[i].position = (Vector2){0, 0};
         bombsList[i].owner = NULL;
+        bombsList[i].initialVelocity = (Vector2){0, 0};
     }
 }
 
-static void spawnBomb(WeaponType wepType, Vector2 pos, Bomb bombsList[MAX_BOMBS], Player* owner)
+static void spawnBomb(WeaponType wepType, Vector2 pos, Bomb bombsList[MAX_BOMBS], Player* owner, Vector2 initialVelocity)
 {
     // Find an inactive bomb
     for (int i = 0; i < MAX_BOMBS; i++)
@@ -473,6 +474,7 @@ static void spawnBomb(WeaponType wepType, Vector2 pos, Bomb bombsList[MAX_BOMBS]
             bombsList[i].fuseTimer = getWeaponProperties(wepType).startingFuse;
             bombsList[i].type = wepType;
             bombsList[i].owner = owner;
+            bombsList[i].initialVelocity = initialVelocity;
             break;
         }
     }
@@ -570,7 +572,7 @@ static void updatePlayer(RoundState* state, int playerNum, const PlayerInputStat
     if (pInput->attackPressed)
     {
         WeaponSlot* slot = &player->inventory[player->activeSlot];
-        if (player->heldBomb == NONE)
+        if (player->heldBomb == NONE && slot->quantity > 0)
         {
             player->heldBomb = slot->type;
         }
@@ -583,7 +585,7 @@ static void updatePlayer(RoundState* state, int playerNum, const PlayerInputStat
             slot->quantity--;
             printf("Using a %d! (%d left)\n", slot->type, slot->quantity);
             Vector2 bombSpawnPos = Vector2Add(player->position, player->facingDirection);
-            spawnBomb(slot->type, bombSpawnPos, state->bombs, player);
+            spawnBomb(slot->type, bombSpawnPos, state->bombs, player, player->facingDirection);
         }
         player->heldBomb = NONE;
     }

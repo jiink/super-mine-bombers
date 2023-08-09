@@ -47,7 +47,13 @@ void initMatchState(MatchState *matchState)
     matchState->numPlayers = 2;
     matchState->roundOverTimer = 0.0;
     initShopperStates(matchState->shopperStates);
-    fillAllWallets(matchState->shopperStates, 10);
+    fillAllWallets(matchState->shopperStates, 20);
+
+    // Automatic buying for the first round to quicken debugging
+    buyItem(&matchState->shopperStates[0].shoppingCart, &matchState->shopperStates[0].wallet, ROLLER, 10);
+    buyItem(&matchState->shopperStates[1].shoppingCart, &matchState->shopperStates[0].wallet, ROLLER, 10);
+    matchState->shopperStates[0].ready = true;
+    matchState->shopperStates[1].ready = true;
 }
 
 static bool allShoppersAreReady(const ShopperState shoppers[MAX_PLAYERS], int numPlayers)
