@@ -73,7 +73,7 @@ typedef struct {
     Vector2 position;
     float fuseTimer;
     Player* owner;
-    Vector2 initialVelocity;
+    Vector2 velocity;
 } Bomb;
 
 // Struct to represent the game state
@@ -90,7 +90,7 @@ typedef struct {
     int damage;
     float radius;
     int price;
-	bool (*detonationFunc)(Vector2, float, float, Cell[FIELD_H][FIELD_W], Player[MAX_PLAYERS]); // Should return true if the bomb sucessfully detonated. False if it did not (e.g. if a mine did not find a reason to explode)
+	bool (*detonationFunc)(Vector2, float, float, Cell[FIELD_H][FIELD_W], RoundState*); // Should return true if the bomb sucessfully detonated. False if it did not (e.g. if a mine did not find a reason to explode)
     void (*updateFunc)(Bomb*, const RoundState*);
     char name[64];
 } WeaponProperties;

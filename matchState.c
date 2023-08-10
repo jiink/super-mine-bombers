@@ -50,8 +50,8 @@ void initMatchState(MatchState *matchState)
     fillAllWallets(matchState->shopperStates, 20);
 
     // Automatic buying for the first round to quicken debugging
-    buyItem(&matchState->shopperStates[0].shoppingCart, &matchState->shopperStates[0].wallet, ROLLER, 10);
-    buyItem(&matchState->shopperStates[1].shoppingCart, &matchState->shopperStates[0].wallet, ROLLER, 10);
+    buyItem(&matchState->shopperStates[0].shoppingCart, &matchState->shopperStates[0].wallet, ROLLER, 20);
+    buyItem(&matchState->shopperStates[1].shoppingCart, &matchState->shopperStates[1].wallet, BOMB, 20);
     matchState->shopperStates[0].ready = true;
     matchState->shopperStates[1].ready = true;
 }

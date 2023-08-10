@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdbool.h>
+#include <stdlib.h>
 #include "include/roundState.h"
 #include "include/raymath.h"
 #include "include/hex.h"
@@ -15,12 +16,12 @@ Axial playerSpawnPoints[MAX_PLAYERS] = {
 
 // Bomb detonation prototypes
 
-static bool sharpBombDetonate(Vector2 position, float radius, float damage, Cell playfield[FIELD_H][FIELD_W], Player players[MAX_PLAYERS]);
-static bool mineTryDetonate(Vector2 position, float radius, float damage, Cell playfield[FIELD_H][FIELD_W], Player players[MAX_PLAYERS]);
-static void bombUpdateNothing(Bomb* bomb, const RoundState* roundState);
+static bool sharpBombDetonate(Vector2 position, float radius, float damage, Cell playfield[FIELD_H][FIELD_W], RoundState* roundState);
+static bool mineTryDetonate(Vector2 position, float radius, float damage, Cell playfield[FIELD_H][FIELD_W], RoundState* roundState);
+static void bombDefaultUpdate(Bomb* bomb, const RoundState* roundState);
 static void grenadeUpdate(Bomb* bomb, const RoundState* roundState);
 static void rollerUpdate(Bomb* bomb, const RoundState* roundState);
-static bool explode(Vector2 position, float radius, float damage, Cell playfield[FIELD_H][FIELD_W], Player players[MAX_PLAYERS]);
+static bool explode(Vector2 position, float radius, float damage, Cell playfield[FIELD_H][FIELD_W], RoundState* roundState);
 
 // Properties
 
@@ -32,7 +33,7 @@ WeaponProperties weaponProperties[MAX_WEAPON_TYPE] = {
         .radius = 6,
         .price = 1,
         .detonationFunc = explode,
-        .updateFunc = bombUpdateNothing,
+        .updateFunc = bombDefaultUpdate,
         },            
     [MINE] = {
         .name = "Mine",
@@ -41,7 +42,7 @@ WeaponProperties weaponProperties[MAX_WEAPON_TYPE] = {
         .radius = 10,
         .price = 2,
         .detonationFunc = mineTryDetonate,
-        .updateFunc = bombUpdateNothing,
+        .updateFunc = bombDefaultUpdate,
         },             
     [SHARP_BOMB] = {
         .name = "Sharp Bomb",
@@ -50,7 +51,7 @@ WeaponProperties weaponProperties[MAX_WEAPON_TYPE] = {
         .radius = 40,
         .price = 3,
         .detonationFunc = sharpBombDetonate,
-        .updateFunc = bombUpdateNothing,
+        .updateFunc = bombDefaultUpdate,
         },
     [ROLLER] = {
         .name = "Roller",
@@ -111,11 +112,12 @@ static void damageCell(int row, int col, int damage, Cell playfield[FIELD_H][FIE
 static void damageCellAtPos(Vector2 pos, int damage, Cell playfield[FIELD_H][FIELD_W]);
 static void initBombs(Bomb bombsList[MAX_BOMBS]);
 static void spawnBomb(WeaponType wepType, Vector2 pos, Bomb bombsList[MAX_BOMBS], Player* owner, Vector2 initialVelocity);
-static void updateBombs(Bomb bombsList[MAX_BOMBS], const RoundState* roundState, Cell playfield[FIELD_H][FIELD_W], Player players[MAX_PLAYERS]);
+static void updateBombs(Bomb bombsList[MAX_BOMBS], RoundState* roundState, Cell playfield[FIELD_H][FIELD_W], Player players[MAX_PLAYERS]);
 static int getNumInventorySlotsUsed(Player* player);
 static void updatePlayer(RoundState* state, int playerNum, const PlayerInputState* pInput);
 static void updatePlayers(RoundState* state, const InputState* input);
 static bool gameOverCondition(RoundState* state);
+static float randomFloat(float min, float max);
 
 // Function definitions
 
@@ -260,8 +262,10 @@ static void damagePlayer(Player *player, int damage)
     }
 }
 
-static bool explode(Vector2 position, float radius, float damage, Cell playfield[FIELD_H][FIELD_W], Player players[MAX_PLAYERS])
+static bool explode(Vector2 position, float radius, float damage, Cell playfield[FIELD_H][FIELD_W], RoundState* roundState)
 {
+    Player* players = roundState->players;
+    Bomb* bombs = roundState->bombs;
     // Get the cell coordinates of the bomb
     Axial bombCell = toCellCoords(position);
     for (int col = (int)(bombCell.q) - radius; col <= (int)(bombCell.q) + radius; col++)
@@ -281,43 +285,55 @@ static bool explode(Vector2 position, float radius, float damage, Cell playfield
                         damagePlayer(&players[i], cellDamage);
                     }
                 }
+                // If there are any active bombs in this cell, knock them away
+                for (int i = 0; i < MAX_BOMBS; i++)
+                {
+                    if (bombs[i].active && axialDistance(toCellCoords(bombs[i].position), thisCell) <= 0)
+                    {
+                        bombs[i].velocity = Vector2Add(bombs[i].velocity, Vector2Scale(Vector2Normalize(Vector2Subtract(bombs[i].position, position)), (float)cellDamage));
+                        //bombs[i].velocity = (Vector2) { 50.0f, 50.0f };
+                    }
+                }
             }
         }
     }
     return true;
 }
 
-static bool sharpBombDetonate(Vector2 position, float radius, float damage, Cell playfield[FIELD_H][FIELD_W], Player players[MAX_PLAYERS])
+static bool sharpBombDetonate(Vector2 position, float radius, float damage, Cell playfield[FIELD_H][FIELD_W], RoundState* roundState)
 {
     // Cause a series of small explosions in a line above and below, to the left and to the right
     // the reach of the line of explosions is determined by the radius
     for (int i = 0; i < radius; i++)
     {
-        explode((Vector2){.x = position.x + i * CELL_H_SPACING, .y = position.y}, 1.0f / (float)(i / 2 + 1), damage / (i / 2 + 1), playfield, players);
-        explode((Vector2){.x = position.x - i * CELL_H_SPACING, .y = position.y}, 1.0f / (float)(i / 2 + 1), damage / (i / 2 + 1), playfield, players);
-        explode((Vector2){.x = position.x, .y = position.y + i * CELL_V_SPACING}, 1.0f / (float)(i / 2 + 1), damage / (i / 2 + 1), playfield, players);
-        explode((Vector2){.x = position.x, .y = position.y - i * CELL_V_SPACING}, 1.0f / (float)(i / 2 + 1), damage / (i / 2 + 1), playfield, players);
+        explode((Vector2){.x = position.x + i * CELL_H_SPACING, .y = position.y}, 1.0f / (float)(i / 2 + 1), damage / (i / 2 + 1), playfield, roundState);
+        explode((Vector2){.x = position.x - i * CELL_H_SPACING, .y = position.y}, 1.0f / (float)(i / 2 + 1), damage / (i / 2 + 1), playfield, roundState);
+        explode((Vector2){.x = position.x, .y = position.y + i * CELL_V_SPACING}, 1.0f / (float)(i / 2 + 1), damage / (i / 2 + 1), playfield, roundState);
+        explode((Vector2){.x = position.x, .y = position.y - i * CELL_V_SPACING}, 1.0f / (float)(i / 2 + 1), damage / (i / 2 + 1), playfield, roundState);
     }
     return true;
 }
 
-static bool mineTryDetonate(Vector2 position, float radius, float damage, Cell playfield[FIELD_H][FIELD_W], Player players[MAX_PLAYERS])
+static bool mineTryDetonate(Vector2 position, float radius, float damage, Cell playfield[FIELD_H][FIELD_W], RoundState* roundState)
 {
+    Player* players = roundState->players;
     // See if any players are nearby. If so, explode. Otherwise, return false.
     for (int i = 0; i < MAX_PLAYERS; i++)
     {
         if (Vector2Distance(players[i].position, position) < 1)
         {
-            explode(position, radius, damage, playfield, players);
+            explode(position, radius, damage, playfield, roundState);
             return true;
         }
     }
     return false;
 }
 
-static void bombUpdateNothing(Bomb* bomb, const RoundState* roundState)
+static void bombDefaultUpdate(Bomb* bomb, const RoundState* roundState)
 {
-    return;
+    const float friction = 0.7f;
+    bomb->velocity = Vector2Scale(bomb->velocity, 0.7f);
+    bomb->position = Vector2Add(bomb->position, Vector2Scale(bomb->velocity, GetFrameTime()));
 }
 
 static void grenadeUpdate(Bomb* bomb, const RoundState* RoundState)
@@ -331,7 +347,7 @@ static void rollerUpdate(Bomb* bomb, const RoundState* roundState)
     {
         return;
     }
-    bomb->position = Vector2Add(bomb->position, Vector2Scale(bomb->initialVelocity, GetFrameTime()));
+    bomb->position = Vector2Add(bomb->position, Vector2Scale(bomb->velocity, GetFrameTime()));
     // if we find ourselves in a wall, explode
     if (cellTypeAtPoint(bomb->position, roundState->playfield) != AIR)
     {
@@ -462,7 +478,7 @@ static void initBombs(Bomb bombsList[MAX_BOMBS])
         bombsList[i].fuseTimer = 0;
         bombsList[i].position = (Vector2){0, 0};
         bombsList[i].owner = NULL;
-        bombsList[i].initialVelocity = (Vector2){0, 0};
+        bombsList[i].velocity = (Vector2){0, 0};
     }
 }
 
@@ -479,13 +495,13 @@ static void spawnBomb(WeaponType wepType, Vector2 pos, Bomb bombsList[MAX_BOMBS]
             bombsList[i].fuseTimer = getWeaponProperties(wepType).startingFuse;
             bombsList[i].type = wepType;
             bombsList[i].owner = owner;
-            bombsList[i].initialVelocity = initialVelocity;
+            bombsList[i].velocity = initialVelocity;
             break;
         }
     }
 }
 
-static void updateBombs(Bomb bombsList[MAX_BOMBS], const RoundState* roundState, Cell playfield[FIELD_H][FIELD_W], Player players[MAX_PLAYERS])
+static void updateBombs(Bomb bombsList[MAX_BOMBS], RoundState* roundState, Cell playfield[FIELD_H][FIELD_W], Player players[MAX_PLAYERS])
 {
     for (int i = 0; i < MAX_BOMBS; i++)
     {
@@ -498,7 +514,7 @@ static void updateBombs(Bomb bombsList[MAX_BOMBS], const RoundState* roundState,
             if (bomb->fuseTimer <= 0)
             {
                 bomb->fuseTimer = 0.0f;
-                if (props.detonationFunc(bomb->position, props.radius, props.damage, playfield, players))
+                if (props.detonationFunc(bomb->position, props.radius, props.damage, playfield, roundState))
                 {
                     bomb->active = false;
                 }
@@ -589,8 +605,13 @@ static void updatePlayer(RoundState* state, int playerNum, const PlayerInputStat
         {
             slot->quantity--;
             printf("Using a %d! (%d left)\n", slot->type, slot->quantity);
-            Vector2 bombSpawnPos = Vector2Add(player->position, player->facingDirection);
-            spawnBomb(slot->type, bombSpawnPos, state->bombs, player, Vector2Scale(player->facingDirection, 50.0f));
+            //Vector2 bombSpawnPos = Vector2Add(player->position, player->facingDirection);
+            // Randomize the spawn position a bit
+            Vector2 bombSpawnPos = Vector2Add(
+                player->position,
+                (Vector2) { randomFloat(-0.1f, 0.1f), randomFloat(-0.1f, 0.1f) }
+            );
+            spawnBomb(slot->type, bombSpawnPos, state->bombs, player, Vector2Scale(player->facingDirection, 25.0f));
         }
         player->heldBomb = NONE;
     }
@@ -628,3 +649,9 @@ static bool gameOverCondition(RoundState* state)
     int numPlayers = getNumAlivePlayers(state->players);
     return numPlayers <= 1; // uh, if there's 1 guy left, he is the winner
 }
+
+ static float randomFloat(float min, float max)
+ {
+    float scale = rand() / (float) RAND_MAX; /* [0, 1.0] */
+    return min + scale * ( max - min );      /* [min, max] */
+ }
