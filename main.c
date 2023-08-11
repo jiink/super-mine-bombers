@@ -27,6 +27,8 @@ int main(void)
     InitWindow(screenWidth, screenHeight, "Super Mine Bombers");
 	SetWindowState(FLAG_VSYNC_HINT);
 
+    InitAudioDevice();
+
     initRoundRender(screenWidth, screenHeight);
     while (!WindowShouldClose())
     {
@@ -34,6 +36,8 @@ int main(void)
         updateMatchState(&matchState, &inputState);
         drawMatchState(&matchState, &inputState);
     }
+
+    CloseAudioDevice();     // Close audio device
 
     CloseWindow();
 

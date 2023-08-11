@@ -437,6 +437,7 @@ static void initPlayers(Player players[MAX_PLAYERS], int numPlayers, int* wallet
         players[i].friction = players[i].defFriction;
         players[i].wallet = wallets[i];
         players[i].heldBomb = NONE;
+        players[i].playDeploySound = false;
     }
     for (int i = 0; i < numPlayers; i++)
     {
@@ -484,6 +485,7 @@ static void initBombs(Bomb bombsList[MAX_BOMBS])
         bombsList[i].position = (Vector2){0, 0};
         bombsList[i].owner = NULL;
         bombsList[i].velocity = (Vector2){0, 0};
+        bombsList[i].playExplosionSound = false;
     }
 }
 
@@ -511,6 +513,7 @@ static void updateBombs(Bomb bombsList[MAX_BOMBS], RoundState* roundState, Cell 
     for (int i = 0; i < MAX_BOMBS; i++)
     {
         Bomb* bomb = &bombsList[i];
+        bomb->playExplosionSound = false;
         if (bomb->active)
         {
             WeaponProperties props = getWeaponProperties(bomb->type);
@@ -521,6 +524,7 @@ static void updateBombs(Bomb bombsList[MAX_BOMBS], RoundState* roundState, Cell 
                 bomb->fuseTimer = 0.0f;
                 if (props.detonationFunc(bomb->position, props.radius, props.damage, playfield, roundState))
                 {
+                    bomb->playExplosionSound = true;
                     bomb->active = false;
                 }
             }
@@ -545,6 +549,7 @@ static void updatePlayer(RoundState* state, int playerNum, const PlayerInputStat
 {
     playerNum = clampInt(playerNum, 0, MAX_PLAYERS - 1);
     Player* player = &state->players[playerNum];
+    player->playDeploySound = false;
 
     if (Vector2Length(pInput->direction) > 0.0f)
     {
@@ -617,6 +622,7 @@ static void updatePlayer(RoundState* state, int playerNum, const PlayerInputStat
                 (Vector2) { randomFloat(-0.1f, 0.1f), randomFloat(-0.1f, 0.1f) }
             );
             spawnBomb(slot->type, bombSpawnPos, state->bombs, player, Vector2Scale(player->facingDirection, 25.0f));
+            player->playDeploySound = true;
         }
         player->heldBomb = NONE;
     }

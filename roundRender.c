@@ -8,9 +8,14 @@
 #include "include/vitmap.h"
 #include "include/rlgl.h"
 
+#define NUM_EXPLOSION_SOUNDS 4
+
 Camera2D camera = { 0 };
 
 Vitmap* characterSprite;
+
+Sound explosionSounds[NUM_EXPLOSION_SOUNDS];
+Sound deploySound;
 
 Color cellColorLookup[MAX_CELL_TYPES] = {
 	[AIR] = (Color) { 255, 0, 0, 100 },
@@ -33,6 +38,9 @@ static float getPlayersGreatestDistance(const Player players[MAX_PLAYERS]);
 static Vector2 getPlayersMidpoint(const Player players[MAX_PLAYERS]);
 static void initCamera(int screenWidth, int screenHeight);
 static void updateCamera(Camera2D *cam, const Player players[MAX_PLAYERS], float smoothness);
+static void initSounds();
+static void initExplosionSound();
+static void playExplosionSound();
 
 // Function definitions
 
@@ -41,6 +49,7 @@ void initRoundRender(int screenWidth, int screenHeight)
     rlDisableBackfaceCulling(); // TODO: Turn clockwise triangles into counter-clockwise ones during vitmap shape baking so we don't have to do this
     initCamera(screenWidth, screenHeight);
     characterSprite = loadAndBakeVitmap("assets/cubil.vmp");
+    initSounds();
 }
 
 void drawRoundState(const RoundState *state, const InputState *input)
@@ -157,6 +166,10 @@ static void drawPlayer(const Player* player)
         };
         drawBomb(&shownBomb);
     }
+    if (player->playDeploySound)
+    {
+        PlaySound(deploySound);
+    }
 }
 
 static void drawPlayers(const Player players[MAX_PLAYERS])
@@ -196,9 +209,33 @@ static void drawBombs(const Bomb bombs[MAX_BOMBS])
 {
     for (int i = 0; i < MAX_BOMBS; i++)
     {
+        if (bombs[i].playExplosionSound)
+        {
+            playExplosionSound();
+        }
         if (!bombs[i].active) continue;
         drawBomb(&bombs[i]);
     }
+}
+
+static void initExplosionSound()
+{
+    for (int i = 0; i < NUM_EXPLOSION_SOUNDS; i++)
+    {
+        explosionSounds[i] = LoadSound(TextFormat("assets/explode%d.ogg", i + 1));
+    }
+}
+
+static void playExplosionSound()
+{
+    int soundIndex = GetRandomValue(0, NUM_EXPLOSION_SOUNDS - 1);
+    PlaySound(explosionSounds[soundIndex]);
+}
+
+static void initSounds()
+{
+    initExplosionSound();
+    deploySound = LoadSound("assets/deploy.ogg");
 }
 
 // Find the distance that lies between the 2 players who are the farthest apart

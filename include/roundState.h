@@ -64,6 +64,7 @@ typedef struct {
     float defFriction;
     float friction;
     WeaponType heldBomb;
+    bool playDeploySound;
 } Player;
 
 // Struct to represent a bomb entity
@@ -74,6 +75,7 @@ typedef struct {
     float fuseTimer;
     Player* owner;
     Vector2 velocity;
+    bool playExplosionSound;
 } Bomb;
 
 // Struct to represent the game state
