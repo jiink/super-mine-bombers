@@ -332,7 +332,7 @@ static bool mineTryDetonate(Vector2 position, float radius, float damage, Cell p
 static void bombDefaultUpdate(Bomb* bomb, const RoundState* roundState)
 {
     const float friction = 0.7f;
-    bomb->velocity = Vector2Scale(bomb->velocity, 0.7f);
+    bomb->velocity = Vector2Scale(bomb->velocity, friction);
     bomb->position = Vector2Add(bomb->position, Vector2Scale(bomb->velocity, GetFrameTime()));
     // if we find ourselves in a wall, stick
     if (cellTypeAtPoint(bomb->position, roundState->playfield) != AIR)
@@ -431,8 +431,8 @@ static void initPlayers(Player players[MAX_PLAYERS], int numPlayers, int* wallet
         players[i].facingDirection = (Vector2) { 1.0f, 0.0f };
         players[i].position = toWorldCoords(playerSpawnPoints[i]);
         players[i].velocity = (Vector2) { 0.0f, 0.0f };
-        players[i].defSpeed = 200.0f;
-        players[i].defFriction = 0.7f;
+        players[i].defSpeed = 50.0f;
+        players[i].defFriction = 0.001f;
         players[i].targetSpeed = players[i].defSpeed;
         players[i].friction = players[i].defFriction;
         players[i].wallet = wallets[i];
@@ -554,7 +554,7 @@ static void updatePlayer(RoundState* state, int playerNum, const PlayerInputStat
     // Movement control
     Vector2 playerPos = player->position;
     player->velocity = Vector2Add(player->velocity, Vector2Scale(pInput->direction, player->defSpeed * GetFrameTime()));
-    player->velocity = Vector2Scale(player->velocity, player->friction);
+    player->velocity = Vector2Scale(player->velocity, pow(player->friction, GetFrameTime()));
 
     Vector2 desiredPosition = Vector2Add(playerPos, Vector2Scale(player->velocity, GetFrameTime()));
     Vector2 destination = desiredPosition;
