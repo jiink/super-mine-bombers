@@ -82,13 +82,8 @@ void drawRoundState(const RoundState *state, const InputState *input)
         DrawText(TextFormat("%s: %d", getWeaponName(player->inventory[player->activeSlot].type), player->inventory[player->activeSlot].quantity), drawPos.x, drawPos.y, 20, state->players[i].color);
     }
     // Draw player 1's:
-    //currentSpeed
-    // targetSpeed
-    // topSpeed
-    // acceleration
-    // deceleration
-    DrawText(TextFormat("Speed: %f", state->players[0].velocity.y), 10, 100, 20, state->players[0].color);
-    DrawText(TextFormat("Top: %f", state->players[0].defSpeed), 10, 140, 20, state->players[0].color);
+    // DrawText(TextFormat("Speed: %f", state->players[0].velocity.y), 10, 100, 20, state->players[0].color);
+    // DrawText(TextFormat("Top: %f", state->players[0].defSpeed), 10, 140, 20, state->players[0].color);
     
 }
 

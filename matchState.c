@@ -30,13 +30,16 @@ static void checkoutAll(ShopperState shopperStates[MAX_PLAYERS], Player players[
     }
 }
 
-void initShopperStates(ShopperState shopperStates[MAX_PLAYERS])
+void initShopperStates(ShopperState shopperStates[MAX_PLAYERS], bool clearCarts)
 {
     for (int i = 0; i < MAX_PLAYERS; i++)
     {
         shopperStates[i].ready = false;
         shopperStates[i].chosenWeapon = 0;
-        clearShoppingCart(&shopperStates[i].shoppingCart);
+        if (clearCarts)
+        {
+            clearShoppingCart(&shopperStates[i].shoppingCart);
+        }
     }
 }
 
@@ -46,7 +49,7 @@ void initMatchState(MatchState *matchState)
     matchState->roundNumber = 0;
     matchState->numPlayers = 2;
     matchState->roundOverTimer = 0.0;
-    initShopperStates(matchState->shopperStates);
+    initShopperStates(matchState->shopperStates, true);
     fillAllWallets(matchState->shopperStates, 20);
 
     // Automatic buying for the first round to quicken debugging
@@ -137,7 +140,7 @@ void updateFightingPhase(MatchState* matchState, const InputState* inputState)
             matchState->roundNumber++;
             printf("Starting round %d!\n", matchState->roundNumber);
             matchState->phase = BUYING;
-            initShopperStates(matchState->shopperStates);
+            initShopperStates(matchState->shopperStates, false);
         }
     }
     else
