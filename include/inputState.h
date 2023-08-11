@@ -36,6 +36,8 @@ typedef struct {
     bool attackPressed;
     bool attackReleased;
     bool wepSelectPressed;
+    bool leftPressed;
+    bool rightPressed;
 } PlayerInputState;
 
 typedef struct {

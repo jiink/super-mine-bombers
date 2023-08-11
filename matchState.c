@@ -81,30 +81,35 @@ void updateBuyingPhase(MatchState* matchState, const InputState* inputState)
     for (int i = 0; i < matchState->numPlayers; i++)
     {
         ShopperState* shopperState = &matchState->shopperStates[i];
-        if (inputState->player[i].wepSelectPressed)
+        if (inputState->player[i].rightPressed)
         {
             shopperState->chosenWeapon++;
-            if (shopperState->chosenWeapon > MAX_WEAPON_TYPE)
+            if (shopperState->chosenWeapon > MAX_WEAPON_TYPE - 1)
             {
-                shopperState->chosenWeapon = 0;
+                shopperState->chosenWeapon = 1;
             }
+        }
+        if (inputState->player[i].leftPressed)
+        {
+            shopperState->chosenWeapon--;
+            if (shopperState->chosenWeapon < 1)
+            {
+                shopperState->chosenWeapon = MAX_WEAPON_TYPE - 1;
+            }
+        }
+        if (inputState->player[i].wepSelectPressed)
+        {
+            shopperState->ready = !shopperState->ready;
         }
         if (inputState->player[i].attackPressed)
         {
-            if (shopperState->chosenWeapon == MAX_WEAPON_TYPE)
+            if (buyItem(&shopperState->shoppingCart, &shopperState->wallet, shopperState->chosenWeapon, 1))
             {
-                shopperState->ready = !shopperState->ready;
+                printf("Player %d bought %d\n", i, shopperState->chosenWeapon);
             }
             else
             {
-                if (buyItem(&shopperState->shoppingCart, &shopperState->wallet, shopperState->chosenWeapon, 1))
-                {
-                    printf("Player %d bought %d\n", i, shopperState->chosenWeapon);
-                }
-                else
-                {
-                    printf("Player %d could not buy %d\n", i, shopperState->chosenWeapon);
-                }
+                printf("Player %d could not buy %d\n", i, shopperState->chosenWeapon);
             }
         }
     }

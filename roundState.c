@@ -334,6 +334,11 @@ static void bombDefaultUpdate(Bomb* bomb, const RoundState* roundState)
     const float friction = 0.7f;
     bomb->velocity = Vector2Scale(bomb->velocity, 0.7f);
     bomb->position = Vector2Add(bomb->position, Vector2Scale(bomb->velocity, GetFrameTime()));
+    // if we find ourselves in a wall, stick
+    if (cellTypeAtPoint(bomb->position, roundState->playfield) != AIR)
+    {
+        bomb->velocity = (Vector2){0.0f, 0.0f};
+    }
 }
 
 static void grenadeUpdate(Bomb* bomb, const RoundState* RoundState)

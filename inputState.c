@@ -36,6 +36,8 @@ static void initPlayerInputState(PlayerInputState *pInput)
     pInput->attackPressed = false;
     pInput->attackReleased = false;
     pInput->wepSelectPressed = false;
+    pInput->leftPressed = false;
+    pInput->rightPressed = false;
 }
 
 static void initPlayerBindings(PlayerBindings* pBindings, int playerNum)
@@ -121,12 +123,22 @@ static void updatePlayerInputState(PlayerInputState* pInput, PlayerBindings* pBi
     {
         pInput->wepSelectPressed = true;
     }
+    if (IsKeyPressed(pBindings->bindings[LEFT].key))
+    {
+        pInput->leftPressed = true;
+    }
+    if (IsKeyPressed(pBindings->bindings[RIGHT].key))
+    {
+        pInput->rightPressed = true;
+    }
     if (IsGamepadAvailable(gamepadNum))
     {
         pInput->attack = pInput->attack || IsGamepadButtonDown(gamepadNum, GAMEPAD_BUTTON_RIGHT_FACE_DOWN);
         pInput->attackPressed = pInput->attackPressed || IsGamepadButtonPressed(gamepadNum, GAMEPAD_BUTTON_RIGHT_FACE_DOWN);
         pInput->attackReleased = pInput->attackReleased || IsGamepadButtonReleased(gamepadNum, GAMEPAD_BUTTON_RIGHT_FACE_DOWN);
         pInput->wepSelectPressed = pInput->wepSelectPressed || IsGamepadButtonPressed(gamepadNum, GAMEPAD_BUTTON_RIGHT_FACE_LEFT);
+        pInput->leftPressed = pInput->leftPressed || IsGamepadButtonPressed(gamepadNum, GAMEPAD_BUTTON_LEFT_FACE_LEFT);
+        pInput->rightPressed = pInput->rightPressed || IsGamepadButtonPressed(gamepadNum, GAMEPAD_BUTTON_LEFT_FACE_RIGHT);
     }
 }
 
