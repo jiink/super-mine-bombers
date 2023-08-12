@@ -93,7 +93,7 @@ CellProperties cellProperties[MAX_CELL_TYPES] = {
         .solid = true,
     },
     [STONE] = {
-        .resistance = 2.0f,
+        .resistance = 4.0f,
         .solid = true,
     },
     [TREASURE] = {
@@ -403,7 +403,7 @@ static void initPlayfield(Cell playfield[FIELD_H][FIELD_W]){
             float noiseVal = perlin2d(col, row, 0.4, 1);
             //printf("noise val: %f\n", noiseVal);
             // Make the type random dirt or stone
-            switch ((int)(noiseVal * 2.0f))
+            switch ((int)(noiseVal * 1.5f))
             {
                 case 0:
                     cell->type = DIRT;
@@ -587,7 +587,7 @@ static void updatePlayer(RoundState* state, int playerNum, const PlayerInputStat
     Vector2 desiredPosition = Vector2Add(playerPos, Vector2Scale(player->velocity, GetFrameTime()));
     Vector2 destination = desiredPosition;
 
-    // Check if the player (point) is trying to move into a solid cell (rectanlge)
+    // Check if the player (point) is trying to move into a solid cell
     if (cellTypeAtPoint(desiredPosition, state->playfield))
     {
         player->velocity = (Vector2) { 0.0f, 0.0f };
@@ -602,6 +602,11 @@ static void updatePlayer(RoundState* state, int playerNum, const PlayerInputStat
     {
         // If so, don't move vertically
         destination.y = playerPos.y;
+    }
+    // if destination is still inside a wall, just undo lol
+    if (cellTypeAtPoint(destination, state->playfield))
+    {
+        destination = playerPos;
     }
     player->position = destination;
 
