@@ -5,6 +5,7 @@
 #include "include/raymath.h"
 #include "include/hex.h"
 #include "include/roundState.h"
+#include "include/perlin.h"
 #include "roundState.h"
 
 Axial playerSpawnPoints[MAX_PLAYERS] = {
@@ -399,8 +400,10 @@ static void initPlayfield(Cell playfield[FIELD_H][FIELD_W]){
         for (int row = 0; row < FIELD_H; row++)
         {
             Cell* cell = &playfield[row][col];
+            float noiseVal = perlin2d(col, row, 0.4, 1);
+            //printf("noise val: %f\n", noiseVal);
             // Make the type random dirt or stone
-            switch (GetRandomValue(0, 3))
+            switch ((int)(noiseVal * 2.0f))
             {
                 case 0:
                     cell->type = DIRT;
@@ -408,12 +411,14 @@ static void initPlayfield(Cell playfield[FIELD_H][FIELD_W]){
                 case 1:
                     cell->type = STONE;
                     break;
-                case 2:
-                    cell->type = TREASURE;
                     break;
                 default:
                     cell->type = DIRT;
                     break;
+            }
+            if (GetRandomValue(0, 100) < 1)
+            {
+                cell->type = TREASURE;
             }
             cell->health = 100;
         }

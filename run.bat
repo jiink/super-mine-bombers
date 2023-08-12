@@ -1,1 +1,1 @@
-gcc main.c roundState.c matchState.c roundRender.c matchRender.c inputState.c hex.c vitmap.c -o main.exe -O1 -Wall -std=c99 -Wno-missing-braces -I include/ -L lib/ -lraylib -llibtess2 -lopengl32 -lgdi32 -lwinmm && main.exe
+gcc main.c roundState.c matchState.c roundRender.c matchRender.c inputState.c hex.c vitmap.c perlin.c -o main.exe -O1 -Wall -std=c99 -Wno-missing-braces -I include/ -L lib/ -lraylib -llibtess2 -lopengl32 -lgdi32 -lwinmm && main.exe
