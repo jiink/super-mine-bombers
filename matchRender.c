@@ -38,7 +38,6 @@ static void drawBuyingPhase(const MatchState* matchState)
         }
         else
         {
-            
             // Draw more aggressive ready prompt if everyone else is ready but not this person
             bool onlyOneNotReady = true;
             for (int j = 0; j < matchState->numPlayers; j++)
@@ -61,9 +60,8 @@ static void drawBuyingPhase(const MatchState* matchState)
             }
         }
     
-        // Draw the chosen weapons
-    
-        DrawText(TextFormat("Chosen weapon: %s", getWeaponName(shopper->chosenWeapon)), i * GetScreenWidth() / matchState->numPlayers + 10, GetScreenHeight() - 60, 20, WHITE);
+        // Draw the chosen weapon with its price
+        DrawText(TextFormat("Chosen weapon: %s ($%d)", getWeaponName(shopper->chosenWeapon), getWeaponProperties(shopper->chosenWeapon).price), i * GetScreenWidth() / matchState->numPlayers + 10, GetScreenHeight() - 60, 20, WHITE);
     
     }
     
