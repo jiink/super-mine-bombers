@@ -242,17 +242,21 @@ static void initSounds()
 // Find the distance that lies between the 2 players who are the farthest apart
 static float getPlayersGreatestDistance(const Player players[MAX_PLAYERS])
 {
-    int numPlayers = getNumAlivePlayers(players);
+    int numAlivePlayers = getNumAlivePlayers(players);
     float greatestDistance = 0.1f;
-    if (numPlayers < 2)
+    if (numAlivePlayers < 2)
     {
         return greatestDistance;
     }
     // Check every combination
-    for (int i = 0; i < numPlayers; i++)
-    {
-        for (int j = 0; j < numPlayers; j++)
+    bool foundFirst = false;
+    for (int i = 0; i < MAX_PLAYERS; i++)
+    {        
+        if (!players[i].active) continue;
+        for (int j = 0; j < MAX_PLAYERS; j++)
         {
+            if (i == j) continue;
+            if (!players[j].active) continue;
             float dist = Vector2Length(Vector2Subtract(players[i].position, players[j].position));
             if (dist > greatestDistance)
             {
@@ -297,7 +301,7 @@ static void updateCamera(Camera2D *cam, const Player players[MAX_PLAYERS], float
 
     // Determine 🔍 zoom needed to have all players 👯‍♂️👯‍♀️ in view
     float zoomMultiplier = 1.0f;
-	float minZoom = 7.0f;
+	float minZoom = 2.0f;
 	float maxZoom = 100.0f;
 	float zoomTarget = zoomMultiplier * (GetScreenHeight() / getPlayersGreatestDistance(players));
 	if (zoomTarget < minZoom) zoomTarget = minZoom;
