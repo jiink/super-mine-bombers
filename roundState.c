@@ -434,7 +434,7 @@ static void initPlayers(Player players[MAX_PLAYERS], int numPlayers, int* wallet
         players[i].health = 100;
         players[i].score = 0;
         players[i].active = false;
-        players[i].color = playerColors[i];
+        players[i].playerNum = i;
         clearInventory(&players[i]);
         players[i].activeSlot = 0;
         players[i].facingDirection = (Vector2) { 1.0f, 0.0f };

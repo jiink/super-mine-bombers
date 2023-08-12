@@ -51,7 +51,7 @@ typedef struct {
 typedef struct {
     bool active;
     int health;
-    Color color;
+    int playerNum;
     int score;
     int* wallet;
     WeaponSlot inventory[INVENTORY_SIZE];

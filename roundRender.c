@@ -79,7 +79,7 @@ void drawRoundState(const RoundState *state, const InputState *input)
         const Player* player = &state->players[i];
         if (!player->active) continue;
         Vector2 drawPos = { 10.0f, 10.0f + 20.0f * i };
-        DrawText(TextFormat("%s: %d", getWeaponName(player->inventory[player->activeSlot].type), player->inventory[player->activeSlot].quantity), drawPos.x, drawPos.y, 20, state->players[i].color);
+        DrawText(TextFormat("%s: %d", getWeaponName(player->inventory[player->activeSlot].type), player->inventory[player->activeSlot].quantity), drawPos.x, drawPos.y, 20, playerColors[state->players[i].playerNum]);
     }
     // Draw player 1's:
     // DrawText(TextFormat("Speed: %f", state->players[0].velocity.y), 10, 100, 20, state->players[0].color);
@@ -145,7 +145,7 @@ static void drawPlayer(const Player* player)
 	Vector2 drawPos = worldToDrawCoords(player->position);
 	//DrawCircleV(drawPos, diameter, player->color);
 	// Draw health ring
-	DrawRing(drawPos, diameter + 0.1f, diameter + 0.2f, 0, player->health * 1.80f, 30, player->color);
+	DrawRing(drawPos, diameter + 0.1f, diameter + 0.2f, 0, player->health * 1.80f, 30, playerColors[player->playerNum]);
     // Draw sprite
     drawVitmap(characterSprite,
         Vector2Add(drawPos, (Vector2) {-0.35f, -0.75f}),
