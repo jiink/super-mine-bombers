@@ -66,6 +66,7 @@ typedef struct {
     float friction;
     WeaponType heldBomb;
     bool playDeploySound;
+    bool isWinner;
 } Player;
 
 // Struct to represent a bomb entity

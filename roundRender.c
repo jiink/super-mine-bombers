@@ -63,7 +63,8 @@ void drawRoundState(const RoundState *state, const InputState *input)
         drawPlayers(state->players);
         drawBombs(state->bombs);
 
-        updateCamera(&camera, state->players, 0.1);
+        // Don't move the camera during the little wait period when the round is over
+        if (!state->roundOver) updateCamera(&camera, state->players, 0.1);
         //camera.zoom += ((float)GetMouseWheelMove() * 3.0f);
 
     EndMode2D();
@@ -146,6 +147,11 @@ static void drawPlayer(const Player* player)
 	//DrawCircleV(drawPos, diameter, player->color);
 	// Draw health ring
 	DrawRing(drawPos, diameter + 0.1f, diameter + 0.2f, 0, player->health * 1.80f, 30, playerColors[player->playerNum]);
+    // Draw highlight under winners
+    if (player->isWinner)
+    {
+        DrawCircleV(drawPos, 1.0f * ((int)(GetTime() * 16) % 2 == 1), playerColors[player->playerNum]);
+    }
     // Draw sprite
     drawVitmap(characterSprite,
         Vector2Add(drawPos, (Vector2) {-0.35f, -0.75f}),

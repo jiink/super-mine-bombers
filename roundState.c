@@ -144,6 +144,14 @@ void updateRoundState(RoundState* state, const InputState* input)
     if (gameOverCondition(state))
     {
         state->roundOver = true;
+        // folks who are still alive are marked as winner
+        for (int i = 0; i < MAX_PLAYERS; i++)
+        {
+            if (state->players[i].active)
+            {
+                state->players[i].isWinner = true;
+            }
+        }
     }
     // Press R to skip round
     if (IsKeyPressed(KEY_R))
@@ -447,6 +455,7 @@ static void initPlayers(Player players[MAX_PLAYERS], int numPlayers, int* wallet
         players[i].wallet = wallets[i];
         players[i].heldBomb = NONE;
         players[i].playDeploySound = false;
+        players[i].isWinner = false;
     }
     for (int i = 0; i < numPlayers; i++)
     {
