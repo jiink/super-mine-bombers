@@ -79,7 +79,7 @@ Vitmap* createVitmap()
 
 void addPointToShape(Shape* shape, Vector2 point)
 {
-    printf("adding point to shape. current count: %d\n", shape->numPoints);
+    //printf("adding point to shape. current count: %d\n", shape->numPoints);
     shape->points = (Vector2*)realloc(shape->points, (shape->numPoints + 1) * sizeof(Vector2));
     shape->points[shape->numPoints] = point;
     shape->numPoints++;
@@ -118,7 +118,7 @@ void removePointFromShape(Shape *shape, Vector2 *point)
 
 void addShapeToVitmap(Vitmap* vitmap)
 {
-    printf("Shapes pointer before: %p\n", vitmap->shapes);
+    //printf("Shapes pointer before: %p\n", vitmap->shapes);
     // Increment the number of shapes in the vitmap
     vitmap->numShapes++;
   

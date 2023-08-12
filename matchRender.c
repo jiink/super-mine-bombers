@@ -1,5 +1,11 @@
 #include "matchRender.h"
 #include "roundState.h"
+#include <stdio.h>
+
+Music shopMusic;
+bool shopMusicPause = true;
+Music fightMusic;
+bool fightMusicPause = true;
 
 static void drawBuyingPhase(const MatchState* matchState)
 {
@@ -43,8 +49,31 @@ static void drawBuyingPhase(const MatchState* matchState)
     
 }
 
+void initMatchRender()
+{
+    shopMusic = LoadMusicStream("assets/music/mine_bombers.ogg");
+    fightMusic = LoadMusicStream("assets/music/grenade_swing.ogg");
+    PlayMusicStream(shopMusic);
+    //printf(">>>>>>>>>>>>>>>>>>>> initMatchRender\n");
+    //PauseMusicStream(shopMusic);
+    PlayMusicStream(fightMusic);
+    PauseMusicStream(fightMusic);
+}
+
 void drawMatchState(const MatchState* matchState, const InputState* input)
 {
+    UpdateMusicStream(shopMusic);
+    UpdateMusicStream(fightMusic);
+    if (matchState->startShopMusic)
+    {
+        PauseMusicStream(fightMusic);
+        ResumeMusicStream(shopMusic);
+    }
+    if (matchState->startFightMusic)
+    {
+        PauseMusicStream(shopMusic);
+        ResumeMusicStream(fightMusic);
+    }
     BeginDrawing();
         switch (matchState->phase)
         {

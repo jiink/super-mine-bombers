@@ -27,6 +27,8 @@ typedef struct {
     ShopperState shopperStates[MAX_PLAYERS];
     int numPlayers;
     float roundOverTimer;
+    bool startShopMusic;
+    bool startFightMusic;
 } MatchState;
 
 void initMatchState(MatchState* matchState);

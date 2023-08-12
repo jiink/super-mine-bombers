@@ -48,7 +48,7 @@ void initRoundRender(int screenWidth, int screenHeight)
 {
     rlDisableBackfaceCulling(); // TODO: Turn clockwise triangles into counter-clockwise ones during vitmap shape baking so we don't have to do this
     initCamera(screenWidth, screenHeight);
-    characterSprite = loadAndBakeVitmap("assets/cubil.vmp");
+    characterSprite = loadAndBakeVitmap("assets/vitmaps/cubil.vmp");
     initSounds();
 }
 
@@ -217,7 +217,7 @@ static void initExplosionSound()
 {
     for (int i = 0; i < NUM_EXPLOSION_SOUNDS; i++)
     {
-        explosionSounds[i] = LoadSound(TextFormat("assets/explode%d.ogg", i + 1));
+        explosionSounds[i] = LoadSound(TextFormat("assets/sfx/explode%d.ogg", i + 1));
     }
 }
 
@@ -230,7 +230,7 @@ static void playExplosionSound()
 static void initSounds()
 {
     initExplosionSound();
-    deploySound = LoadSound("assets/deploy.ogg");
+    deploySound = LoadSound("assets/sfx/deploy.ogg");
 }
 
 // Find the distance that lies between the 2 players who are the farthest apart

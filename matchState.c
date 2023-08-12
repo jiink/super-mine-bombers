@@ -47,8 +47,10 @@ void initMatchState(MatchState *matchState)
 {
     matchState->phase = BUYING;
     matchState->roundNumber = 0;
-    matchState->numPlayers = 3;
+    matchState->numPlayers = 2;
     matchState->roundOverTimer = 0.0;
+    matchState->startShopMusic = true;
+    matchState->startFightMusic = false;
     initShopperStates(matchState->shopperStates, true);
     fillAllWallets(matchState->shopperStates, 20);
 
@@ -119,6 +121,7 @@ void updateBuyingPhase(MatchState* matchState, const InputState* inputState)
     if (allShoppersAreReady(matchState->shopperStates, matchState->numPlayers))
     {
         matchState->phase = FIGHTING;
+        matchState->startFightMusic = true;
         int* pointersToWallets[MAX_PLAYERS];
         getPointersToWallets(matchState->shopperStates, pointersToWallets);
         initRoundState(&matchState->roundState, matchState->numPlayers, pointersToWallets);
@@ -140,6 +143,7 @@ void updateFightingPhase(MatchState* matchState, const InputState* inputState)
             matchState->roundNumber++;
             printf("Starting round %d!\n", matchState->roundNumber);
             matchState->phase = BUYING;
+            matchState->startShopMusic = true;
             initShopperStates(matchState->shopperStates, false);
         }
     }
@@ -172,6 +176,8 @@ void letPlayersJoin(MatchState* matchState, const InputState* inputState)
 
 void updateMatchState(MatchState* matchState, const InputState* inputState)
 {
+    matchState->startShopMusic = false;
+    matchState->startFightMusic = false;
     switch (matchState->phase)
     {
         case BUYING:

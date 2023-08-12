@@ -28,6 +28,7 @@ int main(void)
 	SetWindowState(FLAG_VSYNC_HINT);
 
     InitAudioDevice();
+    initMatchRender();
 
     initRoundRender(screenWidth, screenHeight);
     while (!WindowShouldClose())
@@ -36,6 +37,8 @@ int main(void)
         updateMatchState(&matchState, &inputState);
         drawMatchState(&matchState, &inputState);
     }
+
+    // TODO: Unload assets
 
     CloseAudioDevice();     // Close audio device
 
