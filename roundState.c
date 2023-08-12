@@ -31,7 +31,7 @@ WeaponProperties weaponProperties[MAX_WEAPON_TYPE] = {
         .startingFuse = 2.0f,
         .damage = 150,
         .radius = 6,
-        .price = 1,
+        .price = 2,
         .detonationFunc = explode,
         .updateFunc = bombDefaultUpdate,
         },            
@@ -49,7 +49,7 @@ WeaponProperties weaponProperties[MAX_WEAPON_TYPE] = {
         .startingFuse = 3.0f,
         .damage = 500,
         .radius = 40,
-        .price = 3,
+        .price = 5,
         .detonationFunc = sharpBombDetonate,
         .updateFunc = bombDefaultUpdate,
         },
@@ -70,6 +70,15 @@ WeaponProperties weaponProperties[MAX_WEAPON_TYPE] = {
         .price = 1,
         .detonationFunc = explode,
         .updateFunc = grenadeUpdate,
+        },
+    [NUKE] = {
+        .name = "Nuke",
+        .startingFuse = 10.0f,
+        .damage = 1000,
+        .radius = 32,
+        .price = 50,
+        .detonationFunc = explode,
+        .updateFunc = bombDefaultUpdate,
         },
 };
 
@@ -650,6 +659,26 @@ static void updatePlayers(RoundState* state, const InputState* input)
         if (state->players[i].active)
         {
             updatePlayer(state, i, &input->player[i]);
+        }
+    }
+
+    // If everyone is out of weapons, hurt everyone
+    int numPlayers = getNumAlivePlayers(state->players);
+    int numUsedSlots = getNumInventorySlotsUsed(state->players);
+    static int healthT = 0;
+    if (numPlayers > 0 && numUsedSlots == 0)
+    {
+        healthT++;
+        for (int i = 0; i < MAX_PLAYERS; i++)
+        {
+            if (state->players[i].active && healthT % 20 == 0)
+            {
+                state->players[i].health -= 1;
+                if (state->players[i].health <= 0)
+                {
+                    state->players[i].active = false;
+                }
+            }
         }
     }
 }

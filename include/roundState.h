@@ -7,7 +7,7 @@
 #include "inputState.h"
 
 #define INVENTORY_SIZE 8
-#define MAX_BOMBS 32
+#define MAX_BOMBS 128
 
 // Enum to represent the type of a cell
 typedef enum {
@@ -37,6 +37,7 @@ typedef enum {
     SHARP_BOMB,
     ROLLER,
     GRENADE,
+    NUKE,
     MAX_WEAPON_TYPE
 } WeaponType;
 

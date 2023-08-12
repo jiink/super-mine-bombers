@@ -35,7 +35,7 @@ void initShopperStates(ShopperState shopperStates[MAX_PLAYERS], bool clearCarts)
     for (int i = 0; i < MAX_PLAYERS; i++)
     {
         shopperStates[i].ready = false;
-        shopperStates[i].chosenWeapon = 0;
+        shopperStates[i].chosenWeapon = BOMB;
         if (clearCarts)
         {
             clearShoppingCart(&shopperStates[i].shoppingCart);
@@ -47,16 +47,16 @@ void initMatchState(MatchState *matchState)
 {
     matchState->phase = BUYING;
     matchState->roundNumber = 0;
-    matchState->numPlayers = 2;
+    matchState->numPlayers = 3;
     matchState->roundOverTimer = 0.0;
     initShopperStates(matchState->shopperStates, true);
     fillAllWallets(matchState->shopperStates, 20);
 
     // Automatic buying for the first round to quicken debugging
-    buyItem(&matchState->shopperStates[0].shoppingCart, &matchState->shopperStates[0].wallet, ROLLER, 20);
-    buyItem(&matchState->shopperStates[1].shoppingCart, &matchState->shopperStates[1].wallet, BOMB, 20);
-    matchState->shopperStates[0].ready = true;
-    matchState->shopperStates[1].ready = true;
+    // buyItem(&matchState->shopperStates[0].shoppingCart, &matchState->shopperStates[0].wallet, ROLLER, 20);
+    // buyItem(&matchState->shopperStates[1].shoppingCart, &matchState->shopperStates[1].wallet, BOMB, 20);
+    // matchState->shopperStates[0].ready = true;
+    // matchState->shopperStates[1].ready = true;
 }
 
 static bool allShoppersAreReady(const ShopperState shoppers[MAX_PLAYERS], int numPlayers)
