@@ -58,7 +58,7 @@ void initMatchState(MatchState *matchState)
     // Automatic buying for the first round to quicken debugging
     for (int i = 0; i < matchState->numPlayers; i++)
     {
-        // buyItem(&matchState->shopperStates[i].shoppingCart, &matchState->shopperStates[i].wallet, BOMB, 10);
+        buyItem(&matchState->shopperStates[i].shoppingCart, &matchState->shopperStates[i].wallet, GRENADE, 10);
         matchState->shopperStates[i].ready = true;
     }
 }

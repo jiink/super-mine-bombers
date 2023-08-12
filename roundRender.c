@@ -8,7 +8,7 @@
 #include "include/vitmap.h"
 #include "include/rlgl.h"
 
-#define NUM_EXPLOSION_SOUNDS 4
+#define NUM_EXPLOSION_SOUNDS 3
 
 Camera2D camera = { 0 };
 
@@ -187,6 +187,8 @@ static void drawBomb(const Bomb* bomb)
 {
     float diameter = sinf(bomb->fuseTimer * 30.0f) * 0.1f + 0.2f;
     Vector2 drawCoords = worldToDrawCoords(bomb->position);
+    // Show the height
+    drawCoords.y -= bomb->height * 5.0f;
     DrawCircleV(drawCoords, diameter + 0.1f, WHITE);
     switch (bomb->type)
     {
@@ -198,6 +200,15 @@ static void drawBomb(const Bomb* bomb)
             break;
         case SHARP_BOMB:
             DrawCircleV(drawCoords, diameter, GREEN);
+            break;
+        case GRENADE:
+            DrawCircleV(drawCoords, diameter, YELLOW);
+            break;
+        case ROLLER:
+            DrawCircleV(drawCoords, diameter, PURPLE);
+            break;
+        case NUKE:
+            DrawCircleV(drawCoords, diameter, ORANGE);
             break;
         default:
             break;
@@ -251,7 +262,6 @@ static float getPlayersGreatestDistance(const Player players[MAX_PLAYERS])
         return greatestDistance;
     }
     // Check every combination
-    bool foundFirst = false;
     for (int i = 0; i < MAX_PLAYERS; i++)
     {        
         if (!players[i].active) continue;

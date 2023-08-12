@@ -89,15 +89,15 @@ CellProperties cellProperties[MAX_CELL_TYPES] = {
         .solid = false,
     },
     [DIRT] = {
-        .resistance = 1.0f,
+        .resistance = 0.5f,
         .solid = true,
     },
     [STONE] = {
-        .resistance = 10.0f,
+        .resistance = 5.0f,
         .solid = true,
     },
     [TREASURE] = {
-        .resistance = 0.5f,
+        .resistance = 0.1f,
         .solid = true,
     },
     [WALL] = {
@@ -270,7 +270,7 @@ static CellType cellTypeAtPoint(Vector2 point, const Cell playfield[FIELD_H][FIE
 
 static void damagePlayer(Player *player, int damage)
 {
-    if (!player->active)
+    if (!player->active || player->isInvincible)
     {
         return;
     }
@@ -360,17 +360,22 @@ static void bombDefaultUpdate(Bomb* bomb, const RoundState* roundState)
     }
 }
 
-static void grenadeUpdate(Bomb* bomb, const RoundState* RoundState)
+static void grenadeUpdate(Bomb* bomb, const RoundState* roundState)
 {
-    bomb->position.x += 10.0f * GetFrameTime();
+    bomb->heightVelocity += bomb->gravity * GetFrameTime();
+    bomb->height += bomb->heightVelocity * GetFrameTime();
+    bomb->position = Vector2Add(bomb->position, Vector2Scale(bomb->velocity, GetFrameTime()));
+    // if it hits the ground
+    if (bomb->height <= 0.0f)
+    {
+        bomb->velocity = Vector2Scale(bomb->velocity, 0.5f);
+        bomb->height = 0.0f;
+        bomb->heightVelocity = 2.0f;
+    }
 }
 
 static void rollerUpdate(Bomb* bomb, const RoundState* roundState)
 {
-    if (bomb->owner == NULL)
-    {
-        return;
-    }
     bomb->position = Vector2Add(bomb->position, Vector2Scale(bomb->velocity, GetFrameTime()));
     // if we find ourselves in a wall, explode
     if (cellTypeAtPoint(bomb->position, roundState->playfield) != AIR)
@@ -462,6 +467,7 @@ static void initPlayers(Player players[MAX_PLAYERS], int numPlayers, int* wallet
         players[i].heldBomb = NONE;
         players[i].playDeploySound = false;
         players[i].isWinner = false;
+        players[i].isInvincible = false;
     }
     for (int i = 0; i < numPlayers; i++)
     {
@@ -510,6 +516,10 @@ static void initBombs(Bomb bombsList[MAX_BOMBS])
         bombsList[i].owner = NULL;
         bombsList[i].velocity = (Vector2){0, 0};
         bombsList[i].playExplosionSound = false;
+        bombsList[i].type = NONE;
+        bombsList[i].height = 0.0f;
+        bombsList[i].heightVelocity = 0.0f;
+        bombsList[i].gravity = -10.0f;
     }
 }
 
@@ -527,6 +537,9 @@ static void spawnBomb(WeaponType wepType, Vector2 pos, Bomb bombsList[MAX_BOMBS]
             bombsList[i].type = wepType;
             bombsList[i].owner = owner;
             bombsList[i].velocity = initialVelocity;
+            bombsList[i].height = 0.1f;
+            bombsList[i].heightVelocity = Vector2Length(initialVelocity) * 0.2f;
+            bombsList[i].gravity = -10.0f;
             break;
         }
     }
@@ -626,7 +639,7 @@ static void updatePlayer(RoundState* state, int playerNum, const PlayerInputStat
     Axial pos = toCellCoords(desiredPosition);
     int col = pos.q;
     int row = pos.r;
-    const float miningSpeed = 600.0f; // Health per second
+    const float miningSpeed = 300.0f; // Health per second
     damageCell(row, col, miningSpeed * GetFrameTime(), state->playfield);
     // Attacking. Press attack button down to hold bomb above head. Release to put it down in front of you.
     if (pInput->attackPressed)

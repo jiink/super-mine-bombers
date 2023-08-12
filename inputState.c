@@ -49,7 +49,7 @@ static void initPlayerBindings(PlayerBindings* pBindings, int playerNum)
         pBindings->bindings[DOWN].key = KEY_S;
         pBindings->bindings[LEFT].key = KEY_A;
         pBindings->bindings[RIGHT].key = KEY_D;
-        pBindings->bindings[ATTACK].key = KEY_E;
+        pBindings->bindings[ATTACK].key = KEY_SPACE;
         pBindings->bindings[WEP_SELECT].key = KEY_Q;
         break;
     case 1:

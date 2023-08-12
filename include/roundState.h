@@ -67,6 +67,7 @@ typedef struct {
     WeaponType heldBomb;
     bool playDeploySound;
     bool isWinner;
+    bool isInvincible;
 } Player;
 
 // Struct to represent a bomb entity
@@ -74,6 +75,9 @@ typedef struct {
     bool active;
     WeaponType type;
     Vector2 position;
+    float height;
+    float heightVelocity;
+    float gravity;
     float fuseTimer;
     Player* owner;
     Vector2 velocity;
