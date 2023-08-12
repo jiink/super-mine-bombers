@@ -22,7 +22,7 @@ typedef enum {
 // Struct to represent a cell in the playfield
 typedef struct {
     CellType type;
-    char health;
+    float health;
 } Cell;
 
 typedef struct {

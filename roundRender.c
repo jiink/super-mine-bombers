@@ -146,7 +146,7 @@ static void drawPlayer(const Player* player)
 	Vector2 drawPos = worldToDrawCoords(player->position);
 	//DrawCircleV(drawPos, diameter, player->color);
 	// Draw health ring
-	DrawRing(drawPos, diameter + 0.1f, diameter + 0.2f, 0, player->health * 1.80f, 30, playerColors[player->playerNum]);
+	DrawRing(drawPos, diameter + 0.1f, diameter + 0.2f, 0, player->health * 3.60f, 30, playerColors[player->playerNum]);
     // Draw highlight under winners
     if (player->isWinner)
     {

@@ -93,7 +93,7 @@ CellProperties cellProperties[MAX_CELL_TYPES] = {
         .solid = true,
     },
     [STONE] = {
-        .resistance = 4.0f,
+        .resistance = 10.0f,
         .solid = true,
     },
     [TREASURE] = {
@@ -118,8 +118,8 @@ static void borderPlayfield(Cell playfield[FIELD_H][FIELD_W]);
 static void initPlayfield(Cell playfield[FIELD_H][FIELD_W]);
 static void clearInventory(Player* player);
 static void initPlayers(Player players[MAX_PLAYERS], int numPlayers, int* wallets[MAX_PLAYERS]);
-static void damageCell(int row, int col, int damage, Cell playfield[FIELD_H][FIELD_W]);
-static void damageCellAtPos(Vector2 pos, int damage, Cell playfield[FIELD_H][FIELD_W]);
+static void damageCell(int row, int col, float damage, Cell playfield[FIELD_H][FIELD_W]);
+static void damageCellAtPos(Vector2 pos, float damage, Cell playfield[FIELD_H][FIELD_W]);
 static void initBombs(Bomb bombsList[MAX_BOMBS]);
 static void spawnBomb(WeaponType wepType, Vector2 pos, Bomb bombsList[MAX_BOMBS], Player* owner, Vector2 initialVelocity);
 static void updateBombs(Bomb bombsList[MAX_BOMBS], RoundState* roundState, Cell playfield[FIELD_H][FIELD_W], Player players[MAX_PLAYERS]);
@@ -293,7 +293,7 @@ static bool explode(Vector2 position, float radius, float damage, Cell playfield
             if (col >= 0 && col < FIELD_W && row >= 0 && row < FIELD_H)
             {
                 Axial thisCell = (Axial){.q = col, .r = row};
-                int cellDamage = damage - axialDistance(thisCell, bombCell) * 25;
+                float cellDamage = damage - axialDistance(thisCell, bombCell) * 25;
                 damageCell(row, col, cellDamage, playfield);
                 // If there are any players in this cell, damage them too
                 for (int i = 0; i < MAX_PLAYERS; i++)
@@ -416,7 +416,7 @@ static void initPlayfield(Cell playfield[FIELD_H][FIELD_W]){
                     cell->type = DIRT;
                     break;
             }
-            if (GetRandomValue(0, 100) < 1)
+            if (GetRandomValue(0, 100) < 5)
             {
                 cell->type = TREASURE;
             }
@@ -468,7 +468,7 @@ static void initPlayers(Player players[MAX_PLAYERS], int numPlayers, int* wallet
     }
 }
 
-static void damageCell(int row, int col, int damage, Cell playfield[FIELD_H][FIELD_W])
+static void damageCell(int row, int col, float damage, Cell playfield[FIELD_H][FIELD_W])
 {
     Cell* cell = &playfield[row][col];
     if (damage < 0
@@ -485,7 +485,7 @@ static void damageCell(int row, int col, int damage, Cell playfield[FIELD_H][FIE
     {
         return;
     }
-    int appliedDamage = (int)((float)damage / cellProps.resistance);
+    float appliedDamage = damage / cellProps.resistance;
     cell->health -= appliedDamage;
     if (cell->health <= 0)
     {
@@ -493,7 +493,7 @@ static void damageCell(int row, int col, int damage, Cell playfield[FIELD_H][FIE
     }
 }
 
-static void damageCellAtPos(Vector2 pos, int damage, Cell playfield[FIELD_H][FIELD_W])
+static void damageCellAtPos(Vector2 pos, float damage, Cell playfield[FIELD_H][FIELD_W])
 {
     Axial cell = toCellCoords(pos);
     damageCell(cell.r, cell.q, damage, playfield);
@@ -625,8 +625,8 @@ static void updatePlayer(RoundState* state, int playerNum, const PlayerInputStat
     Axial pos = toCellCoords(desiredPosition);
     int col = pos.q;
     int row = pos.r;
-    const int miningSpeed = 600; // Health per second
-    damageCell(row, col, (int)((float)miningSpeed * GetFrameTime()), state->playfield);
+    const float miningSpeed = 600.0f; // Health per second
+    damageCell(row, col, miningSpeed * GetFrameTime(), state->playfield);
     // Attacking. Press attack button down to hold bomb above head. Release to put it down in front of you.
     if (pInput->attackPressed)
     {
