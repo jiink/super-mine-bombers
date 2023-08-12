@@ -60,6 +60,14 @@ static void initPlayerBindings(PlayerBindings* pBindings, int playerNum)
         pBindings->bindings[ATTACK].key = KEY_O;
         pBindings->bindings[WEP_SELECT].key = KEY_U;
         break;
+    case 2:
+        pBindings->bindings[UP].key = KEY_UP;
+        pBindings->bindings[DOWN].key = KEY_DOWN;
+        pBindings->bindings[LEFT].key = KEY_LEFT;
+        pBindings->bindings[RIGHT].key = KEY_RIGHT;
+        pBindings->bindings[ATTACK].key = KEY_RIGHT_SHIFT;
+        pBindings->bindings[WEP_SELECT].key = KEY_RIGHT_CONTROL;
+        break;
     default:
         pBindings->bindings[UP].key = KEY_NULL;
         pBindings->bindings[DOWN].key = KEY_NULL;
@@ -129,7 +137,7 @@ static void updatePlayerInputState(PlayerInputState* pInput, PlayerBindings* pBi
     }
     if (IsKeyPressed(pBindings->bindings[RIGHT].key))
     {
-        pInput->rightPressed = true;
+        pInput->rightPressed = true;        
     }
     if (IsGamepadAvailable(gamepadNum))
     {

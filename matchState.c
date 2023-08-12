@@ -3,6 +3,7 @@
 #include "matchState.h"
 
 #define ROUND_OVER_WAIT_TIME 3.0
+#define NUM_PLAYERS 2
 
 // Local functions
 static void fillAllWallets(ShopperState shopperStates[MAX_PLAYERS], int amount);
@@ -47,7 +48,7 @@ void initMatchState(MatchState *matchState)
 {
     matchState->phase = BUYING;
     matchState->roundNumber = 0;
-    matchState->numPlayers = 2;
+    matchState->numPlayers = NUM_PLAYERS;
     matchState->roundOverTimer = 0.0;
     matchState->startShopMusic = true;
     matchState->startFightMusic = false;
@@ -55,10 +56,10 @@ void initMatchState(MatchState *matchState)
     fillAllWallets(matchState->shopperStates, 20);
 
     // Automatic buying for the first round to quicken debugging
-    // buyItem(&matchState->shopperStates[0].shoppingCart, &matchState->shopperStates[0].wallet, ROLLER, 20);
-    // buyItem(&matchState->shopperStates[1].shoppingCart, &matchState->shopperStates[1].wallet, BOMB, 20);
-    // matchState->shopperStates[0].ready = true;
-    // matchState->shopperStates[1].ready = true;
+    buyItem(&matchState->shopperStates[0].shoppingCart, &matchState->shopperStates[0].wallet, ROLLER, 20);
+    buyItem(&matchState->shopperStates[1].shoppingCart, &matchState->shopperStates[1].wallet, BOMB, 20);
+    matchState->shopperStates[0].ready = true;
+    matchState->shopperStates[1].ready = true;
 }
 
 static bool allShoppersAreReady(const ShopperState shoppers[MAX_PLAYERS], int numPlayers)
