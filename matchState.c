@@ -50,7 +50,7 @@ void initMatchState(MatchState *matchState)
     matchState->roundNumber = 0;
     matchState->numPlayers = NUM_PLAYERS;
     matchState->roundOverTimer = 0.0;
-    matchState->startShopMusic = true;
+    matchState->startShopMusic = false;
     matchState->startFightMusic = false;
     initShopperStates(matchState->shopperStates, true);
     fillAllWallets(matchState->shopperStates, 20);
@@ -58,7 +58,7 @@ void initMatchState(MatchState *matchState)
     // Automatic buying for the first round to quicken debugging
     for (int i = 0; i < matchState->numPlayers; i++)
     {
-        buyItem(&matchState->shopperStates[i].shoppingCart, &matchState->shopperStates[i].wallet, BOMB, 10);
+        // buyItem(&matchState->shopperStates[i].shoppingCart, &matchState->shopperStates[i].wallet, BOMB, 10);
         matchState->shopperStates[i].ready = true;
     }
 }

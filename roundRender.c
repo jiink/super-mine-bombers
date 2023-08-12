@@ -82,9 +82,11 @@ void drawRoundState(const RoundState *state, const InputState *input)
         Vector2 drawPos = { 10.0f, 10.0f + 20.0f * i };
         DrawText(TextFormat("%s: %d", getWeaponName(player->inventory[player->activeSlot].type), player->inventory[player->activeSlot].quantity), drawPos.x, drawPos.y, 20, playerColors[state->players[i].playerNum]);
     }
-    // Draw player 1's:
-    // DrawText(TextFormat("Speed: %f", state->players[0].velocity.y), 10, 100, 20, state->players[0].color);
-    // DrawText(TextFormat("Top: %f", state->players[0].defSpeed), 10, 140, 20, state->players[0].color);
+    // Draw suddent death text if it's active
+    if (state->suddenDeath)
+    {
+        DrawText("SUDDEN DEATH", 10, 10, 60, RED);
+    }
     
 }
 

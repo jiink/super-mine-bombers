@@ -87,6 +87,7 @@ typedef struct {
     Bomb bombs[MAX_BOMBS]; // MAX_BOMBS is the maximum number of bombs allowed
     float roundTime;
     bool roundOver;
+    bool suddenDeath;
 } RoundState;
 
 typedef struct {

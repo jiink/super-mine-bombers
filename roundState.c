@@ -135,6 +135,7 @@ void initRoundState(RoundState *state, int numPlayers, int* wallets[MAX_PLAYERS]
 {
     state->roundTime = 30.0f;
     state->roundOver = false;
+    state->suddenDeath = false;
     initPlayfield(state->playfield);
     initPlayers(state->players, numPlayers, wallets);
     initBombs(state->bombs);
@@ -682,10 +683,17 @@ static void updatePlayers(RoundState* state, const InputState* input)
     }
 
     // If everyone is out of weapons, hurt everyone
-    int numPlayers = getNumAlivePlayers(state->players);
-    int numUsedSlots = getNumInventorySlotsUsed(state->players);
+    state->suddenDeath = true;
+    for (int i = 0; i < MAX_PLAYERS; i++)
+    {
+        if (state->players[i].active && getNumInventorySlotsUsed(&state->players[i]) > 0)
+        {
+            state->suddenDeath = false;
+            break;
+        }
+    }
     static int healthT = 0;
-    if (numPlayers > 0 && numUsedSlots == 0)
+    if (state->suddenDeath)
     {
         healthT++;
         for (int i = 0; i < MAX_PLAYERS; i++)

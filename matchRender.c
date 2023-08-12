@@ -2,6 +2,8 @@
 #include "roundState.h"
 #include <stdio.h>
 
+#define MUSIC_ENABLE false
+
 Music shopMusic;
 bool shopMusicPause = true;
 Music fightMusic;
@@ -80,8 +82,11 @@ void initMatchRender()
 
 void drawMatchState(const MatchState* matchState, const InputState* input)
 {
-    UpdateMusicStream(shopMusic);
-    UpdateMusicStream(fightMusic);
+    if (MUSIC_ENABLE)
+    {
+        UpdateMusicStream(shopMusic);
+        UpdateMusicStream(fightMusic);
+    }
     if (matchState->startShopMusic)
     {
         PauseMusicStream(fightMusic);
