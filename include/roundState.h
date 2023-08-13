@@ -92,6 +92,7 @@ typedef struct {
     float roundTime;
     bool roundOver;
     bool suddenDeath;
+    bool playSuddenDeathSound;
 } RoundState;
 
 typedef struct {

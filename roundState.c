@@ -15,6 +15,8 @@ Axial playerSpawnPoints[MAX_PLAYERS] = {
     { 1, 1 },
 };
 
+bool previousSuddenDeath = false;
+
 // Bomb detonation prototypes
 
 static bool sharpBombDetonate(Vector2 position, float radius, float damage, Cell playfield[FIELD_H][FIELD_W], RoundState* roundState);
@@ -66,7 +68,7 @@ WeaponProperties weaponProperties[MAX_WEAPON_TYPE] = {
     [GRENADE] = {
         .name = "Grenade",
         .startingFuse = 2.0f,
-        .damage = 100,
+        .damage = 200,
         .radius = 3,
         .price = 1,
         .detonationFunc = explode,
@@ -136,6 +138,7 @@ void initRoundState(RoundState *state, int numPlayers, int* wallets[MAX_PLAYERS]
     state->roundTime = 30.0f;
     state->roundOver = false;
     state->suddenDeath = false;
+    state->playSuddenDeathSound = false;
     initPlayfield(state->playfield);
     initPlayers(state->players, numPlayers, wallets);
     initBombs(state->bombs);
@@ -143,6 +146,7 @@ void initRoundState(RoundState *state, int numPlayers, int* wallets[MAX_PLAYERS]
 
 void updateRoundState(RoundState* state, const InputState* input)
 {
+    state->playSuddenDeathSound = false;
     if (gameOverCondition(state))
     {
         state->roundOver = true;
@@ -162,6 +166,21 @@ void updateRoundState(RoundState* state, const InputState* input)
     }
     updatePlayers(state, input);
     updateBombs(state->bombs, state, state->playfield, state->players);
+
+    state->suddenDeath = true;
+    for (int i = 0; i < MAX_PLAYERS; i++)
+    {
+        if (state->players[i].active && getNumInventorySlotsUsed(&state->players[i]) > 0)
+        {
+            state->suddenDeath = false;
+            break;
+        }
+    }
+    if (state->suddenDeath && !previousSuddenDeath)
+    {
+        state->playSuddenDeathSound = true;
+    }
+    previousSuddenDeath = state->suddenDeath;
 }
 
 // Returns true if the item was given, false if there was no room
@@ -695,16 +714,7 @@ static void updatePlayers(RoundState* state, const InputState* input)
         }
     }
 
-    // If everyone is out of weapons, hurt everyone
-    state->suddenDeath = true;
-    for (int i = 0; i < MAX_PLAYERS; i++)
-    {
-        if (state->players[i].active && getNumInventorySlotsUsed(&state->players[i]) > 0)
-        {
-            state->suddenDeath = false;
-            break;
-        }
-    }
+    // During sudden death, hurt everyone
     static int healthT = 0;
     if (state->suddenDeath)
     {

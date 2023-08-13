@@ -16,6 +16,7 @@ Vitmap* characterSprite;
 
 Sound explosionSounds[NUM_EXPLOSION_SOUNDS];
 Sound deploySound;
+Sound suddenDeathSound;
 
 Color cellColorLookup[MAX_CELL_TYPES] = {
 	[AIR] = (Color) { 255, 0, 0, 100 },
@@ -88,6 +89,10 @@ void drawRoundState(const RoundState *state, const InputState *input)
         DrawText("SUDDEN DEATH", 10, 10, 60, RED);
     }
     
+    if (state->playSuddenDeathSound)
+    {
+        PlaySound(suddenDeathSound);
+    }
 }
 
 // Everything is a little squished
@@ -250,6 +255,7 @@ static void initSounds()
 {
     initExplosionSound();
     deploySound = LoadSound("assets/sfx/deploy.ogg");
+    suddenDeathSound = LoadSound("assets/sfx/ohmygah.ogg");
 }
 
 // Find the distance that lies between the 2 players who are the farthest apart
