@@ -10,8 +10,8 @@
 
 Axial playerSpawnPoints[MAX_PLAYERS] = {
     { 1, 1 },
-    { FIELD_H - 2, FIELD_W - 2 },
-    { FIELD_H - 2, 1 },
+    { FIELD_W - 2, FIELD_H - 2 },
+    { 1, FIELD_H - 2 },
     { 1, 1 },
 };
 
@@ -407,14 +407,14 @@ static void borderPlayfield(Cell playfield[FIELD_H][FIELD_W])
 {
     for (int i = 0; i < FIELD_W; i++)
     {
-        playfield[i][0].type = WALL;
-        playfield[i][FIELD_H - 1].type = WALL;
+        playfield[0][i].type = WALL;
+        playfield[FIELD_H - 1][i].type = WALL;
     }
     
     for (int i = 0; i < FIELD_H; i++)
     {
-        playfield[0][i].type = WALL;
-        playfield[FIELD_W - 1][i].type = WALL;
+        playfield[i][0].type = WALL;
+        playfield[i][FIELD_W - 1].type = WALL;
     }
 }
 
