@@ -1,0 +1,12 @@
+/*
+selling weapons back for reduced price
+more fair spawn areas
+randomize terrain between each round
+keep track of score
+make match end condition
+    - objective in middle that is surrounded byu highly epxlosive resistant material?
+solve grenade spam
+    - make more expensive 
+    - hold down button to charge throw
+        - oscillating?
+*/

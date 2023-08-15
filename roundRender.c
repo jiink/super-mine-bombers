@@ -161,8 +161,8 @@ static void drawPlayer(const Player* player)
     }
     // Draw sprite
     drawVitmap(characterSprite,
-        Vector2Add(drawPos, (Vector2) {-0.35f, -0.75f}),
-        (Vector2) { 0.05, 0.05 },
+        Vector2Add(drawPos, (Vector2) {-0.65f, -1.25f}),
+        (Vector2) { 0.08, 0.08 },
         0.0f);
     // Draw bomb over their head if they're holding one
     if (player->heldBomb != NONE)

@@ -15,7 +15,8 @@
         "roundrender.h": "c",
         "rlgl.h": "c",
         "perlin.h": "c",
-        "math.h": "c"
+        "math.h": "c",
+        "stdlib.h": "c"
     },
 	"workbench.colorCustomizations": {
 		"activityBar.background": "#511931",

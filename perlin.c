@@ -69,3 +69,8 @@ float perlin2d(float x, float y, float freq, int depth)
 
     return fin/div;
 }
+
+void setSeed(int seed)
+{
+    SEED = seed;
+}

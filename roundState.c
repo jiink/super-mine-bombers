@@ -9,10 +9,10 @@
 #include "roundState.h"
 
 Axial playerSpawnPoints[MAX_PLAYERS] = {
-    { 1, 1 },
-    { FIELD_W - 2, FIELD_H - 2 },
-    { 1, FIELD_H - 2 },
-    { 1, 1 },
+    { FIELD_W / 6, FIELD_H / 2 },
+    { 5 * FIELD_W / 6, FIELD_H / 2 },
+    { FIELD_W / 2, FIELD_H / 6 },
+    { FIELD_W / 2, 5 * FIELD_H / 6 },
 };
 
 bool previousSuddenDeath = false;
@@ -387,9 +387,9 @@ static void grenadeUpdate(Bomb* bomb, const RoundState* roundState)
     // if it hits the ground
     if (bomb->height <= 0.0f)
     {
-        bomb->velocity = Vector2Scale(bomb->velocity, 0.5f);
+        bomb->velocity = Vector2Scale(bomb->velocity, 0.25f);
         bomb->height = 0.0f;
-        bomb->heightVelocity = 2.0f;
+        bomb->heightVelocity = -bomb->heightVelocity * 0.75f;
     }
 }
 
@@ -420,12 +420,14 @@ static void borderPlayfield(Cell playfield[FIELD_H][FIELD_W])
 
 static void initPlayfield(Cell playfield[FIELD_H][FIELD_W]){
     // Fill whole field
+    setSeed(rand());
     for (int col = 0; col < FIELD_W; col++)
     {
         for (int row = 0; row < FIELD_H; row++)
         {
             Cell* cell = &playfield[row][col];
-            float noiseVal = perlin2d(col, row, 0.4, 1);
+            Vector2 cellWorldPos = toWorldCoords((Axial) {row, col});
+            float noiseVal = perlin2d(cellWorldPos.x, cellWorldPos.y, 0.4, 1);
             //printf("noise val: %f\n", noiseVal);
             // Make the type random dirt or stone
             switch ((int)(noiseVal * 1.5f))
@@ -446,6 +448,31 @@ static void initPlayfield(Cell playfield[FIELD_H][FIELD_W]){
                 cell->type = TREASURE;
             }
             cell->health = 100;
+        }
+    }
+    // Fill the top left corner and bottom right corners of arrays with walls so it ends up being a hex shape
+    int cornerSize = FIELD_W / 2;
+    for(int i = 0; i < cornerSize; i++)
+    {
+        int amountToTakeOff = cornerSize - i;
+        for (int j = 0; j < amountToTakeOff; j++)
+        {
+            Cell* cell = &playfield[i][j];
+            Cell* cellOpposite = &playfield[FIELD_H - i][FIELD_W - j];
+            cell->type = WALL;
+            cellOpposite->type = WALL;
+        }
+    }
+    // Clear some space around each spawnpoint
+    const int radius = 2;
+    for (int i = 0; i < MAX_PLAYERS; i++)
+    {
+        for (int y = -radius; y < radius; y++)
+        {
+            for (int x = -radius; x < radius; x++)
+            {
+                playfield[(int)playerSpawnPoints[i].q + y][(int)playerSpawnPoints[i].r + x].type = AIR;
+            }
         }
     }
     borderPlayfield(playfield);
@@ -651,7 +678,7 @@ static void updatePlayer(RoundState* state, int playerNum, const PlayerInputStat
         int row = pos.r;
         Cell* cell = &state->playfield[row][col];
         cell->type = AIR;
-        *player->wallet += 1;
+        *player->wallet += 9;
     }
 
     // If you push against a solid cell you start mining it
@@ -682,7 +709,7 @@ static void updatePlayer(RoundState* state, int playerNum, const PlayerInputStat
                 player->position,
                 (Vector2) { randomFloat(-0.1f, 0.1f), randomFloat(-0.1f, 0.1f) }
             );
-            spawnBomb(slot->type, bombSpawnPos, state->bombs, player, Vector2Scale(player->facingDirection, 25.0f));
+            spawnBomb(slot->type, bombSpawnPos, state->bombs, player, Vector2Scale(player->facingDirection, 15.0f));
             player->playDeploySound = true;
         }
         player->heldBomb = NONE;

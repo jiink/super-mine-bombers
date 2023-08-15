@@ -6,5 +6,6 @@
 #define OCTAVES 2
 
 float perlin2d(float x, float y, float freq, int depth);
+void setSeed(int seed);
 
 #endif // PERLIN_H

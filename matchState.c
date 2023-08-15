@@ -3,7 +3,7 @@
 #include "matchState.h"
 
 #define ROUND_OVER_WAIT_TIME 3.0
-#define NUM_PLAYERS 3
+#define NUM_PLAYERS 4
 
 // Local functions
 static void fillAllWallets(ShopperState shopperStates[MAX_PLAYERS], int amount);
