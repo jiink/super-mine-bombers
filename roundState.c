@@ -25,6 +25,7 @@ static void bombDefaultUpdate(Bomb* bomb, const RoundState* roundState);
 static void grenadeUpdate(Bomb* bomb, const RoundState* roundState);
 static void rollerUpdate(Bomb* bomb, const RoundState* roundState);
 static bool explode(Vector2 position, float radius, float damage, Cell playfield[FIELD_H][FIELD_W], RoundState* roundState);
+static Cell* getCellAtPoint(Vector2 point, const Cell playfield[FIELD_H][FIELD_W]);
 
 // Properties
 
@@ -76,7 +77,7 @@ WeaponProperties weaponProperties[MAX_WEAPON_TYPE] = {
         },
     [NUKE] = {
         .name = "Nuke",
-        .startingFuse = 10.0f,
+        .startingFuse = 12.0f,
         .damage = 1000,
         .radius = 32,
         .price = 50,
@@ -120,7 +121,8 @@ static void borderPlayfield(Cell playfield[FIELD_H][FIELD_W]);
 static void initPlayfield(Cell playfield[FIELD_H][FIELD_W]);
 static void clearInventory(Player* player);
 static void initPlayers(Player players[MAX_PLAYERS], int numPlayers, int* wallets[MAX_PLAYERS]);
-static void damageCell(int row, int col, float damage, Cell playfield[FIELD_H][FIELD_W]);
+static void damageCell(Cell* cell, float damage);
+static void damageCellAtRowCol(int row, int col, float damage, Cell playfield[FIELD_H][FIELD_W]);
 static void damageCellAtPos(Vector2 pos, float damage, Cell playfield[FIELD_H][FIELD_W]);
 static void initBombs(Bomb bombsList[MAX_BOMBS]);
 static void spawnBomb(WeaponType wepType, Vector2 pos, Bomb bombsList[MAX_BOMBS], Player* owner, Vector2 initialVelocity);
@@ -276,15 +278,21 @@ static int clampInt(int value, int min, int max)
     }
 }
 
-static CellType cellTypeAtPoint(Vector2 point, const Cell playfield[FIELD_H][FIELD_W])
+static Cell* getCellAtPoint(Vector2 point, const Cell playfield[FIELD_H][FIELD_W])
 {
     // Get the cell coordinates of the point
     int col, row;
     Axial pos = toCellCoords(point);
     col = pos.q;
     row = pos.r;
-    
-    return playfield[row][col].type;
+    col = clampInt(col, 0, FIELD_W - 1);
+    row = clampInt(row, 0, FIELD_H - 1);
+    return &playfield[row][col];
+}
+
+static CellType cellTypeAtPoint(Vector2 point, const Cell playfield[FIELD_H][FIELD_W])
+{
+    return getCellAtPoint(point, playfield)->type;
 }
 
 static void damagePlayer(Player *player, int damage)
@@ -300,39 +308,69 @@ static void damagePlayer(Player *player, int damage)
     }
 }
 
+static void explosionRay(Vector2 position, float angle, float length, float damage, Cell playfield[FIELD_H][FIELD_W], RoundState* roundState)
+{
+    const float stepSize = 0.7f;
+    int stepCount = length / stepSize;
+    Vector2 step = vec2FromAngle(angle);
+    Vector2 testPoint = position;
+    for (int i = 0; i < stepCount; i++)
+    {
+        testPoint = Vector2Add(testPoint, Vector2Scale(step, stepSize));
+        Cell* cell = getCellAtPoint(testPoint, playfield);
+        float cellHealth = cell->health;
+        if (cell->type == AIR)
+        {
+            continue;
+        }
+        damageCell(cell, damage);
+        // If there are any players in this cell, damage them too
+        for (int i = 0; i < MAX_PLAYERS; i++)
+        {
+            Player* player = &roundState->players[i];
+            if (Vector2Distance(player->position, testPoint) < stepSize)
+            {
+                damagePlayer(player, damage);
+            }
+        }
+        // If this ray just destroyed the cell, move on. If the cell survived, stop.
+        if (cell->type == AIR)
+        {
+            damage -= cellHealth;
+            continue;
+        }
+        else
+        {
+            break;
+        }
+    }
+}
+
 static bool explode(Vector2 position, float radius, float damage, Cell playfield[FIELD_H][FIELD_W], RoundState* roundState)
 {
     Player* players = roundState->players;
     Bomb* bombs = roundState->bombs;
     // Get the cell coordinates of the bomb
     Axial bombCell = toCellCoords(position);
-    for (int col = (int)(bombCell.q) - radius; col <= (int)(bombCell.q) + radius; col++)
+    // Cast explosion rays
+    for (int i = 0; i < 360; i += 10)
     {
-        for (int row = (int)(bombCell.r) - radius; row <= (int)(bombCell.r) + radius; row++)
+        float rads = (float)i * DEG2RAD;
+        explosionRay(position, rads, radius, damage, playfield, roundState);
+    }
+    // Knock away bombs
+    for (int i = 0; i < MAX_BOMBS; i++)
+    {
+        Bomb* bomb = &bombs[i];
+        if (bomb->active)
         {
-            if (col >= 0 && col < FIELD_W && row >= 0 && row < FIELD_H)
-            {
-                Axial thisCell = (Axial){.q = col, .r = row};
-                float cellDamage = damage - axialDistance(thisCell, bombCell) * 25;
-                damageCell(row, col, cellDamage, playfield);
-                // If there are any players in this cell, damage them too
-                for (int i = 0; i < MAX_PLAYERS; i++)
-                {
-                    if (axialDistance(toCellCoords(players[i].position), thisCell) <= 0)
-                    {
-                        damagePlayer(&players[i], cellDamage);
-                    }
-                }
-                // If there are any active bombs in this cell, knock them away
-                for (int i = 0; i < MAX_BOMBS; i++)
-                {
-                    if (bombs[i].active && axialDistance(toCellCoords(bombs[i].position), thisCell) <= 0)
-                    {
-                        bombs[i].velocity = Vector2Add(bombs[i].velocity, Vector2Scale(Vector2Normalize(Vector2Subtract(bombs[i].position, position)), (float)cellDamage));
-                        //bombs[i].velocity = (Vector2) { 50.0f, 50.0f };
-                    }
-                }
-            }
+            bomb->velocity = Vector2Add(
+                bomb->velocity,
+                Vector2Scale(
+                    Vector2Normalize(Vector2Subtract(bomb->position, position)),
+                    damage - Vector2Distance(bomb->position, position)
+                )
+            );
         }
     }
     return true;
@@ -513,7 +551,7 @@ static void initPlayers(Player players[MAX_PLAYERS], int numPlayers, int* wallet
         players[i].heldBomb = NONE;
         players[i].playDeploySound = false;
         players[i].isWinner = false;
-        players[i].isInvincible = false;
+        players[i].isInvincible = true;
     }
     for (int i = 0; i < numPlayers; i++)
     {
@@ -521,15 +559,9 @@ static void initPlayers(Player players[MAX_PLAYERS], int numPlayers, int* wallet
     }
 }
 
-static void damageCell(int row, int col, float damage, Cell playfield[FIELD_H][FIELD_W])
+static void damageCell(Cell* cell, float damage)
 {
-    Cell* cell = &playfield[row][col];
-    if (damage < 0
-        || row < 0
-        || row >= FIELD_H
-        || col < 0
-        || col >= FIELD_W
-    )
+    if (damage < 0 || cell->type == AIR)
     {
         return;
     }
@@ -546,10 +578,25 @@ static void damageCell(int row, int col, float damage, Cell playfield[FIELD_H][F
     }
 }
 
+static void damageCellAtRowCol(int row, int col, float damage, Cell playfield[FIELD_H][FIELD_W])
+{
+    if (damage < 0
+        || row < 0
+        || row >= FIELD_H
+        || col < 0
+        || col >= FIELD_W
+    )
+    {
+        return;
+    }
+    Cell* cell = &playfield[row][col];
+    damageCell(cell, damage);
+}
+
 static void damageCellAtPos(Vector2 pos, float damage, Cell playfield[FIELD_H][FIELD_W])
 {
     Axial cell = toCellCoords(pos);
-    damageCell(cell.r, cell.q, damage, playfield);
+    damageCellAtRowCol(cell.r, cell.q, damage, playfield);
 }
 
 static void initBombs(Bomb bombsList[MAX_BOMBS])
@@ -682,11 +729,8 @@ static void updatePlayer(RoundState* state, int playerNum, const PlayerInputStat
     }
 
     // If you push against a solid cell you start mining it
-    Axial pos = toCellCoords(desiredPosition);
-    int col = pos.q;
-    int row = pos.r;
     const float miningSpeed = 300.0f; // Health per second
-    damageCell(row, col, miningSpeed * GetFrameTime(), state->playfield);
+    damageCellAtPos(desiredPosition, miningSpeed * GetFrameTime(), state->playfield);
     // Attacking. Press attack button down to hold bomb above head. Release to put it down in front of you.
     if (pInput->attackPressed)
     {
