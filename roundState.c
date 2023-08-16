@@ -103,6 +103,14 @@ CellProperties cellProperties[MAX_CELL_TYPES] = {
         .resistance = 0.1f,
         .solid = true,
     },
+    [SUPER_TREASURE] = {
+        .resistance = 0.1f,
+        .solid = true,
+    },
+    [METAL] = {
+        .resistance = 500.0f,
+        .solid = true,
+    },
     [WALL] = {
         .resistance = 999999.0f,
         .solid = true,
@@ -310,7 +318,7 @@ static void damagePlayer(Player *player, int damage)
 
 static void explosionRay(Vector2 position, float angle, float length, float damage, Cell playfield[FIELD_H][FIELD_W], RoundState* roundState)
 {
-    const float stepSize = 0.7f;
+    const float stepSize = 0.3f;
     int stepCount = length / stepSize;
     Vector2 step = vec2FromAngle(angle);
     Vector2 testPoint = position;
@@ -348,10 +356,6 @@ static void explosionRay(Vector2 position, float angle, float length, float dama
 
 static bool explode(Vector2 position, float radius, float damage, Cell playfield[FIELD_H][FIELD_W], RoundState* roundState)
 {
-    Player* players = roundState->players;
-    Bomb* bombs = roundState->bombs;
-    // Get the cell coordinates of the bomb
-    Axial bombCell = toCellCoords(position);
     // Cast explosion rays
     for (int i = 0; i < 360; i += 10)
     {
@@ -361,7 +365,7 @@ static bool explode(Vector2 position, float radius, float damage, Cell playfield
     // Knock away bombs
     for (int i = 0; i < MAX_BOMBS; i++)
     {
-        Bomb* bomb = &bombs[i];
+        Bomb* bomb = &roundState->bombs[i];
         if (bomb->active)
         {
             bomb->velocity = Vector2Add(
@@ -409,11 +413,13 @@ static void bombDefaultUpdate(Bomb* bomb, const RoundState* roundState)
 {
     const float friction = 0.7f;
     bomb->velocity = Vector2Scale(bomb->velocity, friction);
+    Vector2 prevPos = bomb->position;
     bomb->position = Vector2Add(bomb->position, Vector2Scale(bomb->velocity, GetFrameTime()));
     // if we find ourselves in a wall, stick
     if (cellTypeAtPoint(bomb->position, roundState->playfield) != AIR)
     {
         bomb->velocity = (Vector2){0.0f, 0.0f};
+        bomb->position = prevPos;
     }
 }
 
@@ -514,11 +520,15 @@ static void initPlayfield(Cell playfield[FIELD_H][FIELD_W]){
         }
     }
     borderPlayfield(playfield);
-    for (int i = 1; i < 5; i++)
+    // Place the objective and a metal barrier around it
+    for (int y = -1; y < 2; y++)
     {
-        playfield[1][i].type = AIR;
-        playfield[i][1].type = AIR;
+        for (int x = -1; x < 2; x++)
+        {
+            playfield[(FIELD_H / 2) + y][(FIELD_W / 2) + x].type = METAL;
+        }
     }
+    playfield[FIELD_H / 2][FIELD_W / 2].type = SUPER_TREASURE;
 }
 
 static void clearInventory(Player* player)

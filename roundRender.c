@@ -23,6 +23,8 @@ Color cellColorLookup[MAX_CELL_TYPES] = {
 	[DIRT] = BROWN,
 	[STONE] = GRAY,
 	[TREASURE] = YELLOW,
+    [SUPER_TREASURE] = GREEN,
+    [METAL] = DARKBLUE,
 	[WALL] = ORANGE,
 };
 

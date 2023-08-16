@@ -15,6 +15,8 @@ typedef enum {
     DIRT,
     STONE,
     TREASURE,
+    SUPER_TREASURE,
+    METAL,
     WALL,
     MAX_CELL_TYPES
 } CellType;
