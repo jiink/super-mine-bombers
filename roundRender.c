@@ -161,10 +161,19 @@ static void drawPlayer(const Player* player)
     {
         DrawCircleV(drawPos, 1.0f * ((int)(GetTime() * 16) % 2 == 1), playerColors[player->playerNum]);
     }
+    const Vector2 baseScale = { 0.08f, 0.08f };
+    // make them bounce when they're moving
+    Vector2 scale = Vector2One();
+    float playerSpeed = Vector2Length(player->velocity);
+    if (playerSpeed > 0.1f)
+    {
+        scale.y = sinf(6.0f * (player->position.x + player->position.y)) * playerSpeed * 0.02f + 1.0f;
+        scale.x = -sinf(6.0f * (player->position.x + player->position.y)) * playerSpeed * 0.02f + 1.0f;
+    }
     // Draw sprite
     drawVitmap(characterSprite,
-        Vector2Add(drawPos, (Vector2) {-0.65f, -1.25f}),
-        (Vector2) { 0.08, 0.08 },
+        Vector2Add(drawPos, Vector2Zero()),
+        Vector2Multiply(baseScale, scale),
         0.0f);
     // Draw bomb over their head if they're holding one
     if (player->heldBomb != NONE)

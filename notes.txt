@@ -9,4 +9,10 @@ solve grenade spam
     - make more expensive 
     - hold down button to charge throw
         - oscillating?
+maybe, a match ends when the supertreasure in the center is collected (it is surrounded by tough material)
+    - maybe each round is a "floor" or "level" where in the middle (or somewhere else) is a hatch or ladder that is surrounded by tough stuff
+    - the last person left behind is the one who loses (maybe just loses a point or doesn't get a bonus, idk)
+    - can configure how many floors long a match is
+    - if there is last man standing, the round restarts on the same floor. only continue to next floor if at least 1 person made it to the hatch. that way, there could be progression of explosive power needed to break through the material around the hatch.
+    - maybe the playfield size gets bigger as the floors go on
 */
